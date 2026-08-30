@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UE5 Shader 系统 — 系列文档导航</title>
+<style>
+  :root {
+    --bg: #f8f9fa; --fg: #212529; --sidebar-bg: #eef1f4; --sidebar-fg: #495057;
+    --accent: #0d6efd; --accent-light: #e7f1ff; --border: #dee2e6;
+    --card-bg: #ffffff; --code-bg: #f1f3f5; --table-header: #dee2e6;
+    --link: #0d6efd; --hover-bg: #dbe4ff; --muted: #6c757d;
+    --warn-bg: #fff3bf; --warn-fg: #92400e; --note-bg: #e7f5ff; --note-fg: #1864ab;
+    --ok-bg: #d3f9d8; --ok-fg: #2b8a3e;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "Segoe UI", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+    background: var(--bg); color: var(--fg); line-height: 1.75;
+  }
+
+  .sidebar {
+    position: fixed; left: 0; top: 0; width: 300px; height: 100vh;
+    background: var(--sidebar-bg); overflow-y: auto; z-index: 100;
+    border-right: 1px solid var(--border);
+  }
+  .sidebar-header { padding: 24px 20px 16px; border-bottom: 1px solid var(--border); }
+  .sidebar-header h1 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .sidebar-header p  { font-size: 13px; color: var(--muted); }
+  .sidebar nav { padding: 12px 0 32px; }
+  .sidebar nav .group {
+    font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted); padding: 14px 20px 6px; font-weight: 700;
+  }
+  .sidebar nav a {
+    display: block; padding: 7px 20px 7px 28px; color: var(--sidebar-fg);
+    text-decoration: none; font-size: 14px; border-left: 3px solid transparent;
+  }
+  .sidebar nav a:hover { background: var(--hover-bg); color: var(--fg); }
+  .sidebar nav a.active { background: var(--accent-light); color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+  .sidebar nav a .num { display: inline-block; width: 24px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  .main { margin-left: 300px; padding: 40px 48px 80px; max-width: 1080px; }
+  h1.page-title { font-size: 30px; margin-bottom: 6px; }
+  .subtitle { color: var(--muted); margin-bottom: 32px; font-size: 15px; }
+
+  section { margin-bottom: 44px; scroll-margin-top: 20px; }
+  h2 {
+    font-size: 21px; margin-bottom: 14px; padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent); display: inline-block;
+  }
+  h3 { font-size: 16px; margin: 22px 0 10px; }
+  p { margin-bottom: 12px; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .card {
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 18px 20px; box-shadow: var(--shadow); transition: transform .15s, box-shadow .15s;
+  }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,.12); }
+  .card .badge {
+    display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px;
+    border-radius: 10px; background: var(--accent-light); color: var(--accent); margin-bottom: 8px;
+  }
+  .card .badge.star { background: var(--warn-bg); color: var(--warn-fg); }
+  .card h3 { margin: 0 0 8px; font-size: 16px; }
+  .card h3 a { color: var(--link); text-decoration: none; }
+  .card h3 a:hover { text-decoration: underline; }
+  .card p { font-size: 14px; color: var(--muted); margin: 0 0 10px; }
+  .card ul { list-style: none; font-size: 13px; }
+  .card ul li { padding: 2px 0 2px 14px; position: relative; color: var(--fg); }
+  .card ul li::before { content: "\25B8"; position: absolute; left: 0; color: var(--accent); }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 12px 0 18px; background: var(--card-bg); }
+  th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th { background: var(--table-header); font-weight: 600; }
+  code {
+    background: var(--code-bg); padding: 1px 5px; border-radius: 4px;
+    font-family: "Cascadia Code", "Consolas", monospace; font-size: 13px;
+  }
+  pre {
+    background: var(--code-bg); padding: 14px 16px; border-radius: 6px; overflow-x: auto;
+    font-family: "Cascadia Code", "Consolas", monospace; font-size: 12.5px; line-height: 1.6;
+    border: 1px solid var(--border); margin: 12px 0 18px;
+  }
+  .note, .warn, .ok {
+    border-radius: 6px; padding: 12px 16px; margin: 14px 0; font-size: 14px; border-left: 4px solid;
+  }
+  .note { background: var(--note-bg); color: var(--note-fg); border-color: var(--accent); }
+  .warn { background: var(--warn-bg); color: var(--warn-fg); border-color: #f59f00; }
+  .ok   { background: var(--ok-bg);   color: var(--ok-fg);   border-color: #51cf66; }
+
+  .pill {
+    display: inline-block; font-size: 12px; padding: 2px 9px; border-radius: 12px;
+    background: var(--code-bg); border: 1px solid var(--border); margin-right: 6px;
+  }
+
+  @media (max-width: 900px) {
+    .sidebar { position: static; width: 100%; height: auto; }
+    .main { margin-left: 0; padding: 24px 20px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <h1>UE5 Shader 系统</h1>
+    <p>工作原理 · 自定义 Shader · 参数体系 · 常用宏</p>
+  </div>
+  <nav>
+    <div class="group">基础</div>
+    <a href="#top" class="active"><span class="num">&mdash;</span>总览</a>
+    <a href="#sec-00"><span class="num">00</span>总览与架构</a>
+    <a href="#sec-01"><span class="num">01</span>工作原理与编译流程</a>
+
+    <div class="group">体系</div>
+    <a href="#sec-02"><span class="num">02</span>Shader 类型体系与 C++ 绑定</a>
+    <a href="#sec-03"><span class="num">03</span>Shader 参数体系</a>
+    <a href="#sec-07"><span class="num">07</span>材质系统与 HLSL 代码生成</a>
+
+    <div class="group">实战</div>
+    <a href="#sec-04"><span class="num">04</span>自定义 Global Shader</a>
+    <a href="#sec-05"><span class="num">05</span>自定义 Mesh 与材质 Shader</a>
+
+    <div class="group">参考</div>
+    <a href="#sec-06"><span class="num">06</span>常用宏速查大全</a>
+    <a href="#sec-08"><span class="num">08</span>调试、优化与最佳实践</a>
+
+    <div class="group">其他</div>
+    <a href="#sec-route"><span class="num">&mdash;</span>阅读路线</a>
+    <a href="#sec-pitfalls"><span class="num">&mdash;</span>坑清单</a>
+    <a href="#sec-roadmap"><span class="num">&mdash;</span>落地路线图</a>
+  </nav>
+</aside>
+
+<main class="main" id="top">
+  <h1 class="page-title">UE5 Shader 系统系列文档</h1>
+  <p class="subtitle">
+    从材质节点图到 GPU 指令的完整链路：<b>工作原理</b> · <b>自定义 Shader</b> · <b>参数体系</b> · <b>常用宏</b>。
+    共 9 篇，含可直接照抄的 Global / Mesh / Compute Shader 模板。
+  </p>
+
+  <section id="sec-00">
+    <h2>文档导航</h2>
+    <div class="cards">
+
+      <div class="card">
+        <span class="badge">00 · 基础</span>
+        <h3><a href="00-总览与架构.md">总览与架构</a></h3>
+        <p>全系列坐标系：五层架构、三类 Shader、核心概念速查、术语约定。</p>
+        <ul>
+          <li>L0–L4 分层地图（RHI / RDG / 类型 / 编译 / 材质）</li>
+          <li>Global / Material / MeshMaterial 选择口诀</li>
+          <li>USF·USH、Permutation、ShaderMap、Uniform Buffer</li>
+          <li>LWC 与精度、业界术语正误表</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <span class="badge">01 · 基础</span>
+        <h3><a href="01-Shader工作原理与编译流程.md">工作原理与编译流程</a></h3>
+        <p>从 USF 源码到 GPU 的八段链路，拆开这个"黑盒"。</p>
+        <ul>
+          <li>虚拟路径系统与插件注册</li>
+          <li>材质 → HLSL 的生成机制</li>
+          <li>五层宏定义注入点</li>
+          <li>SCW 跨进程编译调度</li>
+          <li>HLSL → DXC → SPIR-V → MSL/GLSL 跨平台链</li>
+          <li>DDC 三级缓存与 Cook 烘焙</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <span class="badge">02 · 体系</span>
+        <h3><a href="02-Shader类型体系与C++绑定.md">Shader 类型体系与 C++ 绑定</a></h3>
+        <p>FShader 家族四种类型、声明/实现宏、Permutation 维度、序列化规则。</p>
+        <ul>
+          <li>三类 Shader 的变体数量差异</li>
+          <li>DECLARE / IMPLEMENT 宏全表（含 EXPORTED）</li>
+          <li>SHADER_PERMUTATION_* 与裁剪</li>
+          <li>LAYOUT_FIELD vs 参数结构体</li>
+          <li>ShaderMap 查找与空引用处理</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <span class="badge">03 · 体系</span>
+        <h3><a href="03-Shader参数体系.md">Shader 参数体系</a></h3>
+        <p>SHADER_PARAMETER 家族全解、Uniform Buffer 三段式、RDG 绑定。</p>
+        <ul>
+          <li>声明 / 填充 / 绑定三段式</li>
+          <li>标量·向量·矩阵与 LWC 精度陷阱</li>
+          <li>纹理 / SRV / UAV / Sampler 与 RDG 版本</li>
+          <li>全局 Uniform Buffer 的定义与注册</li>
+          <li>内置 UB：View / Primitive / Material / SceneTextures</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <span class="badge star">04 · 实战</span>
+        <h3><a href="04-实战-自定义GlobalShader.md">实战：自定义 Global Shader</a></h3>
+        <p>可直接照抄的三个模板：全屏后处理 / Compute / 带 Permutation。</p>
+        <ul>
+          <li>插件目录结构 + Build.cs + 虚拟路径注册</li>
+          <li>全屏 Pass 的三种写法</li>
+          <li>Compute Pass 与组数计算</li>
+          <li>Permutation 声明与运行时选择</li>
+          <li>ViewExtension 挂载与后处理注入点</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <span class="badge">05 · 实战</span>
+        <h3><a href="05-实战-自定义Mesh与材质Shader.md">实战：自定义 Mesh 与材质 Shader</a></h3>
+        <p>FMeshMaterialShader + 顶点工厂 + MeshPassProcessor 完整骨架。</p>
+        <ul>
+          <li>在 shader 里读材质输出的三步法</li>
+          <li>FMeshPassProcessor::AddMeshBatch → BuildMeshDrawCommands</li>
+          <li>GetShaderBindings 自定义绑定</li>
+          <li>轻量化方案 DrawDynamicMeshPass</li>
+          <li>VF + 材质 + 平台的三重变体裁剪</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <span class="badge star">06 · 参考</span>
+        <h3><a href="06-常用宏速查大全.md">常用宏速查大全</a></h3>
+        <p>日常开发的速查手册，按"我要做什么"组织，每张表可直接抄。</p>
+        <ul>
+          <li>30 秒定位表</li>
+          <li>参数结构体宏（值/资源/RDG/嵌套/RT）</li>
+          <li>全局 Uniform Buffer 宏</li>
+          <li>声明·实现·Permutation·序列化宏</li>
+          <li>HLSL 跨平台宏：TEXTURE2D / Texture2DSample</li>
+          <li>材质编译宏、Feature Level 宏、命名规律</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <span class="badge">07 · 体系</span>
+        <h3><a href="07-材质系统与HLSL代码生成.md">材质系统与 HLSL 代码生成</a></h3>
+        <p>材质编辑器本质是一个可视化 HLSL 生成器。</p>
+        <ul>
+          <li>UMaterial ↔ FMaterialResource 两个世界</li>
+          <li>FHLSLMaterialTranslator 工作机制</li>
+          <li>MaterialTemplate.ush 与 GetMaterial*()</li>
+          <li>参数传递：MID / MPC / Static Switch</li>
+          <li>Custom 节点与材质函数的坑</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <span class="badge">08 · 工程</span>
+        <h3><a href="08-调试优化与最佳实践.md">调试、优化与最佳实践</a></h3>
+        <p>开发模式配置、三层排查法、变体治理、PSO 预热。</p>
+        <ul>
+          <li>必开 CVar 与常用控制台命令</li>
+          <li>编译错误的三层排查法</li>
+          <li>"参数全 0" / "画面全黑" 排查链</li>
+          <li>变体与编译时间的六大治理手段</li>
+          <li>PSO 采集流程与 14 条最佳实践</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="sec-route">
+    <h2>阅读路线</h2>
+    <table>
+      <tr><th>你的目标</th><th>顺序</th></tr>
+      <tr><td><b>尽快写出第一个自定义 shader</b></td><td>00 → 03 → 04 → 06</td></tr>
+      <tr><td><b>系统理解原理</b></td><td>00 → 01 → 02 → 03 → 04</td></tr>
+      <tr><td><b>做材质 / Shading Model 扩展</b></td><td>00 → 01 → 02 → 05 → 07</td></tr>
+      <tr><td><b>排查问题 / 性能优化</b></td><td>00 → 01 → 08</td></tr>
+    </table>
+
+    <div class="note">
+      <b>最短路径</b>：只有半小时的话，读
+      <a href="03-Shader参数体系.md">03</a> 的参数宏表 +
+      <a href="04-实战-自定义GlobalShader.md">04</a> 的全屏 Pass 模板 +
+      <a href="06-常用宏速查大全.md">06</a> 的 30 秒定位表，
+      就能跑通一个自己的后处理 Pass。
+    </div>
+
+    <div class="warn">
+      <b>版本说明</b>：本系列以 <b>UE 5.3 ~ 5.5</b> 为准。UE 的渲染与 shader API 在小版本间会有改名
+      （例如材质着色器容器 <code>FMaterialShaderMap</code> → <code>FMaterialShaders</code>，
+      RHI 参数逐步迁移到 <code>FRHIBatchedShaderParameters</code>）。
+      文中已标注易受影响的点，最终以你手上的引擎源码为准。
+    </div>
+  </section>
+
+  <section id="sec-pitfalls">
+    <h2>十大高频坑</h2>
+    <table>
+      <tr><th>#</th><th>现象</th><th>根因</th></tr>
+      <tr><td>1</td><td>找不到 include 文件</td><td>插件未注册虚拟路径</td></tr>
+      <tr><td>2</td><td>参数读出来永远是 0</td><td>C++ 字段名 ≠ HLSL 变量名（或变量被 DCE）</td></tr>
+      <tr><td>3</td><td>编译报改用 FVector3f</td><td>用了 LWC 的 double 类型</td></tr>
+      <tr><td>4</td><td>全屏 Pass 无输出</td><td>缺 <code>RENDER_TARGET_BINDING_SLOTS()</code></td></tr>
+      <tr><td>5</td><td>Compute 结果错乱</td><td>缺越界检查 / 组数算错 / 用了非 RDG 的 UAV</td></tr>
+      <tr><td>6</td><td><code>GetShader&lt;T&gt;()</code> 返回空</td><td>Permutation 被 <code>ShouldCompilePermutation</code> 裁掉</td></tr>
+      <tr><td>7</td><td>改了 USF 不生效</td><td>DDC 缓存命中 → <code>recompileshaders changed</code></td></tr>
+      <tr><td>8</td><td>运行时莫名卡顿</td><td>改了 Static Parameter 触发重编译</td></tr>
+      <tr><td>9</td><td>Metal / GL 路径失败</td><td>直接写了 <code>Texture2D.Sample()</code> 而未用抽象宏</td></tr>
+      <tr><td>10</td><td>shader 编译几小时</td><td>Static Switch / VF / Permutation 未裁剪</td></tr>
+    </table>
+
+    <div class="warn">
+      <b>最本质的认知</b>：UE 的 shader 只有<b>一份 HLSL 源码</b>，靠宏展开成海量变体。
+      理解了"宏 → 变体 → DDC key → 编译"这条链，绝大多数问题都能自己定位。
+    </div>
+  </section>
+
+  <section id="sec-roadmap">
+    <h2>落地路线图</h2>
+    <table>
+      <tr><th>阶段</th><th>做什么</th><th>产出</th></tr>
+      <tr><td><b>P0</b></td><td>配好开发环境（3 个 CVar + RenderDoc）</td><td>编译错误可定位</td></tr>
+      <tr><td><b>P1</b></td><td>照抄 04 篇跑通一个全屏 Pass</td><td>第一个自定义 shader</td></tr>
+      <tr><td><b>P2</b></td><td>加 Compute Pass + Permutation</td><td>掌握变体机制</td></tr>
+      <tr><td><b>P3</b></td><td>用 MPC 与内置 UB 组织参数</td><td>参数体系熟练</td></tr>
+      <tr><td><b>P4</b></td><td>做 05 篇的 Mesh Pass</td><td>掌握 VF + MeshPassProcessor</td></tr>
+      <tr><td><b>P5</b></td><td>接共享 DDC + PSO 采集</td><td>编译与加载提速</td></tr>
+      <tr><td><b>P6</b></td><td>变体审计与裁剪</td><td>编译时间可控</td></tr>
+    </table>
+
+    <div class="ok">
+      <b>一句话总结</b>：UE 只写 HLSL → 宏展开成变体 → 跨进程编译 → DDC 缓存 → ShaderMap 查找 →
+      RDG 绑定。掌握这条链，你就能在 UE 里<b>自由地加任何 Pass</b>。
+    </div>
+  </section>
+
+  <section>
+    <h2>相关系列</h2>
+    <p>
+      <span class="pill">Shader 工具链</span>
+      <a href="../Shader工具链文档/index.html">SPIR-V 反射 / LLVM 前端 / 元编程</a> &nbsp;·&nbsp;
+      <span class="pill">实时渲染</span>
+      <a href="../实时渲染系统文档/index.html">渲染系统架构</a> &nbsp;·&nbsp;
+      <span class="pill">性能分析</span>
+      <a href="../游戏性能分析文档/00-性能分析总览与方法论.md">游戏性能分析</a>
+    </p>
+  </section>
+</main>
+
+<script>
+  const links = [...document.querySelectorAll('.sidebar nav a')];
+  const sections = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const onScroll = () => {
+    const y = window.scrollY + 120;
+    let idx = 0;
+    sections.forEach((s, i) => { if (s && s.offsetTop <= y) idx = i; });
+    links.forEach(a => a.classList.remove('active'));
+    if (links[idx]) links[idx].classList.add('active');
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+</script>
+</body>
+</html>

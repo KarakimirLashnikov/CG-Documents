@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shader 工具链 — 系列文档导航</title>
+<style>
+  :root {
+    --bg: #f8f9fa; --fg: #212529; --sidebar-bg: #eef1f4; --sidebar-fg: #495057;
+    --accent: #0d6efd; --accent-light: #e7f1ff; --border: #dee2e6;
+    --card-bg: #ffffff; --code-bg: #f1f3f5; --table-header: #dee2e6;
+    --link: #0d6efd; --hover-bg: #dbe4ff; --muted: #6c757d;
+    --warn-bg: #fff3bf; --warn-fg: #92400e; --note-bg: #e7f5ff; --note-fg: #1864ab;
+    --ok-bg: #d3f9d8; --ok-fg: #2b8a3e;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "Segoe UI", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+    background: var(--bg); color: var(--fg); line-height: 1.75;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    position: fixed; left: 0; top: 0; width: 300px; height: 100vh;
+    background: var(--sidebar-bg); overflow-y: auto; z-index: 100;
+    border-right: 1px solid var(--border);
+  }
+  .sidebar-header { padding: 24px 20px 16px; border-bottom: 1px solid var(--border); }
+  .sidebar-header h1 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .sidebar-header p  { font-size: 13px; color: var(--muted); }
+  .sidebar nav { padding: 12px 0 32px; }
+  .sidebar nav .group {
+    font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted); padding: 14px 20px 6px; font-weight: 700;
+  }
+  .sidebar nav a {
+    display: block; padding: 7px 20px 7px 28px; color: var(--sidebar-fg);
+    text-decoration: none; font-size: 14px; border-left: 3px solid transparent;
+  }
+  .sidebar nav a:hover { background: var(--hover-bg); color: var(--fg); }
+  .sidebar nav a.active { background: var(--accent-light); color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+  .sidebar nav a .num { display: inline-block; width: 24px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  /* Main */
+  .main { margin-left: 300px; padding: 40px 48px 80px; max-width: 1080px; }
+  h1.page-title { font-size: 30px; margin-bottom: 6px; }
+  .subtitle { color: var(--muted); margin-bottom: 32px; font-size: 15px; }
+
+  section { margin-bottom: 44px; scroll-margin-top: 20px; }
+  h2 {
+    font-size: 21px; margin-bottom: 14px; padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent); display: inline-block;
+  }
+  h3 { font-size: 16px; margin: 22px 0 10px; }
+  p { margin-bottom: 12px; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .card {
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 18px 20px; box-shadow: var(--shadow); transition: transform .15s, box-shadow .15s;
+  }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,.12); }
+  .card .badge {
+    display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px;
+    border-radius: 10px; background: var(--accent-light); color: var(--accent); margin-bottom: 8px;
+  }
+  .card .badge.star { background: var(--warn-bg); color: var(--warn-fg); }
+  .card h3 { margin: 0 0 8px; font-size: 16px; }
+  .card h3 a { color: var(--link); text-decoration: none; }
+  .card h3 a:hover { text-decoration: underline; }
+  .card p { font-size: 14px; color: var(--muted); margin: 0 0 10px; }
+  .card ul { list-style: none; font-size: 13px; }
+  .card ul li { padding: 2px 0 2px 14px; position: relative; color: var(--fg); }
+  .card ul li::before { content: "▸"; position: absolute; left: 0; color: var(--accent); }
+
+  table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 12px 0 18px; background: var(--card-bg); }
+  th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th { background: var(--table-header); font-weight: 600; }
+  code {
+    background: var(--code-bg); padding: 1px 5px; border-radius: 4px;
+    font-family: "Cascadia Code", "Consolas", monospace; font-size: 13px;
+  }
+  pre {
+    background: var(--code-bg); padding: 14px 16px; border-radius: 6px; overflow-x: auto;
+    font-family: "Cascadia Code", "Consolas", monospace; font-size: 12.5px; line-height: 1.6;
+    border: 1px solid var(--border); margin: 12px 0 18px;
+  }
+  .note, .warn, .ok {
+    border-radius: 6px; padding: 12px 16px; margin: 14px 0; font-size: 14px; border-left: 4px solid;
+  }
+  .note { background: var(--note-bg); color: var(--note-fg); border-color: var(--accent); }
+  .warn { background: var(--warn-bg); color: var(--warn-fg); border-color: #f59f00; }
+  .ok   { background: var(--ok-bg);   color: var(--ok-fg);   border-color: #51cf66; }
+
+  .pill {
+    display: inline-block; font-size: 12px; padding: 2px 9px; border-radius: 12px;
+    background: var(--code-bg); border: 1px solid var(--border); margin-right: 6px;
+  }
+
+  @media (max-width: 900px) {
+    .sidebar { position: static; width: 100%; height: auto; }
+    .main { margin-left: 0; padding: 24px 20px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <h1>Shader 工具链</h1>
+    <p>SPIR-V 反射 · LLVM 前端 · 元编程 · 实战</p>
+  </div>
+  <nav>
+    <div class="group">基础</div>
+    <a href="#top" class="active"><span class="num">—</span>总览</a>
+    <a href="#sec-00"><span class="num">00</span>总览与编译流水线</a>
+    <a href="#sec-01"><span class="num">01</span>SPIR-V 模块结构与反射原理</a>
+
+    <div class="group">反射</div>
+    <a href="#sec-02"><span class="num">02</span>SPIRV-Reflect 库详解与实战</a>
+    <a href="#sec-03"><span class="num">03</span>反射方案对比与选型</a>
+
+    <div class="group">编译器</div>
+    <a href="#sec-04"><span class="num">04</span>LLVM 前端与着色器编译器架构</a>
+    <a href="#sec-05"><span class="num">05</span>可编程着色器元编程</a>
+
+    <div class="group">实战</div>
+    <a href="#sec-06"><span class="num">06</span>反射驱动的布局与描述符生成</a>
+    <a href="#sec-07"><span class="num">07</span>工程集成与调试和优化</a>
+
+    <div class="group">其他</div>
+    <a href="#sec-flow"><span class="num">—</span>流水线速查</a>
+    <a href="#sec-pitfalls"><span class="num">—</span>坑清单</a>
+    <a href="#sec-roadmap"><span class="num">—</span>落地路线图</a>
+  </nav>
+</aside>
+
+<main class="main" id="top">
+  <h1 class="page-title">Shader 工具链系列文档</h1>
+  <p class="subtitle">
+    从 SPIR-V 反射到 LLVM 前端，从元编程到描述符自动生成 —— 让<b>编译产物成为唯一真相来源</b>，
+    C++ 侧的布局、描述符与绑定代码全部由它派生。共 8 篇。
+  </p>
+
+  <section id="sec-00">
+    <h2>文档导航</h2>
+    <div class="cards">
+
+      <div class="card">
+        <span class="badge">00 · 基础</span>
+        <h3><a href="00-总览与编译流水线.md">总览与编译流水线</a></h3>
+        <p>整个系列的坐标系：四阶段流水线、工具链三层切分、核心概念速查。</p>
+        <ul>
+          <li>为什么要做 shader 工具链</li>
+          <li>STAGE A–E 全景流水线</li>
+          <li>L1/L2/L3 三层切分与依赖</li>
+          <li>SPIR-V / 反射 / 元编程术语</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <span class="badge">01 · 基础</span>
+        <h3><a href="01-SPIR-V模块结构与反射原理.md">SPIR-V 模块结构与反射原理</a></h3>
+        <p>拆开 SPIR-V 二进制：文件头、指令编码、十一个逻辑段、描述符类型推导规则。</p>
+        <ul>
+          <li>5 字文件头与指令字编码</li>
+          <li>模块逻辑分段（能力/调试/注解/类型/函数）</li>
+          <li>描述符类型映射表</li>
+          <li>反射库四遍扫描原理</li>
+          <li>能拿到 vs 拿不到</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <span class="badge">02 · 反射</span>
+        <h3><a href="02-SPIRV-Reflect库详解与实战.md">SPIRV-Reflect 库详解与实战</a></h3>
+        <p>Khronos 官方轻量反射库：构建集成、数据结构全景、全部 API、七个实战场景。</p>
+        <ul>
+          <li>三种集成方式与编译注意</li>
+          <li>五大结构体字段逐项解读</li>
+          <li>描述符 / PC / 顶点输入 / 特化常量</li>
+          <li>多入口点与入口点过滤</li>
+          <li>绑定重映射 <code>Change*</code></li>
+          <li>14 条坑清单 + CI 静态断言</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <span class="badge">03 · 选型</span>
+        <h3><a href="03-反射方案对比与选型.md">反射方案对比与选型</a></h3>
+        <p>六类方案横评：SPIRV-Reflect / Cross / glslang / SPIRV-Tools / Slang / 平台原生。</p>
+        <ul>
+          <li>逐方案剖析与 API 形态</li>
+          <li>十维对比矩阵</li>
+          <li>决策树与推荐结论</li>
+          <li>混合方案：抽象层隔离</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <span class="badge">04 · 编译器</span>
+        <h3><a href="04-LLVM前端与着色器编译器架构.md">LLVM 前端与着色器编译器架构</a></h3>
+        <p>DXC 是 LLVM 分支、LLVM 主线内置 SPIR-V 后端、软渲染靠 LLVM JIT。</p>
+        <ul>
+          <li>LLVM 管线与 Clang 前端分层</li>
+          <li>三条到 SPIR-V 的路径对比</li>
+          <li>SPIR-V 在 LLVM IR 中的表示</li>
+          <li>动手：Pass 插件 + LibTooling</li>
+          <li>DXIL vs SPIR-V</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <span class="badge">05 · 元编程</span>
+        <h3><a href="05-可编程着色器元编程.md">可编程着色器元编程</a></h3>
+        <p>五层元编程模型 + 变体爆炸治理：从宏到特化常量的完整决策链。</p>
+        <ul>
+          <li>L0 宏 / L1 模板生成 / L2 泛型</li>
+          <li>L3 IR 变换 / L4 特化常量</li>
+          <li>变体爆炸的五条治理策略</li>
+          <li>Permutation 系统与 PSO 预热</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <span class="badge star">06 · 实战</span>
+        <h3><a href="06-实战-反射驱动的布局与描述符生成.md">反射驱动的布局与描述符生成</a></h3>
+        <p>系列落点：从反射数据一路推到 DescriptorSetLayout、绑定头与热重载。</p>
+        <ul>
+          <li>语义标注：命名约定 → set 分配</li>
+          <li>跨阶段合并与冲突检测</li>
+          <li>布局哈希与缓存</li>
+          <li>DescriptorWriter / 顶点布局 / SBT</li>
+          <li>C++ 绑定头代码生成</li>
+          <li>三级哈希与热重载决策</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <span class="badge">07 · 工程</span>
+        <h3><a href="07-工程集成与调试和优化.md">工程集成与调试和优化</a></h3>
+        <p>让它稳定跑起来：CMake、增量编译、工具速查、调试、CI 与排查清单。</p>
+        <ul>
+          <li>CMake 集成与自研 Cooker</li>
+          <li>可重现构建与缓存共享</li>
+          <li>工具链命令速查</li>
+          <li>NSDI / debugPrintf / 图形调试器</li>
+          <li>四阶段故障排查清单</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="sec-01">
+    <h2>建议阅读路线</h2>
+    <table>
+      <tr><th>你的目标</th><th>阅读顺序</th></tr>
+      <tr><td><b>只想解决工程问题</b></td><td>00 → 02 → 06 → 07</td></tr>
+      <tr><td><b>想理解原理</b></td><td>00 → 01 → 02 → 03 → 06</td></tr>
+      <tr><td><b>做编译器 / 工具链开发</b></td><td>00 → 01 → 04 → 05 → 06 → 07</td></tr>
+      <tr><td><b>治理变体爆炸</b></td><td>00 → 05 → 06 → 07</td></tr>
+    </table>
+
+    <div class="note">
+      <b>最短路径</b>：如果你只有一个小时，读 <a href="02-SPIRV-Reflect库详解与实战.md">02</a> 的 API 部分 +
+      <a href="06-实战-反射驱动的布局与描述符生成.md">06</a> 的 S1–S6 流水线，就能把自研引擎的
+      描述符布局改成自动生成。
+    </div>
+  </section>
+
+  <section id="sec-flow">
+    <h2>流水线速查</h2>
+    <pre>源码 → [元编程展开] → dxc/glslang → spirv-val → spirv-opt → spirv-val
+                                                          ↓
+        spirv-dis (.txt)   spirv-reflect (.refl.txt)   自研反射 (.refl.bin + .h)
+                                                          ↓
+        DescriptorSetLayout / PipelineLayout / 池定额 / DescriptorWriter
+        / PushConstantRange / 顶点输入 / Bindless 注册 / C++ 绑定头
+                                                          ↓
+                    布局哈希 → 缓存 → PSO 预热 → 热重载</pre>
+
+    <h3>核心命令</h3>
+    <pre># 编译
+dxc -T ps_6_6 -E PSMain -spirv -fspv-target-env=vulkan1.3 -Fo out.spv in.hlsl
+glslangValidator -V --target-env vulkan1.3 -S frag -o out.spv in.frag
+clang --target=spirv64 -O1 -c kernel.cl -o kernel.spv
+
+# 校验 + 优化 + 反射
+spirv-val --target-env vulkan1.3 out.spv
+spirv-opt -O --strip-nonsemantic -o out.spv out.spv
+spirv-reflect out.spv > out.refl.txt</pre>
+  </section>
+
+  <section id="sec-pitfalls">
+    <h2>八条铁律（坑清单浓缩版）</h2>
+    <table>
+      <tr><th>#</th><th>铁律</th><th>违反后果</th></tr>
+      <tr><td>1</td><td><code>spvReflectCreateShaderModule</code> 的 size 是<b>字节数</b></td><td>解析失败或崩溃</td></tr>
+      <tr><td>2</td><td>反射前必须先 <code>spirv-val</code></td><td>错误信息毫无帮助</td></tr>
+      <tr><td>3</td><td>改写绑定后<b>必须</b>用 <code>spvReflectGetCode()</code> 建 ShaderModule</td><td>描述符不匹配、黑屏</td></tr>
+      <tr><td>4</td><td>不要依赖 <code>name</code>（会被 strip debug 掉）</td><td>Release 构建布局错乱</td></tr>
+      <tr><td>5</td><td><code>count == 0</code> 是 Bindless 信号，需容量兜底</td><td>0 大小的绑定</td></tr>
+      <tr><td>6</td><td>set 号 &lt; 64，PushConstant ≤ 128B</td><td>管线创建失败</td></tr>
+      <tr><td>7</td><td>模块销毁后所有 <code>const char*</code> 失效 → 拷成 <code>std::string</code></td><td>悬垂指针 UB</td></tr>
+      <tr><td>8</td><td>热重载旧对象<b>延迟 N 帧</b>销毁；布局变了要重填描述符</td><td>崩溃 / 数据错乱</td></tr>
+    </table>
+
+    <div class="warn">
+      <b>最容易踩的一条</b>：SPIR-V 只有<b>事实</b>（set/binding/offset），没有<b>语义</b>
+      （这是 PerFrame 还是 PerMaterial）。语义必须由命名约定或额外元数据补齐 ——
+      详见 <a href="06-实战-反射驱动的布局与描述符生成.md">06 篇 S2</a>。
+    </div>
+  </section>
+
+  <section id="sec-roadmap">
+    <h2>落地路线图</h2>
+    <table>
+      <tr><th>阶段</th><th>做什么</th><th>产出</th></tr>
+      <tr><td><b>P0</b></td><td>引入 SPIRV-Reflect，跑通"加载 → 枚举 → 打印"</td><td>能看见 shader 绑定表</td></tr>
+      <tr><td><b>P1</b></td><td>反射生成 DescriptorSetLayout / PipelineLayout</td><td>不再手写描述符布局</td></tr>
+      <tr><td><b>P2</b></td><td>spirv-val + spirv-opt 接入构建</td><td>编译期拦截非法 shader</td></tr>
+      <tr><td><b>P3</b></td><td>生成 C++ 绑定头 + <code>static_assert</code></td><td>双重维护问题消失</td></tr>
+      <tr><td><b>P4</b></td><td>命名约定 → set 自动分配</td><td>语义自动化</td></tr>
+      <tr><td><b>P5</b></td><td>布局哈希缓存 + Bindless</td><td>描述符开销下降</td></tr>
+      <tr><td><b>P6</b></td><td>变体 Cooker + 二进制去重 + PSO 预热</td><td>构建与加载提速</td></tr>
+      <tr><td><b>P7</b></td><td>热重载</td><td>迭代速度质变</td></tr>
+    </table>
+
+    <div class="ok">
+      <b>一句话总结</b>：反射给你<b>事实</b>，约定给你<b>语义</b>，代码生成把二者<b>钉进编译期</b> ——
+      shader 与 C++ 的契约从"靠人保证"变成"靠编译器保证"。
+    </div>
+  </section>
+
+  <section>
+    <h2>相关系列</h2>
+    <p>
+      <span class="pill">实时渲染</span>
+      <a href="../实时渲染系统文档/index.html">实时渲染系统文档</a> &nbsp;·&nbsp;
+      <span class="pill">性能分析</span>
+      <a href="../游戏性能分析文档/00-性能分析总览与方法论.md">游戏性能分析文档</a>
+    </p>
+  </section>
+</main>
+
+<script>
+  // 侧边栏高亮
+  const links = [...document.querySelectorAll('.sidebar nav a')];
+  const sections = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const onScroll = () => {
+    const y = window.scrollY + 120;
+    let idx = 0;
+    sections.forEach((s, i) => { if (s && s.offsetTop <= y) idx = i; });
+    links.forEach(a => a.classList.remove('active'));
+    if (links[idx]) links[idx].classList.add('active');
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+</script>
+</body>
+</html>
