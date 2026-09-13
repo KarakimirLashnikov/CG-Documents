@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>实时渲染系统 — 完整系列文档</title>
+<title>实时渲染系统 — 系列文档导航</title>
 <style>
   :root {
     --bg: #f8f9fa; --fg: #212529; --sidebar-bg: #e9ecef; --sidebar-fg: #495057;
@@ -36,14 +36,14 @@
     background: var(--sidebar-bg); overflow-y: auto; z-index: 100;
     border-right: 1px solid var(--border); transition: transform 0.3s;
   }
-  .sidebar-header {
-    padding: 24px 20px 16px; border-bottom: 1px solid var(--border);
-  }
-  .sidebar-header h1 {
-    font-size: 18px; font-weight: 700; color: var(--fg); margin-bottom: 4px;
-  }
+  .sidebar-header { padding: 24px 20px 16px; border-bottom: 1px solid var(--border); }
+  .sidebar-header h1 { font-size: 18px; font-weight: 700; color: var(--fg); margin-bottom: 4px; }
   .sidebar-header p { font-size: 13px; color: var(--sidebar-fg); }
   .sidebar nav { padding: 12px 0; }
+  .nav-group-title {
+    padding: 12px 20px 6px; font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.05em; color: var(--sidebar-fg);
+  }
   .sidebar nav a {
     display: block; padding: 8px 20px 8px 28px; color: var(--sidebar-fg);
     text-decoration: none; font-size: 14px; transition: all 0.15s;
@@ -54,126 +54,63 @@
     border-left-color: var(--accent);
   }
   .sidebar nav a .num {
-    display: inline-block; width: 22px; font-weight: 600;
+    display: inline-block; width: 24px; font-weight: 600;
     color: var(--accent); font-size: 13px;
   }
 
   /* Main */
-  .main {
-    margin-left: 280px; padding: 40px 48px 80px; max-width: 960px;
-  }
+  .main { margin-left: 280px; padding: 40px 48px 80px; max-width: 1100px; }
+  .hero { margin-bottom: 40px; }
+  .hero h1 { font-size: 30px; font-weight: 800; margin-bottom: 8px; }
+  .hero p { color: var(--sidebar-fg); font-size: 15px; }
 
-  /* Section */
-  .section {
-    margin-bottom: 64px; scroll-margin-top: 20px;
-  }
   .section-title {
-    font-size: 28px; font-weight: 800; color: var(--fg);
+    font-size: 22px; font-weight: 700; margin: 36px 0 18px;
     border-bottom: 2px solid var(--accent); padding-bottom: 8px;
-    margin-bottom: 24px;
-  }
-  .section-number {
-    display: inline-block; background: var(--accent); color: white;
-    padding: 2px 10px; border-radius: 4px; font-size: 14px;
-    margin-right: 10px; vertical-align: middle;
   }
 
-  /* Headings */
-  h2 { font-size: 22px; font-weight: 700; margin: 32px 0 16px; color: var(--fg); }
-  h3 { font-size: 18px; font-weight: 600; margin: 24px 0 12px; color: var(--fg); }
-  h4 { font-size: 16px; font-weight: 600; margin: 20px 0 8px; color: var(--fg); }
-
-  /* Text */
-  p { margin-bottom: 12px; }
-  strong { color: var(--fg); font-weight: 700; }
-
-  /* Links */
-  a { color: var(--link); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-
-  /* Code */
-  code {
-    background: var(--code-bg); padding: 2px 6px; border-radius: 3px;
-    font-size: 13px; font-family: "Cascadia Code", "Fira Code", monospace;
-    color: var(--fg);
+  /* Card grid */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+  .card {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+    padding: 18px 20px; box-shadow: var(--shadow); transition: transform 0.15s, box-shadow 0.15s;
+    display: flex; flex-direction: column;
   }
-  pre {
-    background: var(--code-bg); padding: 16px 20px; border-radius: 8px;
-    overflow-x: auto; margin-bottom: 16px; border: 1px solid var(--border);
-    font-size: 13px; line-height: 1.6; font-family: "Cascadia Code", "Fira Code", monospace;
+  .card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
+  .card .badge {
+    display: inline-block; align-self: flex-start; background: var(--accent);
+    color: #fff; font-weight: 700; font-size: 13px; padding: 2px 10px; border-radius: 4px; margin-bottom: 10px;
   }
-  pre code { background: none; padding: 0; }
+  .card h3 { font-size: 17px; margin-bottom: 8px; }
+  .card h3 a { color: var(--fg); text-decoration: none; }
+  .card h3 a:hover { color: var(--accent); text-decoration: underline; }
+  .card ul { margin: 0; padding-left: 18px; font-size: 13.5px; color: var(--sidebar-fg); }
+  .card ul li { margin-bottom: 3px; }
 
-  /* Tables */
-  table {
-    width: 100%; border-collapse: collapse; margin-bottom: 16px;
-    font-size: 14px; border: 1px solid var(--border);
-  }
-  th {
-    background: var(--table-header); font-weight: 600; text-align: left;
-    padding: 10px 14px; border-bottom: 2px solid var(--border);
-  }
-  td { padding: 8px 14px; border-bottom: 1px solid var(--border); }
-  tr:hover td { background: var(--hover-bg); }
-
-  /* Blockquote / Notes */
-  .note, .warn {
-    padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;
-    font-size: 14px;
-  }
-  .note { background: var(--note-bg); color: var(--note-fg); border-left: 4px solid var(--accent); }
-  .warn { background: var(--warn-bg); color: var(--warn-fg); border-left: 4px solid #f59e0b; }
-
-  /* Tags */
-  .tag {
-    display: inline-block; padding: 2px 8px; border-radius: 4px;
-    background: var(--tag-bg); color: var(--tag-fg); font-size: 12px;
-    font-weight: 600; margin: 0 4px;
+  .note {
+    padding: 12px 16px; border-radius: 8px; margin: 20px 0;
+    font-size: 14px; background: var(--note-bg); color: var(--note-fg);
+    border-left: 4px solid var(--accent);
   }
 
-  /* Diagrams (ASCII art) */
-  .diagram {
-    background: var(--code-bg); padding: 16px 20px; border-radius: 8px;
-    overflow-x: auto; margin-bottom: 16px; white-space: pre;
-    font-family: monospace; font-size: 13px; line-height: 1.4;
-    border: 1px solid var(--border);
-  }
-
-  /* Navigation footer */
-  .nav-footer {
-    display: flex; justify-content: space-between; padding: 16px 0;
-    border-top: 1px solid var(--border); margin-top: 24px;
-  }
-  .nav-footer a { font-size: 14px; }
-
-  /* Mobile toggle */
-  .toggle-btn {
-    position: fixed; left: 10px; top: 10px; z-index: 200;
-    background: var(--accent); color: white; border: none;
-    padding: 8px 12px; border-radius: 6px; cursor: pointer;
-    font-size: 18px; display: none; box-shadow: var(--shadow);
-  }
-  @media (max-width: 768px) {
-    .sidebar { transform: translateX(-100%); }
-    .sidebar.open { transform: translateX(0); }
-    .main { margin-left: 0; padding: 20px 16px 60px; }
-    .toggle-btn { display: block; }
-  }
-
-  /* Scroll progress */
+  /* Progress bar */
   .progress-bar {
     position: fixed; top: 0; left: 280px; right: 0; height: 3px;
     background: var(--accent); z-index: 150; transform-origin: left;
     transition: transform 0.1s;
   }
-  @media (max-width: 768px) { .progress-bar { left: 0; } }
-
-  /* Print */
-  @media print {
-    .sidebar, .toggle-btn, .progress-bar { display: none; }
-    .main { margin-left: 0; padding: 0; }
-    .section { page-break-before: always; }
+  @media (max-width: 768px) {
+    .progress-bar { left: 0; }
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .main { margin-left: 0; padding: 20px 16px 60px; }
   }
+  .toggle-btn {
+    position: fixed; left: 10px; top: 10px; z-index: 200; display: none;
+    background: var(--accent); color: #fff; border: none; padding: 8px 12px;
+    border-radius: 6px; cursor: pointer; font-size: 18px; box-shadow: var(--shadow);
+  }
+  @media (max-width: 768px) { .toggle-btn { display: block; } }
 </style>
 </head>
 <body>
@@ -187,14 +124,22 @@
     <p>Vulkan 现代实时渲染引擎 · 系列文档</p>
   </div>
   <nav id="sidebarNav">
-    <a href="#s00" class="active"><span class="num">00</span> 总览与架构概览</a>
+    <div class="nav-group-title">渲染架构基础</div>
+    <a href="#s00"><span class="num">00</span> 总览与架构概览</a>
     <a href="#s01"><span class="num">01</span> 渲染管线分层架构</a>
     <a href="#s02"><span class="num">02</span> Vulkan管线与着色器系统</a>
     <a href="#s03"><span class="num">03</span> 渲染架构选型与对比</a>
     <a href="#s04"><span class="num">04</span> 绘制性能优化</a>
+    <a href="#s14"><span class="num">14</span> Pass概念分层解析</a>
+
+    <div class="nav-group-title">资源 · 帧图 · 平台</div>
     <a href="#s05"><span class="num">05</span> 资源管理体系</a>
     <a href="#s06"><span class="num">06</span> FrameGraph帧图系统</a>
     <a href="#s07"><span class="num">07</span> RDG与FrameGraph概念辨析</a>
+    <a href="#s12"><span class="num">12</span> GPU资源术语分层解析</a>
+    <a href="#s13"><span class="num">13</span> UE5.8的RDG资源与RHI资源</a>
+
+    <div class="nav-group-title">前沿与产业</div>
     <a href="#s08"><span class="num">08</span> 进阶技术拓展</a>
     <a href="#s09"><span class="num">09</span> 整体架构与工作流总览</a>
     <a href="#s10"><span class="num">10</span> 现代图形API与GPU架构</a>
@@ -203,1303 +148,203 @@
 </aside>
 
 <main class="main">
-
-<!-- ═══════════════════════════════════════════════════════════ -->
-<!-- Section 00: 总览与架构概览 -->
-<!-- ═══════════════════════════════════════════════════════════ -->
-<div class="section" id="s00">
-  <div class="section-title"><span class="section-number">00</span>总览与架构概览</div>
-
-  <div class="note">本文档是系列第 <strong>0</strong> 篇，提供整体架构宏观视角与设计理念，为后续各专题建立统一概念基础。</div>
-
-  <h2>1. 文档目的与读者对象</h2>
-  <h3>1.1 文档目的</h3>
-  <p>本系列对自研 Vulkan 现代实时渲染引擎的<strong>实时渲染系统</strong>部分进行系统化、结构化的完整阐述，涵盖从底层 Vulkan API 管线封装到上层 FrameGraph 声明式帧图系统的全链路设计。</p>
-  <p><strong>核心目标</strong>：</p>
-  <ul>
-    <li><strong>标准化术语</strong>：纠常见概念误区（光追阴影归类错误、MDI术语混淆、RDG/FG辨析）</li>
-    <li><strong>建立分层心智模型</strong>：将渲染系统拆为清晰层级</li>
-    <li><strong>工程指导</strong>：Vulkan落地具体方案</li>
-    <li><strong>前沿拓展</strong>：标识尚未覆盖的技术方向</li>
-  </ul>
-
-  <h3>1.2 读者对象</h3>
-  <table>
-    <tr><th>读者类型</th><th>预期收获</th></tr>
-    <tr><td>渲染引擎初学者</td><td>建立从Vulkan基础到FrameGraph的完整认知链路</td></tr>
-    <tr><td>有经验的渲染工程师</td><td>标准化术语纠正与架构对比参考</td></tr>
-    <tr><td>引擎架构决策者</td><td>渲染架构选型矩阵与GPU-Driven落地方案</td></tr>
-    <tr><td>技术研究者</td><td>光栅/光追/神经渲染混合管线前沿方向</td></tr>
-  </table>
-
-  <h2>2. 实时渲染系统定位</h2>
-  <p>实时渲染系统是引擎中<strong>视觉输出</strong>的核心子系统，以<strong>每帧16.67ms（60fps）或更低</strong>的时间预算生成画面。</p>
-
-  <div class="diagram">
-引擎层（渲染架构选型→材质/光照模型确定）
-    ↓
-渲染核心层（FrameGraph声明式Pass管理）
-  ├─ 资源子系统 (CPU加载 + VMA + Bindless)
-  ├─ 管线子系统 (图形/计算/Mesh/光追缓存)
-  └─ 同步子系统 (屏障推导 + 多队列并行)
-    ↓
-执行层（多线程CB录制→GPU队列提交→Swapchain呈现）
+  <div class="hero">
+    <h1>实时渲染系统 · 系列文档导航</h1>
+    <p>面向自研 Vulkan 现代实时渲染引擎的系列技术文档。共 15 篇，覆盖架构分层、资源/帧图、现代图形 API 与产业演进。点击卡片或左侧链接跳转对应 Markdown 文档。</p>
   </div>
 
-  <h2>3. 整体架构分层</h2>
-  <table>
-    <tr><th>层级</th><th>核心职责</th><th>关键抽象</th><th>依赖方向</th></tr>
-    <tr><td><strong>Layer 1 架构选型层</strong></td><td>确定渲染策略与材质模型</td><td>渲染路径配置</td><td>仅依赖引擎高层决策</td></tr>
-    <tr><td><strong>Layer 2 渲染核心层</strong></td><td>Vulkan API封装、资源、管线管理</td><td>虚拟资源句柄、PipelineCache</td><td>依赖Vulkan API</td></tr>
-    <tr><td><strong>Layer 3 FrameGraph层</strong></td><td>Pass依赖管理、自动优化、编排</td><td>DAG有向无环图</td><td>依赖Layer 2</td></tr>
-    <tr><td><strong>Layer 4 执行调度层</strong></td><td>GPU命令录制、多队列同步</td><td>CommandPool、Fence、Timeline Semaphore</td><td>依赖Layer 3</td></tr>
-  </table>
-
-  <div class="note"><strong>核心设计原则</strong>：上层不直接操作Vulkan API对象。Layer 3/4通过虚拟资源句柄与Layer 2交互。</div>
-
-  <h2>4. 核心设计原则</h2>
-  <h3>4.1 声明式优于命令式</h3>
-  <p>Pass声明自己需要什么资源、读写什么附件、依赖什么其他Pass。<strong>不硬编码</strong>VkImage/VkBuffer。FrameGraph编译器自动推导屏障、布局转换、执行顺序。</p>
-
-  <h3>4.2 GPU-Driven 优先</h3>
-  <p>尽可能将决策推至GPU：GPU剔除→GPU间接绘制→Bindless全局描述符。减少CPU→GPU同步点。</p>
-
-  <h3>4.3 数据驱动与零硬编码</h3>
-  <p>渲染路径由场景配置/画质档位动态决定；Shader变体由材质参数驱动；帧图每帧动态构建。</p>
-
-  <h3>4.4 显存是首要约束</h3>
-  <p>纹理压缩优先于原始格式；资源别名复用；稀疏绑定分页加载。<strong>带宽优化优先于计算优化</strong>。</p>
-
-  <h2>5. 术语约定</h2>
-  <table>
-    <tr><th>术语</th><th>标准含义</th><th>常见误用</th></tr>
-    <tr><td><strong>Multi-Draw Indirect (MDI)</strong></td><td>GPU生成间接绘制命令</td><td>❌ "Multi-Draw Direct"</td></tr>
-    <tr><td><strong>FrameGraph</strong></td><td>行业通用术语，每帧动态构建的渲染DAG</td><td>❌ 与RDG混为一谈</td></tr>
-    <tr><td><strong>光追阴影/反射</strong></td><td>属于<strong>主渲染阶段</strong></td><td>❌ 归类至后处理</td></tr>
-    <tr><td><strong>Bindless</strong></td><td>全局描述符数组，Shader索引访问</td><td>❌ "无描述符"</td></tr>
-    <tr><td><strong>GPU-Driven</strong></td><td>GPU自主完成剔除/绘制命令生成</td><td>❌ 仅指"GPU计算加速"</td></tr>
-  </table>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════ -->
-<!-- Section 01: 渲染管线分层架构 -->
-<!-- ═══════════════════════════════════════════════════════════ -->
-<div class="section" id="s01">
-  <div class="section-title"><span class="section-number">01</span>渲染管线分层架构</div>
-
-  <div class="note">本文档是系列第 <strong>1</strong> 篇，详细阐述三大渲染阶段的职责划分、标准Pass清单与数据流转。</div>
-
-  <h2>1. 三大渲染阶段概述</h2>
-
-  <div class="diagram">
-  场景数据                  帧缓冲输出
-     │                         │
-     ▼                         ▼
-┌──────────┐  ┌──────────┐  ┌──────────┐
-│ 预处理    │─▶│ 主渲染    │─▶│ 后处理    │
-│ (GPU预计算)│  │(画面基础  │  │(屏幕空间  │
-│            │  │ 生成)     │  │ 合成)     │
-└──────────┘  └──────────┘  └──────────┘
-  计算管线     图形/Mesh/     图形/计算
-  Mesh管线     光追管线       管线
+  <div class="note">
+    建议阅读顺序：<strong>00 → 01 → 02 → 03 → 04 → 05 → 06 → 07 → 12 → 13 → 14 → 08 → 09 → 10 → 11</strong>。
+    其中 <strong>13（UE5.8 的 RDG 资源与 RHI 资源）</strong> 以工业引擎为案例印证 06/07 的通用 FrameGraph 抽象；
+    <strong>14（Pass 概念分层解析）</strong> 专门厘清"Pass 重载词"与 Pass/Pipeline/DrawCall/RenderPass 的正交关系，建议先读再回头看 06/07/13。
   </div>
 
-  <table>
-    <tr><th>阶段</th><th>职责定位</th><th>可用管线类型</th></tr>
-    <tr><td><strong>预处理</strong></td><td>GPU预计算，为主渲染准备高效数据</td><td>计算管线、Mesh着色图形管线</td></tr>
-    <tr><td><strong>主渲染</strong></td><td>画面基础内容生成</td><td>标准图形管线、Mesh管线、光线追踪管线</td></tr>
-    <tr><td><strong>后处理</strong></td><td>屏幕空间合成与滤波</td><td>图形管线、计算管线</td></tr>
-  </table>
+  <div class="section-title">全部文档</div>
+  <div class="cards">
 
-  <div class="warn">⚠️ <strong>关键纠正</strong>：光追阴影与光追反射属于<strong>主渲染阶段</strong>（使用光线追踪管线），而非后处理。后处理仅负责屏幕空间滤波操作。</div>
+    <div class="card" id="s00">
+      <span class="badge">00</span>
+      <h3><a href="00-总览与架构概览.md">总览与架构概览</a></h3>
+      <ul>
+        <li>四层递进架构（选型/核心/FrameGraph/执行）</li>
+        <li>核心设计原则：声明式、GPU-Driven、显存优先</li>
+        <li>统一术语约定与读者对象</li>
+      </ul>
+    </div>
 
-  <h2>2. 预处理阶段标准Pass清单</h2>
+    <div class="card" id="s01">
+      <span class="badge">01</span>
+      <h3><a href="01-渲染管线分层架构.md">渲染管线分层架构</a></h3>
+      <ul>
+        <li>预处理 / 主渲染 / 后处理三阶段</li>
+        <li>标准 Pass 清单与数据流转</li>
+        <li>光追阴影/反射归属主渲染阶段的纠正</li>
+      </ul>
+    </div>
 
-  <h3>Pass 1: GPU视锥与遮挡剔除</h3>
-  <p>在GPU上执行视锥剔除和遮挡剔除，过滤不可见物体，生成可见物体的间接绘制命令。</p>
-  <div class="diagram">
-CPU提交: 全场景物体AABB/OBB数据 → GPU Buffer
-GPU计算:
-  1. 每个物体执行视锥六面测试
-  2. 对通过视锥测试的物体执行Hi-Z遮挡测试
-  3. 写入可见物体索引到Indirect Draw Buffer
-输出: VkDrawIndirectCommand Buffer (可见物体数量+偏移)
+    <div class="card" id="s02">
+      <span class="badge">02</span>
+      <h3><a href="02-Vulkan管线与着色器系统.md">Vulkan管线与着色器系统</a></h3>
+      <ul>
+        <li>四类管线类型（图形/Mesh/计算/光追）</li>
+        <li>着色器阶段精准对应</li>
+        <li>PipelineLayout 与 Bindless 描述符</li>
+      </ul>
+    </div>
+
+    <div class="card" id="s03">
+      <span class="badge">03</span>
+      <h3><a href="03-渲染架构选型与对比.md">渲染架构选型与对比</a></h3>
+      <ul>
+        <li>Forward / Forward+ / Deferred / TDBR</li>
+        <li>Clustered / VisBuffer / 混合管线对比矩阵</li>
+        <li>选型决策流程与推荐组合</li>
+      </ul>
+    </div>
+
+    <div class="card" id="s04">
+      <span class="badge">04</span>
+      <h3><a href="04-绘制性能优化.md">绘制性能优化</a></h3>
+      <ul>
+        <li>Multi-Draw Indirect（MDI）术语纠正</li>
+        <li>GPU-Driven 全流程</li>
+        <li>Bindless 索引、合批与排序策略</li>
+      </ul>
+    </div>
+
+    <div class="card" id="s05">
+      <span class="badge">05</span>
+      <h3><a href="05-资源管理体系.md">资源管理体系</a></h3>
+      <ul>
+        <li>CPU 端：LRU 缓存、流式加载、虚拟句柄</li>
+        <li>GPU 端：VMA、纹理压缩、显存优化</li>
+        <li>运行时：延迟释放、环形缓冲</li>
+      </ul>
+    </div>
+
+    <div class="card" id="s06">
+      <span class="badge">06</span>
+      <h3><a href="06-FrameGraph帧图系统.md">FrameGraph帧图系统</a></h3>
+      <ul>
+        <li>声明式 Pass 规范与虚拟资源句柄</li>
+        <li>帧图生命周期：构建/编译/执行/收尾</li>
+        <li>资源别名复用、自动屏障、Subpass 合并</li>
+      </ul>
+    </div>
+
+    <div class="card" id="s07">
+      <span class="badge">07</span>
+      <h3><a href="07-RDG与FrameGraph概念辨析.md">RDG与FrameGraph概念辨析</a></h3>
+      <ul>
+        <li>RDG = FrameGraph（UE 专属命名）</li>
+        <li>静态模板 vs 动态实例</li>
+        <li>自研引擎命名建议</li>
+      </ul>
+    </div>
+
+    <div class="card" id="s12">
+      <span class="badge">12</span>
+      <h3><a href="12-GPU资源术语分层解析.md">GPU资源术语分层解析</a></h3>
+      <ul>
+        <li>四层术语划分：硬件存储 / API 资源 / 视图绑定 / 内容资产</li>
+        <li>更新频率作为横切维度</li>
+        <li>跨层映射速查与常见混淆辨析</li>
+      </ul>
+    </div>
+
+    <div class="card" id="s13">
+      <span class="badge">13</span>
+      <h3><a href="13-UE5.8的RDG资源与RHI资源.md">UE5.8的RDG资源与RHI资源</a></h3>
+      <ul>
+        <li>RHI 平台抽象层：FRHIResource 体系与生命周期</li>
+        <li>RDG 声明式帧图：FRDGTexture/FRDGBuffer、瞬态与外部资源</li>
+        <li>二者映射、延迟绑定、别名/池化机制（UE5.8 工业案例）</li>
+      </ul>
+    </div>
+
+    <div class="card" id="s14">
+      <span class="badge">14</span>
+      <h3><a href="14-Pass概念分层解析.md">Pass概念分层解析</a></h3>
+      <ul>
+        <li>统一心智模型：Pass = 有界命名有序有 IO 的工作域</li>
+        <li>Pass ≠ Pipeline / DrawCall / RenderPass / Stage 正交纠偏</li>
+        <li>一帧端到端追踪 + 定位树 + RenderDoc 视角</li>
+      </ul>
+    </div>
+
+    <div class="card" id="s08">
+      <span class="badge">08</span>
+      <h3><a href="08-进阶技术拓展.md">进阶技术拓展</a></h3>
+      <ul>
+        <li>光追 / 神经渲染 / ReSTIR / NRD</li>
+        <li>Gpu 自主调度：Nanite / DGC / Work Graphs</li>
+        <li>平台专项优化与工具链</li>
+      </ul>
+    </div>
+
+    <div class="card" id="s09">
+      <span class="badge">09</span>
+      <h3><a href="09-整体架构与工作流总览.md">整体架构与工作流总览</a></h3>
+      <ul>
+        <li>全链路数据流与模块协作</li>
+        <li>单帧完整执行流程</li>
+        <li>多队列并行时序与关键设计决策</li>
+      </ul>
+    </div>
+
+    <div class="card" id="s10">
+      <span class="badge">10</span>
+      <h3><a href="10-现代图形API与GPU架构.md">现代图形API与GPU架构</a></h3>
+      <ul>
+        <li>传统 API 瓶颈与显式控制哲学</li>
+        <li>GPU 微架构：SM / RT Core / Tensor Core / Mesh Shader</li>
+        <li>现代 API 三方对比与迁移策略</li>
+      </ul>
+    </div>
+
+    <div class="card" id="s11">
+      <span class="badge">11</span>
+      <h3><a href="11-实时渲染产业演进史.md">实时渲染产业演进史</a></h3>
+      <ul>
+        <li>图形 API / GPU 硬件 / 引擎软件 / 划时代作品</li>
+        <li>四主线协同进化脉络</li>
+        <li>从固定功能到神经渲染的范式转移</li>
+      </ul>
+    </div>
+
   </div>
-
-  <h3>Pass 2: Depth Only深度预通道</h3>
-  <p>提前渲染场景深度，为遮挡剔除提供Hi-Z深度金字塔，为主渲染Early-Z提供预填深度。</p>
-
-  <h3>Pass 3: 蒙皮/曲面/海洋几何生成</h3>
-  <table>
-    <tr><th>几何类型</th><th>生成方式</th><th>Vulkan管线</th></tr>
-    <tr><td>骨骼蒙皮</td><td>Compute Shader逐顶点应用骨骼矩阵</td><td>计算管线</td></tr>
-    <tr><td>曲面细分</td><td>TCS/TES控制细分级别与顶点生成</td><td>图形管线(Tessellation)</td></tr>
-    <tr><td>海洋波形</td><td>Compute Shader根据波形参数生成网格</td><td>计算管线</td></tr>
-    <tr><td>粒子几何</td><td>Compute Shader生成粒子Billboard</td><td>计算管线</td></tr>
-  </table>
-
-  <h3>Pass 4: 间接绘制命令Buffer生成</h3>
-  <p>汇总所有GPU-Driven绘制命令，生成最终的全场景间接绘制命令集。</p>
-  <pre><code>typedef struct VkDrawIndexedIndirectCommand {
-    uint32_t indexCount;
-    uint32_t instanceCount;   // GPU剔除后动态写入
-    uint32_t firstIndex;
-    int32_t  vertexOffset;
-    uint32_t firstInstance;
-} VkDrawIndexedIndirectCommand;</code></pre>
-
-  <h2>3. 主渲染阶段标准Pass清单</h2>
-
-  <h3>Pass 1: GBuffer生成</h3>
-  <table>
-    <tr><th>附件</th><th>格式</th><th>内容</th></tr>
-    <tr><td>RT0</td><td><code>R8G8B8A8_UNORM</code></td><td>基础色(RGB) + Alpha</td></tr>
-    <tr><td>RT1</td><td><code>R8G8B8A8_UNORM</code></td><td>法线(RGB) + 遮挡(A)</td></tr>
-    <tr><td>RT2</td><td><code>R8G8B8A8_UNORM</code></td><td>金属度(R) + 粗糙度(G) + AO(B) + 材质ID(A)</td></tr>
-    <tr><td>RT3</td><td><code>R16G16_SFLOAT</code></td><td>运动矢量(XY)</td></tr>
-    <tr><td>Depth</td><td><code>D32_SFLOAT</code></td><td>深度值</td></tr>
-  </table>
-  <div class="note"><strong>带宽优化</strong>：ORM三通道合并、法线使用八面体编码压缩为2通道。</div>
-
-  <h3>Pass 2~8: 阴影/反射/光照/透明/天空/粒子/运动矢量</h3>
-  <p>光照计算模式取决于架构选型（详见03篇），阴影支持光栅ShadowMap和光追阴影两种方案。</p>
-
-  <h2>4. 后处理阶段标准Pass清单</h2>
-  <table>
-    <tr><th>Pass</th><th>职责</th><th>关键技术</th></tr>
-    <tr><td>TAA</td><td>时域抗锯齿</td><td>运动矢量回溯+颜色裁剪+加权混合</td></tr>
-    <tr><td>超分(FSR/DLSS/XeSS)</td><td>低分辨率→高分辨率</td><td>时域超分+AI推理</td></tr>
-    <tr><td>色调映射</td><td>HDR→LDR</td><td>ACES Filmic / AgX / PQ曲线</td></tr>
-    <tr><td>Bloom</td><td>高光溢出辉光</td><td>预过滤→降采样→上采样→合成</td></tr>
-    <tr><td>DOF</td><td>景深</td><td>散景DOF / Coc半径控制</td></tr>
-    <tr><td>色彩调色</td><td>美术调色</td><td>3D LUT纹理采样</td></tr>
-    <tr><td>UI</td><td>叠加UI元素</td><td>独立前向Pass Alpha Blend</td></tr>
-  </table>
-
-  <h2>5. 关键数据接口</h2>
-  <table>
-    <tr><th>接口名</th><th>生产者</th><th>消费者</th><th>生命周期</th></tr>
-    <tr><td>间接绘制命令Buffer</td><td>预处理·剔除</td><td>主渲染·GBuffer</td><td>单帧</td></tr>
-    <tr><td>Hi-Z深度金字塔</td><td>预处理·Depth Only</td><td>预处理·剔除(下一帧)</td><td>跨帧</td></tr>
-    <tr><td>GBuffer附件集</td><td>主渲染·GBuffer</td><td>主渲染·光照+后处理</td><td>单帧</td></tr>
-    <tr><td>运动矢量</td><td>主渲染·GBuffer</td><td>后处理·TAA/超分/运动模糊</td><td>单帧</td></tr>
-    <tr><td>历史帧颜色</td><td>后处理·TAA(上一帧)</td><td>后处理·TAA(当前帧)</td><td>跨帧</td></tr>
-  </table>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════ -->
-<!-- Section 02: Vulkan管线与着色器系统 -->
-<!-- ═══════════════════════════════════════════════════════════ -->
-<div class="section" id="s02">
-  <div class="section-title"><span class="section-number">02</span>Vulkan管线与着色器系统</div>
-
-  <div class="note">本文档是系列第 <strong>2</strong> 篇，阐述四类管线类型、着色器精准对应、PipelineLayout与Bindless描述符系统。</div>
-
-  <h2>1. Vulkan管线类型体系</h2>
-  <table>
-    <tr><th>管线类型</th><th>Vulkan常量</th><th>着色器阶段组合</th><th>最小必选</th></tr>
-    <tr><td>传统图形管线</td><td><code>GRAPHICS</code></td><td>VS+(TCS+TES)+(GS)+FS</td><td>VS, FS</td></tr>
-    <tr><td>Mesh图形管线</td><td><code>GRAPHICS</code></td><td>(Task)+Mesh+FS</td><td>Mesh, FS</td></tr>
-    <tr><td>计算管线</td><td><code>COMPUTE</code></td><td>Compute</td><td>Compute</td></tr>
-    <tr><td>光线追踪管线</td><td><code>RAY_TRACING_KHR</code></td><td>Raygen+Intersection+Any-Hit+Closest-Hit+Miss+Callable</td><td>Raygen, Closest-Hit, Miss</td></tr>
-  </table>
-
-  <div class="warn">⚠️ Mesh Shader管线与传统VS/TCS/TES/GS<strong>不兼容</strong>，不可在同一管线中混合使用。</div>
-
-  <h2>2. Mesh Shader管线</h2>
-  <p>Mesh Shader是图形管线的新一代替代方案，取代传统VS→GS流程：</p>
-  <div class="diagram">
-输入装配 ──▶ Task着色器 ──▶ Mesh着色器 ──▶ 片段着色器 ──▶ 输出合并
-   (IA)       (Task)        (Mesh)        (FS)         (OM)
-  </div>
-  <p><strong>核心优势</strong>：集群级剔除(Task Shader)、灵活输出、GPU自主调度。</p>
-
-  <h2>3. 光线追踪管线六大着色器</h2>
-  <table>
-    <tr><th>阶段</th><th>Vulkan枚举</th><th>核心职责</th></tr>
-    <tr><td><strong>Raygen</strong></td><td><code>RAYGEN_BIT_KHR</code></td><td>射线生成入口</td></tr>
-    <tr><td><strong>Intersection</strong></td><td><code>INTERSECTION_BIT_KHR</code></td><td>自定义几何交叉测试</td></tr>
-    <tr><td><strong>Any-Hit</strong></td><td><code>ANY_HIT_BIT_KHR</code></td><td>射线沿途任意交叉点(透明过滤)</td></tr>
-    <tr><td><strong>Closest-Hit</strong></td><td><code>CLOSEST_HIT_BIT_KHR</code></td><td>最近交叉点着色(光照/阴影)</td></tr>
-    <tr><td><strong>Miss</strong></td><td><code>MISS_BIT_KHR</code></td><td>射线未命中(天空色)</td></tr>
-    <tr><td><strong>Callable</strong></td><td><code>CALLABLE_BIT_KHR</code></td><td>辅助函数(随机数/纹理/LOD)</td></tr>
-  </table>
-
-  <h2>4. PipelineLayout与描述符系统</h2>
-  <div class="diagram">
-PipelineLayout
-├─ 描述符集 0 (全局Bindless)       ← 跨管线共享
-│  ├─ Binding 0: 全局纹理数组       ← CombinedImageSampler[4096]
-│  ├─ Binding 1: 全局Buffer数组     ← StorageBuffer[4096]
-│  └─ Binding 2: 全局加速结构数组    ← AccelerationStructureKHR[256]
-├─ 描述符集 1 (帧级Uniform)        ← 每帧更新
-│  ├─ Binding 0: 帧Uniform Buffer   ← 相机、光照参数
-├─ 描述符集 2 (Pass级资源)         ← 每Pass更新
-│  ├─ Binding 0: Pass输入附件       ← GBuffer/深度
-└─ Push Constant Range             ← 快速逐调用参数
-   ├─ Offset 0: 物体索引           ← 4 bytes!
-  </div>
-
-  <h2>5. Bindless无绑定扩展</h2>
-  <p>核心扩展：<code>VK_EXT_descriptor_indexing</code>。通过全局资源数组消除逐绑定切换：</p>
-  <pre><code>// GLSL Bindless使用
-layout(set = 0, binding = 0) uniform texture2D globalTextures[];
-layout(set = 0, binding = 1) uniform sampler globalSamplers[];
-
-layout(push_constant) uniform PushConstants {
-    uint materialIndex;  // 仅4 bytes!
-} pc;
-
-void main() {
-    vec3 albedo = texture(sampler2D(
-        globalTextures[mat.albedoTextureIndex],
-        globalSamplers[0]), uv).rgb;
-}</code></pre>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════ -->
-<!-- Section 03: 渲染架构选型与对比 -->
-<!-- ═══════════════════════════════════════════════════════════ -->
-<div class="section" id="s03">
-  <div class="section-title"><span class="section-number">03</span>渲染架构选型与对比</div>
-
-  <div class="note">本文档是系列第 <strong>3</strong> 篇，对比主流渲染架构的设计原理、优劣与适用场景。</div>
-
-  <h2>综合对比表</h2>
-  <table>
-    <tr><th>维度</th><th>Forward</th><th>Forward+</th><th>Deferred</th><th>TDBR</th><th>Clustered</th><th>VisBuffer</th><th>混合管线</th></tr>
-    <tr><td>光源上限</td><td>少量</td><td>中量</td><td>大量</td><td>大量</td><td>极大量</td><td>取决于后续</td><td>极大量</td></tr>
-    <tr><td>材质灵活性</td><td>极高</td><td>高</td><td>中</td><td>中</td><td>中</td><td>极高</td><td>高</td></tr>
-    <tr><td>透明物体</td><td>天然支持</td><td>需额外处理</td><td>需单独Pass</td><td>需单独Pass</td><td>需额外</td><td>需单独</td><td>光追替代</td></tr>
-    <tr><td>Overdraw</td><td>有</td><td>有(缓解)</td><td>无</td><td>无</td><td>无</td><td>无</td><td>光栅有</td></tr>
-    <tr><td>带宽消耗</td><td>低</td><td>中</td><td>高</td><td>低</td><td>高</td><td>极低</td><td>高</td></tr>
-    <tr><td>移动端</td><td>★★★★★</td><td>★★★★</td><td>★★</td><td>★★★★★</td><td>★★★</td><td>★★</td><td>★</td></tr>
-    <tr><td>桌面端</td><td>★★</td><td>★★★</td><td>★★★★★</td><td>★★</td><td>★★★★★</td><td>★★★★</td><td>★★★★★</td></tr>
-  </table>
-
-  <h2>选型决策流程</h2>
-  <div class="diagram">
-                    ├─ 移动端?
-                    │  ├─ 少量光源 → Forward
-                    │  ├─ 中量光源 → Forward+
-                    │  └─ TBDR GPU → TDBR
-                    │
-场景平台 ──────────┤─ 桌面端/主机?
-                    │  ├─ 大量光源+材质简单 → Deferred + Clustered
-                    │  ├─ 大量光源+材质复杂 → Clustered Deferred
-                    │  ├─ 支持RT GPU → 混合管线
-                    │  └─ Mesh Shader+虚拟几何 → Visibility Buffer
-                    │
-                    └─ VR/AR → Clustered Forward+ (Multiview)
-  </div>
-
-  <h2>推荐组合方案</h2>
-  <table>
-    <tr><th>目标场景</th><th>推荐架构</th><th>理由</th></tr>
-    <tr><td>移动端中等画质</td><td>Forward + 简单阴影</td><td>实现简单、带宽低</td></tr>
-    <tr><td>移动端高画质</td><td>Clustered Forward+</td><td>更多光源、材质灵活</td></tr>
-    <tr><td>PC 3A级</td><td>Clustered Deferred + 混合RT</td><td>大量光源+光追质量</td></tr>
-    <tr><td>PC下一代引擎</td><td>VisBuffer + Mesh Shader + 混合RT</td><td>极低带宽+材质无限灵活</td></tr>
-    <tr><td>VR/AR</td><td>Clustered Forward+ (Multiview)</td><td>低延迟+多视图</td></tr>
-  </table>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════ -->
-<!-- Section 04: 绘制性能优化 -->
-<!-- ═══════════════════════════════════════════════════════════ -->
-<div class="section" id="s04">
-  <div class="section-title"><span class="section-number">04</span>绘制性能优化</div>
-
-  <div class="note">本文档是系列第 <strong>4</strong> 篇，阐述GPU-Driven绘制优化体系。</div>
-
-  <div class="warn">⚠️ <strong>术语纠正</strong>：正确术语为 Multi-Draw <strong>Indirect</strong> (MDI)，而非 "Multi-Draw Direct"。Direct需CPU逐物体提交，Indirect由GPU生成命令。</div>
-
-  <h2>1. GPU-Driven全流程</h2>
-  <div class="diagram">
-传统 (CPU-Driven):
-  CPU: 逐物体判断可见→逐物体提交Draw命令→GPU执行
-  N物体 = N次API调用
-
-GPU-Driven:
-  CPU: 提交全场景数据(1次)→剔除Dispatch(1次)→DrawIndirect(1次)
-  GPU: 自主剔除→生成间接命令→自主绘制
-  CPU仅3次API调用!
-  </div>
-
-  <h2>2. Multi-Draw Indirect实现</h2>
-  <pre><code>// Compute Shader: GPU剔除 + 间接命令生成
-layout(local_size_x = 256) in;
-layout(std430) buffer IndirectCommands {
-    VkDrawIndexedIndirectCommand commands[];
-};
-layout(std430) buffer VisibleCount {
-    uint visibleCount;
-};
-
-void main() {
-    uint objectID = gl_GlobalInvocationID.x;
-    if (!isVisible(objectID)) return;
-
-    uint visibleIndex = atomicAdd(visibleCount, 1);
-    commands[visibleIndex].indexCount    = meshIndexCounts[objectID];
-    commands[visibleIndex].instanceCount = 1;
-    commands[visibleIndex].firstIndex    = meshIndexOffsets[objectID];
-    commands[visibleIndex].vertexOffset  = meshVertexOffsets[objectID];
-}</code></pre>
-
-  <h2>3. Bindless资源索引</h2>
-  <div class="diagram">
-传统逐绑定模式: N物体 = N次描述符绑定切换 = N次GPU状态失效
-Bindless模式: 1次描述符绑定 → Shader通过材质索引直接访问全局数组
-  </div>
-
-  <h2>4. 合批与排序策略</h2>
-  <p><strong>状态切换代价排序</strong>（从高到低）：管线切换 > 描述符集切换 > 顶点绑定切换 > Push Constant更新</p>
-  <p>不透明物体从前到后排序(减少Overdraw)，透明物体从后到前排序(保证混合正确)。</p>
-
-  <h2>5. Push Constant vs Dynamic UBO</h2>
-  <table>
-    <tr><th>维度</th><th>Push Constant</th><th>Dynamic UBO</th></tr>
-    <tr><td>数据大小</td><td>128~256 bytes</td><td>无限制</td></tr>
-    <tr><td>描述符开销</td><td><strong>无</strong></td><td>需描述符绑定</td></tr>
-    <tr><td>适用数据</td><td>物体索引、小参数</td><td>变换矩阵、大参数</td></tr>
-  </table>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════ -->
-<!-- Section 05: 资源管理体系 -->
-<!-- ═══════════════════════════════════════════════════════════ -->
-<div class="section" id="s05">
-  <div class="section-title"><span class="section-number">05</span>资源管理体系</div>
-
-  <div class="note">本文档是系列第 <strong>5</strong> 篇，阐述引擎全链路资源管理体系。</div>
-
-  <h2>1. CPU端资源管理</h2>
-  <h3>LRU缓存</h3>
-  <p>最近最少使用缓存管理已加载资源，避免重复加载与内存膨胀。</p>
-
-  <h3>大世界流式加载</h3>
-  <p>仅加载玩家周围区域的资源，近处优先加载，远处降级驱逐。</p>
-
-  <h3>虚拟资源句柄</h3>
-  <p>上层代码通过虚拟资源句柄引用资源，<strong>永远不等待</strong>加载，始终有fallback可用。</p>
-
-  <h3>离线预优化</h3>
-  <table>
-    <tr><th>预优化项</th><th>运行时收益</th></tr>
-    <tr><td>自定义二进制格式</td><td>加载速度提升5~10×</td></tr>
-    <tr><td>预压缩纹理(BCn/ASTC)</td><td>运行时无需解压</td></tr>
-    <tr><td>预编译Shader变体+PipelineCache</td><td>管线创建加速</td></tr>
-    <tr><td>预构建BLAS</td><td>运行时仅需TLAS增量更新</td></tr>
-  </table>
-
-  <h2>2. GPU端显存管理</h2>
-  <h3>VMA显存分配器</h3>
-  <table>
-    <tr><th>用途</th><th>VMA_USAGE</th><th>典型资源</th></tr>
-    <tr><td>GPU专用读写</td><td><code>AUTO_PREFER_DEVICE</code></td><td>顶点/索引Buffer、RT纹理</td></tr>
-    <tr><td>CPU→GPU上传</td><td><code>AUTO_PREFER_HOST</code></td><td>Staging上传Buffer</td></tr>
-    <tr><td>CPU频繁更新</td><td><code>CPU_TO_GPU</code></td><td>Dynamic UBO</td></tr>
-  </table>
-
-  <h3>纹理压缩</h3>
-  <table>
-    <tr><th>格式</th><th>压缩比</th><th>适用平台</th></tr>
-    <tr><td>BC7</td><td>3:1~4:1</td><td>PC/Xbox</td></tr>
-    <tr><td>BC5</td><td>4:1</td><td>PC (法线)</td></tr>
-    <tr><td>ASTC 4×4</td><td>8:1</td><td>移动端(高质量)</td></tr>
-    <tr><td>ASTC 6×6</td><td>12:1</td><td>移动端(平衡)</td></tr>
-  </table>
-
-  <h3>显存优化</h3>
-  <ul>
-    <li><strong>稀疏绑定</strong>：虚拟纹理分页加载，仅驻留当前需要页面</li>
-    <li><strong>独立显存池</strong>：RT/Buffer/纹理分区分配减少碎片</li>
-    <li><strong>热点压缩</strong>：八面体法线编码(3→2通道)、ORM合并纹理</li>
-  </ul>
-
-  <h2>3. 运行时生命周期</h2>
-  <ul>
-    <li><strong>描述符池</strong>：每帧重置（整池回收，零逐个释放开销）</li>
-    <li><strong>延迟释放队列</strong>：GPU帧完成后才回收显存资源</li>
-    <li><strong>环形缓冲</strong>：Per-frame动态Uniform复用内存块</li>
-  </ul>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════ -->
-<!-- Section 06: FrameGraph帧图系统 -->
-<!-- ═══════════════════════════════════════════════════════════ -->
-<div class="section" id="s06">
-  <div class="section-title"><span class="section-number">06</span>FrameGraph帧图系统</div>
-
-  <div class="note">本文档是系列第 <strong>6</strong> 篇，阐述声明式FrameGraph帧图系统的设计理念与完整生命周期。</div>
-
-  <h2>1. 设计理念</h2>
-  <p>FrameGraph采用<strong>声明式设计</strong>：工程师只声明"我要什么"，系统自动推导"如何安排"。</p>
-  <p><strong>核心抽象</strong>：虚拟资源句柄。FrameGraph内部所有资源使用虚拟句柄引用，<strong>不硬编码VkImage/VkBuffer</strong>。</p>
-
-  <h2>2. Pass声明五组信息</h2>
-  <ol>
-    <li>绑定管线类型（图形/计算/光追）+ Shader入口</li>
-    <li>资源布局（全局Bindless表 + 帧Uniform + 内部临时资源）</li>
-    <li>附件信息（色彩/深度 + Load/Store操作 + 清除参数）</li>
-    <li>依赖关系（读取哪些Pass的输出、写入哪些资源）</li>
-    <li>自动生成（Shader头文件 + PipelineLayout + Bindless索引）</li>
-  </ol>
-
-  <h2>3. 帧图完整生命周期</h2>
-
-  <h3>3.1 构建阶段</h3>
-  <p>收集当前帧所有活跃Pass（根据开关、可见性剔除无效节点），生成DAG有向无环图。</p>
-
-  <h3>3.2 编译阶段（核心优化）</h3>
-  <p>五项优化：</p>
-  <ol>
-    <li><strong>无效Pass剔除</strong>：输出不被消费的Pass可剔除</li>
-    <li><strong>资源别名复用</strong>：不同Pass分时共用同一块RT/Buffer物理显存</li>
-    <li><strong>自动屏障推导</strong>：根据Pass间读写依赖自动生成VkImageMemoryBarrier</li>
-    <li><strong>Subpass合并</strong>：连续Pass合并为同一RenderPass的Subpass（移动端TBDR优化）</li>
-    <li><strong>管线缓存查找/动态创建</strong></li>
-  </ol>
-
-  <div class="diagram">
-别名复用效果:
-  无优化: GBuffer(100MB) + LightingOutput(50MB) + BloomTemp(30MB) = 180MB
-  有优化: GBuffer→光照后释放→Bloom复用GBuffer显存 = 150MB (节省30MB)
-  </div>
-
-  <h3>3.3 执行阶段</h3>
-  <p>多线程并行录制CommandBuffer，按拓扑顺序提交队列。配合Timeline信号量、Fence做多队列同步。</p>
-
-  <h3>3.4 收尾阶段</h3>
-  <p>延迟释放过期资源、重置环形缓冲、重置帧级描述符池、更新历史帧资源。</p>
-
-  <h2>4. 编译优化效果</h2>
-  <table>
-    <tr><th>优化项</th><th>无优化</th><th>有优化</th><th>节省</th></tr>
-    <tr><td>活跃Pass数</td><td>25个(全)</td><td>15个(动态剔除)</td><td>40%GPU时间</td></tr>
-    <tr><td>显存占用</td><td>300MB(独立)</td><td>180MB(别名)</td><td>40%显存</td></tr>
-    <tr><td>屏障数量</td><td>50个(保守)</td><td>15个(精确)</td><td>70%管线阻塞</td></tr>
-  </table>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════ -->
-<!-- Section 07: RDG与FrameGraph概念辨析 -->
-<!-- ═══════════════════════════════════════════════════════════ -->
-<div class="section" id="s07">
-  <div class="section-title"><span class="section-number">07</span>RDG与FrameGraph概念辨析</div>
-
-  <div class="note">本文档是系列第 <strong>7</strong> 篇，澄清RDG与FrameGraph的概念关系。</div>
-
-  <h2>核心结论</h2>
-  <div class="note" style="font-size:16px; padding:16px 20px;">
-    <strong>RDG与FrameGraph是同一个东西</strong>。RDG是UE4/5对FrameGraph的专属命名，本质实现完全一致。<br>
-    <strong>自研系统统一使用FrameGraph命名更通用</strong>。
-  </div>
-
-  <h2>通用定义对比</h2>
-  <table>
-    <tr><th>特征</th><th>RDG (UE)</th><th>FrameGraph (通用)</th></tr>
-    <tr><td>动态构建</td><td>每帧根据场景重建</td><td>每帧根据场景重建</td></tr>
-    <tr><td>声明式Pass</td><td>SetupFunc声明依赖</td><td>DeclareDependencies声明</td></tr>
-    <tr><td>自动屏障</td><td>RDG自动推导</td><td>FrameGraph自动推导</td></tr>
-    <tr><td>资源别名</td><td>RDG Pool Aliasing</td><td>FrameGraph Alias复用</td></tr>
-    <tr><td>DAG结构</td><td>FRDGBuilder构建DAG</td><td>FrameGraph::BuildDAG</td></tr>
-  </table>
-
-  <h2>静态模板 vs 动态实例</h2>
-  <p><strong>静态模板</strong>：引擎初始化时注册所有标准Pass配置模板 → <strong>候选池</strong>（非固定帧图）</p>
-  <p><strong>动态实例</strong>：每帧根据场景配置从候选池选择活跃Pass → 动态构建专属执行图</p>
-  <div class="warn">❌ "RDG是UE引擎内部固定的渲染管线图" — 这是错误的。RDG<strong>每帧动态构建</strong>。</div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════ -->
-<!-- Section 08: 进阶技术拓展 -->
-<!-- ═══════════════════════════════════════════════════════════ -->
-<div class="section" id="s08">
-  <div class="section-title"><span class="section-number">08</span>进阶技术拓展</div>
-
-  <div class="note">本文档是系列第 <strong>8</strong> 篇，标识当前体系尚未覆盖的前沿技术方向。</div>
-
-  <h2>1. 渲染算法前沿</h2>
-  <table>
-    <tr><th>技术</th><th>原理</th><th>当前成熟度</th></tr>
-    <tr><td>完整实时路径追踪</td><td>逐像素递归射线追踪</td><td>高端桌面端可用</td></tr>
-    <tr><td>ReSTIR时空样本复用</td><td>邻域样本复用减少方差</td><td>商用(NVIDIA)</td></tr>
-    <tr><td>NRD/AI降噪器</td><td>空域+时域+虚方差降噪</td><td>平台专用(NVIDIA/AMD/Intel)</td></tr>
-    <tr><td>神经材质</td><td>神经网络拟合BRDF</td><td>实验阶段</td></tr>
-    <tr><td>神经辐照度缓存</td><td>神经网络缓存+插值间接光照</td><td>实验阶段</td></tr>
-    <tr><td>体积云/雾Ray Marching</td><td>视线方向步进积分</td><td>成熟</td></tr>
-    <tr><td>次表面皮肤散射</td><td>SSS专用管线</td><td>成熟</td></tr>
-  </table>
-
-  <h2>2. 几何与GPU自主调度</h2>
-  <table>
-    <tr><th>技术</th><th>说明</th><th>Vulkan扩展</th></tr>
-    <tr><td>Nanite式虚拟几何体</td><td>Meshlet集群+动态LOD+VisBuffer</td><td><code>VK_EXT_mesh_shader</code></td></tr>
-    <tr><td>Device Generated Commands</td><td>GPU自主生成绘制命令</td><td><code>VK_EXT_device_generated_commands</code></td></tr>
-    <tr><td>Work Graphs</td><td>GPU端DAG调度级联计算</td><td><code>VK_KHR_work_graph</code>(草案)</td></tr>
-    <tr><td>动态BVH增量更新</td><td>仅更新变化部分</td><td>Vulkan RT原生支持</td></tr>
-  </table>
-
-  <h2>3. 平台专项优化</h2>
-  <ul>
-    <li><strong>移动端TBDR</strong>：Subpass合并 + PLS + ASTC + 注视点渲染</li>
-    <li><strong>VR/AR</strong>：Multiview多视图 + 眼球追踪注视点 + 预测时序渲染(ATW)</li>
-    <li><strong>HDR完整管线</strong>：PQ色彩空间 + 广色域交换链 + HDR10/Dolby Vision</li>
-  </ul>
-
-  <h2>4. 配套工具链</h2>
-  <ul>
-    <li>Shader变体管理流水线：离线编译→SPIR-V反射→绑定代码生成→PipelineCache持久化</li>
-    <li>离线烘焙工具：法线/位移贴图、Meshlet集群、Impostor、光照探针</li>
-    <li>性能调试：GPU计数器(<code>VK_EXT_performance_query</code>)、Pass耗时可视化、RenderDoc集成</li>
-  </ul>
-
-  <h2>5. 技术拓展路线图</h2>
-  <div class="diagram">
-Phase 1: 基础完善 (Shader变体+性能调试+压缩+PipelineCache)
-  └─▶ Phase 2: 渲染质量 (Clustered+体积+SSS+ReSTIR+HDR)
-      └─▶ Phase 3: 光追混合 (光追阴影+反射+降噪+动态BVH)
-          └─▶ Phase 4: GPU自主调度 (Nanite+VisBuffer+DGC+WorkGraph)
-              └─▶ Phase 5: 神经渲染 (超分+辐照度缓存+材质)
-                  └─▶ Phase 6: 平台专项 (VR/AR+移动端+HDR)
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════ -->
-<!-- Section 09: 整体架构与工作流总览 -->
-<!-- ═══════════════════════════════════════════════════════════ -->
-<div class="section" id="s09">
-  <div class="section-title"><span class="section-number">09</span>整体架构与工作流总览</div>
-
-  <div class="note">本文档是系列第 <strong>9</strong> 篇（终篇），提供全链路数据流、模块协作与执行流程的全景视图。</div>
-
-  <h2>1. 整体架构总流程</h2>
-  <div class="diagram">
-引擎层（渲染架构选型→材质/光照模型确定）
-    ↓
-渲染核心层（FrameGraph声明式Pass管理）
-  ├─ 资源子系统（CPU加载+VMA显存分配+Bindless全局资源）
-  ├─ 管线子系统（图形/计算/Mesh/光追管线缓存）
-  └─ 同步子系统（自动屏障、多队列并行、帧延迟释放）
-    ↓
-执行层（多线程CB录制→GPU队列提交→Swapchain呈现）
-  </div>
-
-  <h2>2. 单帧完整执行流程</h2>
-  <div class="diagram">
-Step 1: 帧开始 ── 等待GPU完成+回收资源+重置池
-Step 2: 场景更新 ── 更新可见物体+光照+相机+画质配置
-Step 3: 资源加载 ── 流式加载+DMA上传+Bindless分配+AS更新
-Step 4: FG构建 ── 选择活跃Pass+声明依赖+构建DAG+剔除无效
-Step 5: FG编译 ── 别名复用+屏障推导+Subpass合并+管线查找
-Step 6: CB录制 ── 多线程并行录制各Pass命令
-Step 7: 队列提交 ── 计算队列+图形队列+传输队列(Timeline同步)
-Step 8: GPU执行 ── 自主执行全部Pass
-Step 9: 帧收尾 ── Present+历史帧更新+延迟释放+帧计数
-  </div>
-
-  <h2>3. 多队列并行时序</h2>
-  <div class="diagram">
-Transfer Queue:  资源上传DMA ─┤   AS增量更新 ─┤
-                Signal(sem_t1)
-
-Compute Queue:   GPU剔除 ─┤ HiZ ─┤ SSR ─┤ Bloom ─┤
-                Wait(sem_t1)  Signal(sem_c1..c2)
-
-Graphics Queue:  GBuffer ─┤ Shadow ─┤ Lighting ─┤ TAA ─┤ 合成 ─┤
-                Wait(sem_c1)  Wait(sem_c2)
-
-Present Queue:   Present ─┤
-
-Fence:          Signal(fN) ── CPU可回收资源
-  </div>
-
-  <h2>4. 关键设计决策总结</h2>
-  <table>
-    <tr><th>决策维度</th><th>推荐方案</th><th>核心理由</th></tr>
-    <tr><td>渲染架构</td><td>Clustered Deferred + 混合RT</td><td>大量光源+屏幕空间效果+光追质量</td></tr>
-    <tr><td>Pass管理</td><td>FrameGraph声明式帧图</td><td>自动依赖编排+资源优化+消除手动屏障</td></tr>
-    <tr><td>资源管理</td><td>VMA + Bindless + 延迟释放</td><td>显存高效+零逐绑定开销+安全回收</td></tr>
-    <tr><td>绘制优化</td><td>GPU-Driven + MDI + Bindless</td><td>CPU仅3次API调用</td></tr>
-    <tr><td>帧轮转</td><td>2~3帧延迟缓冲</td><td>GPU完成前不回收+环形复用</td></tr>
-    <tr><td>同步机制</td><td>Timeline Semaphore + Fence</td><td>多队列精确同步+帧完成确认</td></tr>
-  </table>
-
-  <h2>5. 系列文档回顾</h2>
-  <table>
-<!-- ═══════════════════════════════════════════════════════════ -->
-<!-- Section 10: 现代图形API与GPU架构 -->
-<!-- ═══════════════════════════════════════════════════════════ -->
-<div class="section" id="s10">
-  <div class="section-title"><span class="section-number">10</span>现代图形API与GPU架构</div>
-
-  <div class="note">本文档是系列第 <strong>10</strong> 篇，阐述现代图形API相对于传统API的革命性进步、现代GPU硬件架构如何驱动API设计，以及对高性能实时图形开发的深远影响。</div>
-
-  <h2>1. 为什么需要现代图形API？</h2>
-  <h3>1.1 传统API的根本瓶颈</h3>
-  <p>OpenGL与Direct3D 11为代表的传统图形API，诞生于GPU架构完全不同的时代。它们的核心问题并非某个单一缺陷，而是<strong>整体设计哲学与当代GPU硬件严重脱节</strong>：</p>
-
-  <table>
-    <tr><th>问题维度</th><th>传统API (OpenGL/D3D11)</th><th>症状</th></tr>
-    <tr><td><strong>驱动隐式同步</strong></td><td>驱动内部猜测开发者意图，自动插入屏障/等待</td><td>CPU stall、帧率不稳定、性能不可预测</td></tr>
-    <tr><td><strong>全局状态机</strong></td><td>绑定纹理、混合模式、深度测试等状态全局生效</td><td>状态泄漏、验证开销大、难以并行</td></tr>
-    <tr><td><strong>单队列提交</strong></td><td>所有GPU命令必须通过单一通道</td><td>计算与图形无法并行、异步计算闲置</td></tr>
-    <tr><td><strong>驱动端验证</strong></td><td>每次Draw Call驱动做合法性检查</td><td>CPU开销随绘制命令线性增长</td></tr>
-    <tr><td><strong>资源管理模糊</strong></td><td>驱动猜测资源生命周期与布局</td><td>隐式内存迁移、不可控带宽浪费</td></tr>
-    <tr><td><strong>缺乏多线程</strong></td><td>命令录制绑定到单一OpenGL上下文</td><td>多核CPU无法并行构建GPU命令</td></tr>
-  </table>
-
-  <div class="warn">⚠️ <strong>核心矛盾</strong>：传统API将<strong>太多决策权交给驱动层</strong>，驱动在"帮助"开发者的同时引入了不可预测的隐式行为。现代GPU的并行架构需要开发者<strong>显式声明</strong>一切。</div>
-
-  <h3>1.2 现代API的设计哲学转变</h3>
-  <div class="diagram">
-传统范式: 开发者 → 半语义API → 驱动猜测+隐式优化 → GPU
-现代范式: 开发者 → 显式声明API → 精确GPU指令   → GPU
-  </div>
-
-  <table>
-    <tr><th>设计原则</th><th>传统API</th><th>现代API</th></tr>
-    <tr><td><strong>同步控制</strong></td><td>驱动自动插入屏障</td><td>开发者显式声明屏障与布局转换</td></tr>
-    <tr><td><strong>状态管理</strong></td><td>全局状态机</td><td>管线状态对象(PSO)一次性绑定</td></tr>
-    <tr><td><strong>内存管理</strong></td><td>驱动隐式分配/迁移</td><td>开发者显式分配、绑定、控制 residency</td></tr>
-    <tr><td><strong>多线程</strong></td><td>单上下文序列化</td><td>多线程并行录制CommandBuffer</td></tr>
-    <tr><td><strong>错误检测</strong></td><td>运行时驱动验证</td><td>开发层Validation Layers，生产层零开销</td></tr>
-    <tr><td><strong>资源生命周期</strong></td><td>驱动猜测</td><td>开发者声明读写依赖，自动推导生命周期</td></tr>
-  </table>
-
-  <h3>1.3 性能差距：量化证据</h3>
-  <table>
-    <tr><th>场景</th><th>OpenGL/D3D11</th><th>Vulkan/D3D12</th><th>性能提升来源</th></tr>
-    <tr><td>大规模绘制(100k+ Draw Call)</td><td>CPU瓶颈，帧率&lt;10fps</td><td>CPU开销几乎为零，GPU满载运行</td><td>GPU-Driven Indirect Draw + Bindless</td></tr>
-    <tr><td>异步计算+图形并行</td><td>计算必须等图形队列空闲</td><td>计算队列与图形队列真正并行执行</td><td>多队列+Timeline Semaphore</td></tr>
-    <tr><td>多线程命令构建</td><td>单线程序列录制</td><td>8核并行录制，构建时间降至1/8</td><td>多CommandPool+并行CB录制</td></tr>
-    <tr><td>状态切换密集场景</td><td>每次切换驱动验证+缓存查找</td><td>PSO预编译，切换成本接近零</td><td>Pipeline State Object缓存</td></tr>
-    <tr><td>显存带宽敏感(大纹理)</td><td>驱动猜测布局，不可控迁移</td><td>显式布局转换，资源别名复用</td><td>自动屏障推导+显存别名</td></tr>
-  </table>
-
-  <div class="note"><strong>实测结论</strong>：在Draw Call密集的开放世界场景中，仅CPU端优化即可带来<strong>3-10倍帧率提升</strong>，完全来自API设计差异而非GPU硬件变化。</div>
-
-  <h2>2. 现代"在哪里"——核心特性清单</h2>
-  <h3>2.1 显式控制（Explicit Control）</h3>
-  <p>这是现代API<strong>最根本的特征</strong>。一切曾经由驱动隐式执行的操作，现在必须由开发者显式声明：</p>
-
-  <table>
-    <tr><th>控制维度</th><th>显式声明对象</th><th>Vulkan API对应</th></tr>
-    <tr><td><strong>管线状态</strong></td><td>顶点输入、着色器、混合、深度、光栅化等全部状态</td><td><code>VkGraphicsPipelineCreateInfo</code>一次性打包</td></tr>
-    <tr><td><strong>内存布局</strong></td><td>图像/缓冲在GPU内存中的布局与访问方式</td><td><code>VkImageMemoryBarrier</code>布局转换</td></tr>
-    <tr><td><strong>执行依赖</strong></td><td>Pass之间、队列之间的读写依赖</td><td><code>VkSubpassDependency</code>、<code>VkSemaphore</code></td></tr>
-    <tr><td><strong>资源分配</strong></td><td>显存的分配策略、内存类型选择</td><td>VMA显式选择<code>DEVICE_LOCAL</code>/<code>HOST_VISIBLE</code></td></tr>
-    <tr><td><strong>描述符绑定</strong></td><td>资源如何绑定到着色器</td><td><code>VkDescriptorSet</code>显式更新</td></tr>
-    <tr><td><strong>命令录制</strong></td><td>GPU命令在哪个线程、哪个Pool构建</td><td><code>VkCommandPool</code>+多线程<code>VkCommandBuffer</code></td></tr>
-  </table>
-
-  <div class="note"><strong>代价与回报</strong>：代码量增加约2-3倍、需深入理解GPU架构、调试门槛更高。回报：性能完全可控、可预测、可榨取GPU全部硬件能力。</div>
-
-  <h3>2.2 管线状态对象（Pipeline State Object, PSO）</h3>
-  <div class="diagram">
-传统: glBindTexture → glBlendFunc → glDepthFunc → ... → glDraw  (每次驱动内部hash查找)
-现代: vkCmdBindPipeline(preCompiledPSO) → vkCmdDraw               (零开销绑定)
-  </div>
-
-  <table>
-    <tr><th>维度</th><th>传统状态机</th><th>PSO</th></tr>
-    <tr><td>状态切换开销</td><td>驱动内部hash查找+可能重新编译</td><td>指针替换，接近零开销</td></tr>
-    <tr><td>状态泄漏风险</td><td>全局状态，前一个Pass的设置残留</td><td>PSO整体替换，无泄漏</td></tr>
-    <tr><td>多线程安全</td><td>全局状态机，必须互斥访问</td><td>每个线程独立CommandPool</td></tr>
-    <tr><td>预编译</td><td>运行时驱动编译</td><td>离线Pipeline Cache持久化</td></tr>
-  </table>
-
-  <h3>2.3 多队列并行（Multi-Queue Execution）</h3>
-  <div class="diagram">
-传统API时间线（单队列序列化）:
-
-  图形: [====GBuffer====][====Shadow====][====Light====]  →  [====Compute====]
-  计算:                                                       空闲等待...
-
-现代API时间线（多队列并行）:
-
-  图形: [====GBuffer====][====Shadow====][====Light====]  →  ...
-  计算: [==GPU Culling==][==Blur==][==Async PostFX==]          →  ...
-  传输: [=Staging Upload=]                                      →  ...
-
-         ← Timeline Semaphore同步关键节点 →
-  </div>
-
-  <table>
-    <tr><th>Vulkan队列类型</th><th>典型用途</th><th>现代API独有能力</th></tr>
-    <tr><td>Graphics Queue</td><td>光栅化Pass、Mesh Shader</td><td>与计算队列真正并行</td></tr>
-    <tr><td>Compute Queue</td><td>GPU剔除、后处理Compute、异步计算</td><td>不阻塞图形队列</td></tr>
-    <tr><td>Transfer Queue</td><td>DMA数据上传、纹理流式加载</td><td>不占用图形/计算队列带宽</td></tr>
-    <tr><td>Ray Tracing Queue</td><td>RT光线追踪（部分硬件独立）</td><td>光追与光栅异步执行</td></tr>
-  </table>
-
-  <h3>2.4 Bindless资源访问</h3>
-  <pre><code>// 传统: 绑定到槽位0、1、2... 最多128个纹理
-layout(binding = 0) uniform sampler2D tex0;
-layout(binding = 1) uniform sampler2D tex1;
-...
-
-// Bindless: 全局数组，Shader索引访问，容量可达数万
-layout(binding = 0) uniform sampler2D globalTextures[];
-uint materialIndex = perObjectData.materialIndex;
-vec4 albedo = texture(globalTextures[materialIndex], uv);</code></pre>
-
-  <table>
-    <tr><th>维度</th><th>传统绑定</th><th>Bindless</th></tr>
-    <tr><td>Draw Call与绑定耦合</td><td>每次Draw必须重新绑定资源</td><td>资源绑定一次，Draw Call无绑定开销</td></tr>
-    <tr><td>纹理数量上限</td><td>通常受槽位限制(~128)</td><td>数万纹理同时在线</td></tr>
-    <tr><td>GPU-Driven配合</td><td>不可能，GPU不知道绑定槽位</td><td>完美配合，GPU生成索引即可</td></tr>
-    <tr><td>描述符更新频率</td><td>每帧数千次</td><td>初始化一次，运行时零更新</td></tr>
-  </table>
-
-  <h3>2.5 多线程命令录制</h3>
-  <div class="diagram">
-线程0: 当制 GBuffer Pass CommandBuffer
-线程1: 当制 Shadow Pass CommandBuffer
-线程2: 当制 Compute Culling CommandBuffer
-线程3: 当制 PostProcess CommandBuffer
-         ↓
-主线程: 提交所有CB到GPU队列
-  </div>
-
-  <table>
-    <tr><th>对象</th><th>线程关系</th><th>Vulkan规则</th></tr>
-    <tr><td>VkCommandPool</td><td>每线程独占一个Pool</td><td>不同Pool的CB可并行录制</td></tr>
-    <tr><td>VkCommandBuffer</td><td>从Pool分配，单线程录制</td><td>同一Pool的CB不可并行录制</td></tr>
-    <tr><td>VkDescriptorPool</td><td>可多线程更新（需外部同步）</td><td>推荐Per-Pool Per-Thread</td></tr>
-    <tr><td>VkDevice</td><td>全局共享，多数操作线程安全</td><td>创建/销毁需同步</td></tr>
-  </table>
-
-  <h3>2.6 验证层分离（Validation Layers）</h3>
-  <table>
-    <tr><th>阶段</th><th>验证层状态</th><th>性能影响</th></tr>
-    <tr><td>开发调试</td><td>启用全部Validation Layers</td><td>~5-10%性能损失，但捕获所有错误</td></tr>
-    <tr><td>发行运行</td><td>禁用全部Layers</td><td><strong>零开销</strong>，驱动不做任何合法性检查</td></tr>
-  </table>
-
-  <div class="note"><strong>设计哲学</strong>：错误应该在开发阶段被消灭，而非让数百万用户的GPU为合法性检查付出永久代价。</div>
-
-  <h2>3. 现代GPU架构概述</h2>
-  <h3>3.1 GPU vs CPU：根本架构差异</h3>
-  <table>
-    <tr><th>维度</th><th>CPU</th><th>GPU</th></tr>
-    <tr><td><strong>核心数量</strong></td><td>4-16个复杂核心</td><td>数千个简单核心(NVIDIA: SM, AMD: CU)</td></tr>
-    <tr><td><strong>核心设计</strong></td><td>深流水线、高单线程性能、大缓存、分支预测</td><td>浅流水线、SIMD宽度32-64、极小缓存、无分支预测</td></tr>
-    <tr><td><strong>计算模式</strong></td><td>MIMD（每核心独立指令流）</td><td>SIMT（多核心共享指令流，数据并行）</td></tr>
-    <tr><td><strong>内存体系</strong></td><td>多级缓存(L1/L2/L3)，低延迟</td><td>极少量L1 + 共享L2，高延迟高带宽</td></tr>
-    <tr><td><strong>设计目标</strong></td><td>最小化单任务延迟</td><td>最大吞吐量（每秒处理多少任务）</td></tr>
-    <tr><td><strong>适合工作</strong></td><td>复杂逻辑、分支密集、串行算法</td><td>大规模数据并行、计算密集、低分支率</td></tr>
-  </table>
-
-  <h3>3.2 现代GPU微架构层级</h3>
-  <div class="diagram">
-┌─────────────────── GPU ──────────────────────┐
-│                                                │
-│  ┌─── GPC (Graphics Processing Cluster) ───┐  │
-│  │  ┌─── SM (Streaming Multiprocessor) ───┐ │  │
-│  │  │  128 CUDA Cores (4×32 SIMD单元)     │ │  │
-│  │  │  1 RT Core (光追加速)               │ │  │
-│  │  │  1 Tensor Core (AI推理加速)         │ │  │
-│  │  │  128KB L1 Data Cache / Shared Mem   │ │  │
-│  │  │  4 Warp Scheduler + Dispatch Unit   │ │  │
-│  │  └─────────────────────────────────────│ │  │
-│  │  × N SMs per GPC                        │ │  │
-│  │  × 1 Raster Engine per GPC              │ │  │
-│  └─────────────────────────────────────────│ │  │
-│  × M GPCs per GPU                            │  │
-│                                                │  │
-│  L2 Cache (数MB, 全GPU共享)                    │  │
-│  Memory Controller (HBM2e/GDDR6X接口)          │  │
-│  └─→ VRAM (数十GB, 高带宽 ~1TB/s)              │  │
-└────────────────────────────────────────────────┘
-  </div>
-
-  <table>
-    <tr><th>组件</th><th>功能</th><th>对API设计的影响</th></tr>
-    <tr><td><strong>SM/CU</strong></td><td>计算核心集群，执行Shader线程</td><td>SIMT执行模型 → Compute Shader以线程组(32/64)为单位调度</td></tr>
-    <tr><td><strong>RT Core</strong></td><td>专用光线追踪硬件：BVH遍历+光线-三角形相交</td><td>光追管线独立绑定点</td></tr>
-    <tr><td><strong>Tensor Core</strong></td><td>矩阵乘法加速（4×4到8×8块）</td><td>DLSS/XeSS等AI超分的硬件基础</td></tr>
-    <tr><td><strong>L1/Shared Memory</strong></td><td>SM内部低延迟存储</td><td>计算Shader线程组内数据共享、Subpass片上存储</td></tr>
-    <tr><td><strong>L2 Cache</strong></td><td>全GPU共享</td><td>纹理缓存命中率依赖访问模式，影响数据布局设计</td></tr>
-    <tr><td><strong>Raster Engine</strong></td><td>三角形光栅化、Early-Z、Sample率控制</td><td>PSO中光栅化状态不可变、深度预通道优化Early-Z</td></tr>
-    <tr><td><strong>Memory Controller</strong></td><td>显存带宽管理</td><td>纹理压缩(BCn/ASTC)减少带宽占用、稀疏绑定分页加载</td></tr>
-  </table>
-
-  <h3>3.3 GPU执行模型：从指令到像素</h3>
-  <div class="diagram">
-应用层: vkCmdDrawIndexed(instanceCount=1000, ...)
-    ↓
-GPU调度: 1000个instance → 32个Warp → 分配到SM执行
-    ↓
-SM执行: 每个Warp 32线程同步执行同一Shader指令
-    ↓    ┌─ 所有线程走同一分支 → 高效SIMD
-    │    └─ 分支分化 → 两个路径都要执行，掩码选择 → 性能损失
-    ↓
-光栅化: SM输出顶点 → Raster Engine光栅化 → 生成Fragment
-    ↓
-Pixel Shader: Fragment → SM执行Pixel/Fragment Shader
-    ↓
-ROP: Render Output Unit → 深度测试+颜色混合 → 写入帧缓冲
-  </div>
-
-  <table>
-    <tr><th>概念</th><th>含义</th><th>性能影响</th></tr>
-    <tr><td><strong>Warp/Wavefront</strong></td><td>32(NVIDIA)/64(AMD)个线程的调度单位</td><td>分支分化使一半线程空转</td></tr>
-    <tr><td><strong>Occupancy</strong></td><td>每SM同时活跃的Warp数量</td><td>高Occupancy掩盖延迟，但受寄存器/共享内存限制</td></tr>
-    <tr><td><strong>Latency Hiding</strong></td><td>不靠低延迟（CPU策略），靠高吞吐覆盖延迟</td><td>需要足够多并发Warp填充等待间隙</td></tr>
-    <tr><td><strong>Coalescing</strong></td><td>相邻线程访问相邻内存地址</td><td>单次内存事务服务32线程；散乱访问=32次事务</td></tr>
-    <tr><td><strong>Bank Conflict</strong></td><td>共享内存多线程同时访问同一Bank</td><td>访问序列化，吞吐降低</td></tr>
-  </table>
-
-  <h3>3.4 现代GPU的三大专用硬件</h3>
-
-  <h4>3.4.1 RT Core（光线追踪核心）</h4>
-  <table>
-    <tr><th>功能</th><th>硬件实现</th><th>Shader层面</th></tr>
-    <tr><td>BVH遍历</td><td>硬件遍历BVH节点，每光线可遍历数十亿节点</td><td><code>traceRayEXT()</code>一条指令即可</td></tr>
-    <tr><td>光线-三角形相交</td><td>硬件计算光线与三角形相交，无需Shader计算</td><td><code>rayQueryInitializeEXT()</code>查询模式</td></tr>
-    <tr><td>光线-Box相交</td><td>BVH节点AABB/OBB相交测试</td><td>自动执行</td></tr>
-    <tr><td>透明度处理</td><td>Alpha测试通过Any-Hit Shader回调</td><td>开发者编写Any-Hit决定是否接受命中</td></tr>
-  </table>
-
-  <table>
-    <tr><th>实现</th><th>1M光线场景遍历时间</th><th>说明</th></tr>
-    <tr><td>Compute Shader软件BVH遍历</td><td>~50ms</td><td>纯SIMD计算，内存访问不可控</td></tr>
-    <tr><td>RT Core硬件遍历</td><td>~0.5ms</td><td><strong>100倍加速</strong>，专用遍历+相交硬件</td></tr>
-  </table>
-
-  <h4>3.4.2 Tensor Core（AI推理核心）</h4>
-  <table>
-    <tr><th>代际</th><th>矩阵维度</th><th>精度</th><th>用途</th></tr>
-    <tr><td>Volta(V100)</td><td>4×4×4</td><td>FP16</td><td>初代，DLSS 1.0</td></tr>
-    <tr><td>Ampere(A100/RTX30)</td><td>4×8×4→16×8×8</td><td>FP16/INT8/BF16</td><td>DLSS 2.0+、推理加速</td></tr>
-    <tr><td>Ada(RTX40)</td><td>灵活块大小</td><td>FP8/FP16/INT8</td><td>DLSS 3 Frame Generation</td></tr>
-    <tr><td>Hopper(H100)</td><td>稀疏矩阵加速</td><td>FP8/FP16/INT8</td><td>大规模推理、可微渲染</td></tr>
-  </table>
-
-  <p><strong>图形应用</strong>：</p>
-  <ul>
-    <li><strong>DLSS / XeSS</strong>：Tensor Core做超分推理，4x低分辨率→高分辨率</li>
-    <li><strong>神经降噪(NRD)</strong>：时域/空域降噪滤波用小型CNN推理</li>
-    <li><strong>神经辐照度缓存</strong>：实时推理光照缓存值</li>
-    <li><strong>Frame Generation</strong>：DLSS 3在两帧之间推理生成中间帧</li>
-  </ul>
-
-  <h4>3.4.3 Mesh Shader管线（几何处理革新）</h4>
-  <div class="diagram">
-传统管线: IA → VS → (TCS → TES) → (GS) → FS
-            ↑ 固定功能输入组装
-            ↑ 逐顶点处理，无法灵活剔除
-
-Mesh管线: Task Shader → Mesh Shader → FS
-           ↑ 线程组决定是否生成Meshlet
-           ↑ 线程组直接输出顶点+三角形
-           ↑ 无固定功能输入组装，无逐顶点瓶颈
-  </div>
-
-  <table>
-    <tr><th>维度</th><th>传统管线</th><th>Mesh Shader管线</th></tr>
-    <tr><td>几何剔除粒度</td><td>逐物体（CPU端）</td><td>逐Meshlet集群（GPU端，32-128三角形）</td></tr>
-    <tr><td>输出灵活性</td><td>固定拓扑输入</td><td>程序化生成顶点/三角形</td></tr>
-    <tr><td>Draw Call开销</td><td>每物体一次</td><td>GPU自主调度，几乎无CPU开销</td></tr>
-    <tr><td>配套Nanite式LOD</td><td>不可能</td><td>Mesh Shader动态LOD + Cluster剔除</td></tr>
-  </table>
-
-  <h2>4. 现代GPU架构对实时图形开发的影响</h2>
-  <h3>4.1 对渲染架构设计的影响</h3>
-  <table>
-    <tr><th>GPU能力</th><th>渲染架构影响</th><th>传统时代做法</th></tr>
-    <tr><td><strong>高并行SM</strong></td><td>GPU-Driven全流程：GPU剔除→GPU排序→GPU绘制</td><td>CPU逐物体剔除→提交</td></tr>
-    <tr><td><strong>RT Core</strong></td><td>光追阴影/反射/GI成为实时可行方案</td><td>ShadowMap/Cubemap/屏幕空间近似</td></tr>
-    <tr><td><strong>Tensor Core</strong></td><td>AI超分替代手工抗锯齿/上采样方案</td><td>MSAA/TAA手动调参</td></tr>
-    <tr><td><strong>Mesh Shader</strong></td><td>Cluster级剔除+程序化几何，突破Draw Call瓶颈</td><td>实例化合批+LOD切换</td></tr>
-    <tr><td><strong>高带宽+大显存</strong></td><td>Bindless全局资源数组可行，数万纹理同时在线</td><td>逐帧绑定切换，纹理数量受限</td></tr>
-    <tr><td><strong>多队列</strong></td><td>计算与图形真正并行，异步后处理/计算穿插</td><td>一切序列化</td></tr>
-    <tr><td><strong>大L2缓存</strong></td><td>GBuffer带宽开销可控，延迟渲染可行</td><td>Forward渲染避免GBuffer带宽</td></tr>
-  </table>
-
-  <h3>4.2 对性能优化策略的影响</h3>
-  <table>
-    <tr><th>传统优化思路</th><th>现代GPU下的替代策略</th><th>原因</th></tr>
-    <tr><td>减少Draw Call数量</td><td>GPU-Driven Indirect Draw，Draw Call开销接近零</td><td>GPU自主生成绘制命令</td></tr>
-    <tr><td>减少纹理绑定切换</td><td>Bindless全局数组，零切换</td><td>描述符一次绑定，索引访问</td></tr>
-    <tr><td>减少状态切换</td><td>PSO预编译，切换零开销</td><td>管线状态对象一次性编译</td></tr>
-    <tr><td>减少CPU→GPU同步</td><td>Timeline Semaphore异步队列</td><td>多队列并行，同步精确化</td></tr>
-    <tr><td>减少带宽占用</td><td>纹理压缩+资源别名+稀疏绑定</td><td>显存仍是瓶颈，但管理方式革命</td></tr>
-    <tr><td>提高缓存命中率</td><td>数据布局对齐GPU缓存行/Bank</td><td>SIMT coalescing+Bank避免</td></tr>
-  </table>
-
-  <h3>4.3 对开发者能力模型的影响</h3>
-  <table>
-    <tr><th>知识域</th><th>传统开发者</th><th>现代开发者</th></tr>
-    <tr><td><strong>API使用</strong></td><td>OpenGL状态机+语义式调用</td><td>Vulkan显式对象创建+生命周期管理</td></tr>
-    <tr><td><strong>GPU架构</strong></td><td>"黑盒"——驱动处理一切</td><td>必须理解SM/Warp/缓存/带宽</td></tr>
-    <tr><td><strong>同步</strong></td><td>不需要——驱动自动同步</td><td>必须理解屏障、布局转换、Timeline</td></tr>
-    <tr><td><strong>内存管理</strong></td><td>不需要——驱动自动分配</td><td>必须理解VMA、内存类型、residency</td></tr>
-    <tr><td><strong>多线程</strong></td><td>不需要——单上下文</td><td>必须设计多线程命令录制架构</td></tr>
-    <tr><td><strong>调试</strong></td><td>glGetError检查</td><td>Validation Layers + RenderDoc + GPU Profiler</td></tr>
-    <tr><td><strong>性能分析</strong></td><td>"减少Draw Call"</td><td>GPU计数器+带宽分析+Warp效率分析</td></tr>
-  </table>
-
-  <h3>4.4 对引擎架构的系统性影响</h3>
-  <div class="diagram">
-现代GPU硬件能力          →  引擎架构模块
-━━━━━━━━━━━━━━━━━━━━━━    ━━━━━━━━━━━━━━
-多SM并行+高吞吐          →  GPU-Driven Pipeline (04篇)
-RT Core                  →  光追管线绑定点 (02篇)
-Tensor Core              →  AI超分/降噪 (08篇)
-Mesh Shader              →  Cluster几何管线 (02篇/08篇)
-多队列                   →  多队列并行调度 (09篇)
-高带宽+大显存             →  Bindless+VMA (05篇)
-PSO不可变                →  PipelineCache (05篇)
-显式屏障                  →  FrameGraph自动推导 (06篇)
-资源生命周期可追踪         →  帧图别名复用 (06篇)
-  </div>
-
-  <div class="note"><strong>核心结论</strong>：现代图形API不是"更难用的OpenGL"——它是<strong>现代GPU硬件能力的精确表达</strong>。每一个看似"繁琐"的显式声明，都对应一个GPU硬件需要开发者明确告知的决策点。传统API的"简洁"本质上是<strong>隐瞒硬件真相</strong>。</div>
-
-  <h2>5. 现代API的三方对比</h2>
-  <h3>5.1 Vulkan / DirectX 12 / Metal</h3>
-  <p>三大现代API的设计哲学完全一致：显式控制、零驱动开销、多线程、多队列。差异仅在平台绑定与API组织方式：</p>
-
-  <table>
-    <tr><th>维度</th><th>Vulkan</th><th>DirectX 12</th><th>Metal</th></tr>
-    <tr><td><strong>平台</strong></td><td>跨平台(Win/Linux/Android/Switch)</td><td>Windows/Xbox</td><td>macOS/iOS/tvOS</td></tr>
-    <tr><td><strong>管理机构</strong></td><td>Khronos(开放标准)</td><td>Microsoft(平台专属)</td><td>Apple(平台专属)</td></tr>
-    <tr><td><strong>API风格</strong></td><td>C结构体+枚举+扩展链</td><td>COM接口+C++风格</td><td>Objective-C/Swift风格</td></tr>
-    <tr><td><strong>扩展机制</strong></td><td>层级式Extension</td><td>Feature Level + 可选Feature</td><td>Metal Feature Sets</td></tr>
-    <tr><td><strong>着色器格式</strong></td><td>SPIR-V(中间格式，多源语言)</td><td>DXIL(DXBC演进)</td><td>MSL(Apple专属)</td></tr>
-    <tr><td><strong>管线创建</strong></td><td>最细粒度</td><td>较粗粒度</td><td>较粗粒度</td></tr>
-    <tr><td><strong>同步模型</strong></td><td>最灵活(屏障+Event+Semaphore+Fence)</td><td>较简洁(CommandQueue+Signal/Fence)</td><td>最简洁(CommandBuffer+Event)</td></tr>
-    <tr><td><strong>内存模型</strong></td><td>最显式(VkMemoryType手动选择)</td><td>较简化(Committed/Placed/Reserved)</td><td>最简化(MTLBuffer/MTLHeap)</td></tr>
-  </table>
-
-  <h3>5.2 Vulkan的独特优势与代价</h3>
-  <table>
-    <tr><th>优势</th><th>说明</th><th>工程意义</th></tr>
-    <tr><td><strong>跨平台</strong></td><td>同一套代码Windows/Linux/Android/Switch运行</td><td>引擎跨平台发布的唯一选择</td></tr>
-    <tr><td><strong>SPIR-V中间格式</strong></td><td>GLSL/HLSL/MSL均可编译为SPIR-V</td><td>着色器源语言解耦</td></tr>
-    <tr><td><strong>扩展链式设计</strong></td><td>pNext链灵活组合新功能</td><td>新硬件功能即时可用</td></tr>
-    <tr><td><strong>最细粒度控制</strong></td><td>内存类型、屏障、布局转换完全显式</td><td>极端性能优化场景无死角</td></tr>
-    <tr><td><strong>开放标准</strong></td><td>Khronos管理，任何厂商可提交扩展</td><td>长期演进保障</td></tr>
-  </table>
-
-  <table>
-    <tr><th>代价</th><th>说明</th><th>缓解方案</th></tr>
-    <tr><td><strong>代码量</strong></td><td>创建PSO需~30个结构体</td><td>封装层+辅助函数</td></tr>
-    <tr><td><strong>学习曲线</strong></td><td>需理解GPU架构、显式同步、内存类型</td><td>本系列文档 + Validation Layers</td></tr>
-    <tr><td><strong>调试难度</strong></td><td>生产层零验证，错误直接GPU崩溃</td><td>开发层Validation Layers + RenderDoc</td></tr>
-    <tr><td><strong>扩展碎片化</strong></td><td>各厂商独立扩展，兼容性矩阵复杂</td><td>集中查询vkGetPhysicalDeviceFeatures2</td></tr>
-  </table>
-
-  <h2>6. 从传统API迁移到现代API的策略</h2>
-  <h3>6.1 迁移路线图</h3>
-  <div class="diagram">
-阶段1: 基础框架搭建
-  └─ Vulkan实例+设备创建
-  └─ 交换链+命令池+同步对象
-  └─ 验证层启用
-  └─ 简单三角形渲染验证
-
-阶段2: 资源管理体系搭建
-  └─ VMA集成，显存分配策略
-  └─ Staging缓冲+DMA传输
-  └─ 纹理加载+布局转换
-  └─ 描述符池+Bindless布局
-
-阶段3: 管线封装
-  └─ PSO缓存系统
-  └─ Shader反射+自动绑定生成
-  └─ 多种管线类型封装(图形/计算/光追)
-
-阶段4: FrameGraph引入
-  └─ Pass声明接口设计
-  └─ DAG构建+编译+执行
-  └─ 自动屏障推导
-  └─ 资源别名复用
-
-阶段5: GPU-Driven Pipeline
-  └─ GPU剔除+间接绘制
-  └─ Bindless全局资源
-  └─ 多队列并行
-
-阶段6: 高级特性
-  └─ 光追管线
-  └─ Mesh Shader管线
-  └─ 神经超分集成
-  └─ VR/HDR专项优化
-  </div>
-
-  <h3>6.2 关键迁移陷阱</h3>
-  <table>
-    <tr><th>陷阱</th><th>描述</th><th>正确做法</th></tr>
-    <tr><td><strong>移植OpenGL代码思维</strong></td><td>把OpenGL的状态机逻辑逐行翻译为Vulkan调用</td><td>重新设计架构，利用PSO+Bindless+FrameGraph</td></tr>
-    <tr><td><strong>忽略内存类型选择</strong></td><td>所有资源分配到同一内存类型</td><td>根据用途选择DEVICE_LOCAL或HOST_VISIBLE</td></tr>
-    <tr><td><strong>忘记布局转换</strong></td><td>图像创建后直接采样，未执行布局转换</td><td>每次用途变化必须插入布局转换屏障</td></tr>
-    <tr><td><strong>过度同步</strong></td><td>每次Draw后插入vkQueueWaitIdle</td><td>用Timeline Semaphore精确同步关键节点</td></tr>
-    <tr><td><strong>单线程录制</strong></td><td>所有命令在一个线程录制</td><td>Per-Thread CommandPool并行录制</td></tr>
-    <tr><td><strong>运行时编译PSO</strong></td><td>每帧动态创建新管线</td><td>离线PipelineCache+预编译所有可能变体</td></tr>
-  </table>
-
-  <h2>7. 小结</h2>
-  <p>现代图形API的"现代"不是API本身的语法变革，而是<strong>API终于忠实地反映了现代GPU的真实架构</strong>：</p>
-  <ul>
-    <li><strong>显式控制</strong>——因为GPU需要开发者精确告诉它做什么，而非驱动猜测</li>
-    <li><strong>多队列并行</strong>——因为GPU硬件有独立的图形/计算/传输处理器</li>
-    <li><strong>PSO不可变</strong>——因为GPU硬件管线编译是一次性的重操作</li>
-    <li><strong>Bindless全局数组</strong>——因为GPU显存足够大、带宽足够高，可以容纳数万纹理同时在线</li>
-    <li><strong>RT/Tensor/Mesh Shader</strong>——因为GPU新增了专用硬件核心，需要对应的管线绑定点</li>
-    <li><strong>FrameGraph自动管理</strong>——因为显式控制的代码量需要声明式系统来管理复杂性</li>
-  </ul>
-
-  <div class="note"><strong>一句话总结</strong>：现代图形API = 现代GPU硬件能力的精确投影 + 开发者对硬件的完全掌控权。</div>
-
-  <div class="nav-footer">
-    <a href="#s09">← 09 整体架构与工作流总览</a>
-    <span></span>
-  </div>
-</div>
-
-    <tr><th>文档</th><th>核心收获</th></tr>
-    <tr><td>00 总览</td><td>四层架构、声明式设计、GPU-Driven优先</td></tr>
-    <tr><td>01 管线分层</td><td>预处理/主渲染/后处理三阶段、Pass清单</td></tr>
-    <tr><td>02 管线着色器</td><td>四类管线+着色器对应、PipelineLayout、Bindless</td></tr>
-    <tr><td>03 架构选型</td><td>Forward→Clustered→VisBuffer→混合对比矩阵</td></tr>
-    <tr><td>04 绘制优化</td><td>MDI+GPU-Driven+Bindless+合批排序</td></tr>
-    <tr><td>05 资源管理</td><td>CPU加载+VMA+压缩+延迟释放+环形缓冲</td></tr>
-    <tr><td>06 FrameGraph</td><td>Pass声明+别名复用+自动屏障+Subpass合并</td></tr>
-    <tr><td>07 概念辨析</td><td>RDG=FrameGraph、静态≠动态、命名建议</td></tr>
-    <tr><td>08 技术拓展</td><td>光追+神经渲染+Work Graphs+平台优化</td></tr>
-    <tr><td>09 工作流</td><td>全链路数据流+模块协作+多队列时序</td></tr>
-    <tr><td>10 现代API与GPU</td><td>传统API瓶颈+显式控制哲学+GPU微架构+RT/Tensor/Mesh硬件+迁移策略</td></tr>
-    <tr><td>11 产业演进史</td><td>图形API+GPU硬件+引擎软件+划时代游戏/影视 四主线协同进化</td></tr>
-  </table>
-
-  <p><strong>建议学习路径</strong>：入门(00→10→01→02→07) → 深入(03→04→05→06) → 拓展(08→09) → 产业纵深(11)</p>
-
-  <div class="nav-footer" style="border-top: 2px solid var(--accent); padding-top: 24px;">
-    <p style="text-align:center; color: var(--sidebar-fg); font-size: 14px;">
-      — 实时渲染系统 · 系列文档完 —
-    </p>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════ -->
-<!-- Section 11: 实时渲染产业演进史 -->
-<!-- ═══════════════════════════════════════════════════════════ -->
-<div class="section" id="s11">
-  <div class="section-title"><span class="section-number">11</span>实时渲染产业演进史</div>
-
-  <div class="note">本文从<strong>图形API、GPU硬件架构、实时渲染引擎软件、划时代游戏与影视作品</strong>四条主线出发，梳理实时渲染技术从1990年代至今的完整演进脉络。四者并非独立发展，而是形成"硬件能力↔API抽象层↔引擎架构↔内容创作"的闭环驱动。</div>
-
-  <h2>0. 四条主线的协同关系</h2>
-  <p>实时渲染技术的进步从来不是单点突破，而是<strong>四力共振</strong>的结果：GPU硬件定义可能性上限 → 图形API定义引擎能触达的硬件能力 → 引擎软件将算法创意工程化 → 划时代作品定义"什么才叫好"并倒逼下一轮进化。</p>
-
-  <h2>第一阶段：固定功能时代（1992–2000）— 3D加速的黎明</h2>
-  <h3>图形API</h3>
-  <table class="cmp">
-    <tr><th>API</th><th>年份</th><th>意义</th></tr>
-    <tr><td>OpenGL 1.0</td><td>1992</td><td>SGI发布，固定功能管线奠基</td></tr>
-    <tr><td>DirectX 1.0</td><td>1995</td><td>微软Windows 95 Game SDK，最初仅2D</td></tr>
-    <tr><td>Direct3D (DX3)</td><td>1996</td><td>首次引入硬件3D加速API</td></tr>
-    <tr><td>3dfx Glide</td><td>1996</td><td>Voodoo定制专有API，早期3D游戏事实标准</td></tr>
-    <tr><td>DirectX 7</td><td>1999</td><td>硬件Transform & Lighting (T&L)</td></tr>
-  </table>
-  <p>这一时期API本质是<strong>固定功能管线</strong>：开发者通过设置开关配置管线参数，GPU按固定逻辑执行，无法编程控制渲染过程。</p>
-
-  <h3>GPU硬件</h3>
-  <table class="cmp">
-    <tr><th>硬件</th><th>年份</th><th>突破</th></tr>
-    <tr><td>3dfx Voodoo</td><td>1996</td><td>首款消费级3D加速卡，开启3D游戏时代</td></tr>
-    <tr><td>NVIDIA RIVA 128</td><td>1997</td><td>首批集成2D+3D显卡</td></tr>
-    <tr><td>NVIDIA GeForce 256</td><td>1999</td><td><strong>业界第一颗"GPU"</strong>——硬件T&L引擎</td></tr>
-  </table>
-  <p><strong>"GPU"一词的诞生</strong>：NVIDIA在GeForce 256发布时首次提出"Graphics Processing Unit"概念，定义标准为集成变换、光照、三角形设置、渲染引擎的单芯片处理器。此前显卡只做光栅化，几何计算在CPU。</p>
-
-  <h3>引擎与划时代作品</h3>
-  <p><strong>id Tech 2（Quake引擎）</strong>是第一款使用真3D多边形渲染的主流游戏——顶点数组构建多边形网格，引擎进行变换、光照（预计算Lightmap）、光栅化，奠定了此后二十年的光栅化管线基础。</p>
-  <table class="cmp">
-    <tr><th>作品</th><th>年份</th><th>意义</th></tr>
-    <tr><td>Doom</td><td>1993</td><td>BSP渲染，定义FPS游戏</td></tr>
-    <tr><td>Quake</td><td>1996</td><td>真3D渲染里程碑，QuakeGL推动3D加速卡普及</td></tr>
-    <tr><td>Unreal</td><td>1998</td><td>大规模户外场景，UE1引擎</td></tr>
-    <tr><td>Half-Life</td><td>1998</td><td>叙事驱动FPS，GoldSrc引擎</td></tr>
-  </table>
-
-  <h2>第二阶段：可编程着色器时代（2000–2006）— GPU从加速器变为处理器</h2>
-  <h3>图形API</h3>
-  <table class="cmp">
-    <tr><th>API</th><th>年份</th><th>核心突破</th></tr>
-    <tr><td>DirectX 8</td><td>2000</td><td>顶点/像素着色器(SM 1.x)，GPU首次可编程</td></tr>
-    <tr><td>DirectX 9</td><td>2002</td><td>HLSL着色器语言，SM 2.0；9.0c引入SM 3.0动态流控</td></tr>
-    <tr><td>OpenGL 2.0</td><td>2004</td><td>GLSL着色器语言，正式可编程</td></tr>
-    <tr><td>DirectX 10</td><td>2006</td><td>Vista独占，SM 4.0，完全废弃固定功能管线</td></tr>
-  </table>
-  <p><strong>这是渲染管线历史上最深刻的范式转移</strong>：GPU从"配置参数的加速器"变为"执行程序的处理器"。DirectX 9的HLSL让着色器编程从汇编级提升到高级语言级。DX10彻底废弃固定功能管线，标志着全可编程时代到来。</p>
-
-  <h3>GPU硬件</h3>
-  <table class="cmp">
-    <tr><th>硬件</th><th>年份</th><th>架构突破</th></tr>
-    <tr><td>NVIDIA GeForce 3</td><td>2001</td><td>首款支持可编程着色器的GPU(SM 1.x)</td></tr>
-    <tr><td>NVIDIA GeForce 6800</td><td>2004</td><td>SM 3.0，16条像素管线+6条顶点管线</td></tr>
-    <tr><td>NVIDIA GeForce 8800 GTX</td><td>2006</td><td><strong>统一着色器架构</strong>+<strong>CUDA诞生</strong></td></tr>
-  </table>
-  <p><strong>GeForce 8800 GTX的双重革命</strong>：统一着色器架构让同一组流处理器同时处理顶点和像素，利用率最大化（此后所有现代GPU采用此设计）；CUDA首次暴露GPU通用计算能力，为计算着色器、物理模拟、AI推理奠定硬件基础。</p>
-
-  <h3>引擎与划时代作品</h3>
-  <table class="cmp">
-    <tr><th>作品</th><th>年份</th><th>技术意义</th></tr>
-    <tr><td>Far Cry</td><td>2004</td><td>大规模热带开放世界，PolyBump法线贴图，远视距</td></tr>
-    <tr><td>Doom 3</td><td>2004</td><td>统一动态光照+阴影体，光影首次有正确数学关系</td></tr>
-    <tr><td>Half-Life 2</td><td>2004</td><td>物理引擎交互、HDR、面部动画</td></tr>
-    <tr><td>Crysis</td><td>2007</td><td>"能否运行Crysis？"——SSAO、SSS、HDR、DX10，定义十年PC画质基准</td></tr>
-  </table>
-  <p><strong>SSAO的诞生</strong>：Crytek的Vladimir Kajalin在CryEngine 2中发明屏幕空间环境光遮蔽(SSAO)，在屏幕空间近似环境光被几何体遮挡的程度，为角落添加接触阴影。此前需昂贵全局光照计算，SSAO迅速成为行业标准后处理效果。</p>
-
-  <h2>第三阶段：计算着色器与延迟渲染时代（2007–2014）— 通用计算与海量光源</h2>
-  <h3>图形API</h3>
-  <p><strong>DirectX 11 (2009)</strong>引入<strong>计算着色器(Compute Shader)</strong>——允许在GPU上运行通用计算程序，不经过图形管线，直接读写缓冲区。这使GPU可用于物理模拟、图像处理、延迟渲染光照计算、全局光照近似算法。曲面细分(Tessellation)让GPU运行时动态细分几何体。</p>
-
-  <h3>引擎与划时代作品</h3>
-  <p><strong>延迟渲染(Deferred Rendering)的普及</strong>：前向渲染逐物体逐像素计算光照，光源数量受限。延迟渲染先将几何属性写入G-Buffer，再用计算着色器并行计算每个光源——光源数量与几何复杂度解耦，同屏数百光源成为可能。<strong>Battlefield 3 (2011, Frostbite 2)</strong>是延迟渲染在3A游戏中普及的标志。</p>
-  <p><strong>PBR的崛起</strong>：UE4和Frostbite 3率先采用基于物理的渲染(PBR)——基于微面元理论(Burley/Disney BRDF)的着色，确保材质在不同光照条件下表现一致。核心原则是"能量守恒"和"金属-粗糙度工作流"。</p>
-
-  <h2>第四阶段：现代低级API革命（2014–2018）— 显式控制时代</h2>
-  <h3>图形API</h3>
-  <table class="cmp">
-    <tr><th>API</th><th>年份</th><th>核心突破</th></tr>
-    <tr><td>AMD Mantle</td><td>2013</td><td>首个现代低级图形API，显式控制、多线程命令录制</td></tr>
-    <tr><td>Apple Metal</td><td>2014</td><td>苹果低级API，替代OpenGL ES</td></tr>
-    <tr><td>DirectX 12</td><td>2015</td><td>PSO、显式屏障、多线程命令录制、bindless</td></tr>
-    <tr><td>Vulkan 1.0</td><td>2016</td><td>Khronos基于Mantle，跨平台低级API</td></tr>
-  </table>
-  <p><strong>根本范式转移</strong>：从"驱动帮你做"到"你明确告诉GPU做什么"。传统API将太多决策权交给驱动层，引入不可预测的隐式行为；现代API要求开发者显式声明管线状态、内存布局、执行依赖、资源生命周期。在Draw Call密集场景中，从OpenGL迁移到Vulkan可带来<strong>3-10倍帧率提升</strong>，完全来自API设计差异。</p>
-
-  <h3>引擎与划时代作品</h3>
-  <p><strong>UE4 (2015)</strong>的PBR着色模型（Burley漫反射+GGX微面元+Smith几何遮蔽）成为行业事实标准。<strong>Unity 5</strong>免费策略颠覆市场，在移动端和独立游戏领域占据统治地位。Star Wars Battlefront (2015)展示了Frostbite引擎PBR的巅峰照片级画面。</p>
-
-  <h2>第五阶段：光线追踪与AI时代（2018–至今）— 神经渲染的黎明</h2>
-  <h3>图形API：实时光线追踪进入标准</h3>
-  <table class="cmp">
-    <tr><th>API/扩展</th><th>年份</th><th>核心突破</th></tr>
-    <tr><td>DirectX Raytracing (DXR)</td><td>2018</td><td>DX12引入光追——BVH加速结构、RayGeneration/ClosestHit/Miss着色器</td></tr>
-    <tr><td>DirectX 12 Ultimate</td><td>2020</td><td>DXR 1.1内联光追、可变速率着色(VRS)、网格着色器(Mesh Shader)</td></tr>
-    <tr><td>Vulkan Ray Tracing</td><td>2020</td><td>跨平台光追扩展</td></tr>
-  </table>
-  <p><strong>Mesh Shader</strong>将传统多阶段顶点管线替换为两阶段计算着色器模型（Task Shader → Mesh Shader），是自可编程着色器以来几何管线最大的变革。</p>
-
-  <h3>GPU硬件：专用加速单元的时代</h3>
-  <table class="cmp">
-    <tr><th>架构</th><th>年份</th><th>核心突破</th></tr>
-    <tr><td>NVIDIA Turing</td><td>2018</td><td>RTX 2080 Ti——RT Core(~100倍光追)+Tensor Core(DLSS)，消费级实时光追元年</td></tr>
-    <tr><td>NVIDIA Ampere</td><td>2020</td><td>第二代RT Core，第三代Tensor Core，DLSS 2.x成熟</td></tr>
-    <tr><td>AMD RDNA 2</td><td>2020</td><td>PS5/Xbox Series X同架构，集成光追加速器</td></tr>
-    <tr><td>NVIDIA Ada Lovelace</td><td>2022</td><td>第三代RT Core，DLSS 3帧生成，光流加速器</td></tr>
-    <tr><td>NVIDIA Blackwell</td><td>2024/25</td><td>路径追踪硬件加速、神经着色器、DLSS 4/5</td></tr>
-  </table>
-  <p><strong>三大专用硬件单元</strong>：RT Core（BVH遍历+光线-三角形相交，~100倍加速）；Tensor Core（矩阵乘加，AI推理，DLSS全部基于此）；Mesh Shader硬件（GPU端细粒度剔除和程序化几何）。</p>
-  <p>从GeForce 256到RTX 5090，计算能力提升约<strong>375,000倍</strong>。但单帧16ms的算力仍远不及离线渲染一帧的数分钟到数小时——这解释了AI辅助渲染成为必然方向。</p>
-
-  <h3>DLSS演进：AI辅助渲染的完整谱系</h3>
-  <table class="cmp">
-    <tr><th>版本</th><th>年份</th><th>核心技术</th></tr>
-    <tr><td>DLSS 1.0</td><td>2018</td><td>空间超分辨率，需逐游戏训练</td></tr>
-    <tr><td>DLSS 2.0</td><td>2020</td><td>时间超分辨率，通用CNN模型，200+游戏采用</td></tr>
-    <tr><td>DLSS 3</td><td>2022</td><td>帧生成，光流加速器+AI生成中间帧</td></tr>
-    <tr><td>DLSS 3.5</td><td>2023</td><td>光线重建，AI替代手工降噪器</td></tr>
-    <tr><td>DLSS 4</td><td>2025</td><td>多帧生成(最多3帧)，Transformer模型</td></tr>
-    <tr><td>DLSS 5</td><td>2026</td><td>实时神经渲染，AI赋予像素级拟真光照与材质</td></tr>
-  </table>
-  <p>DLSS从"放大图像"演进到"直接生成像素级真实的光照和材质"——AI不再辅助渲染，而是<strong>直接生成渲染结果</strong>。这代表了从"手工着色器+光栅化/光追"向"手工渲染+AI生成"的范式转变。</p>
-
-  <h3>UE5的范式革命</h3>
-  <p><strong>Nanite（虚拟化微多边形几何体）</strong>：将网格分割为128三角形的簇(Meshlet)，构建层次化LOD，运行时仅渲染可感知的细节。直接导入数百万多边形资产无需手工优化，从根本上移除多边形数量和Draw Call约束——通过虚拟化几何体（类比虚拟内存），使"电影级几何精度"成为实时标配。</p>
-  <p><strong>Lumen（动态全局光照与反射）</strong>：完全动态的GI——实时响应场景与光照变化，无限次弹射间接光照。同时支持软件光追（Mesh Distance Field）和硬件光追。消除了光照贴图烘焙工作流，美术可直接编辑光源并看到最终效果。</p>
-
-  <h3>划时代游戏</h3>
-  <table class="cmp">
-    <tr><th>作品</th><th>年份</th><th>技术意义</th></tr>
-    <tr><td>Control</td><td>2019</td><td>早期RTX展示作，实时光追反射/GI</td></tr>
-    <tr><td>Minecraft RTX</td><td>2020</td><td>全路径追踪演示，DXR全民教育</td></tr>
-    <tr><td>Cyberpunk 2077</td><td>2020/2023</td><td>大规模光追；2023年Overdrive模式全面路径追踪</td></tr>
-    <tr><td>The Matrix Awakens</td><td>2021</td><td>UE5技术演示，电影级城市实时渲染</td></tr>
-    <tr><td>Alan Wake 2</td><td>2023</td><td>全面路径追踪，RTX技术里程碑</td></tr>
-    <tr><td>黑神话:悟空</td><td>2024</td><td>UE5 Nanite+Lumen中国3A标杆</td></tr>
-  </table>
-  <p>从"光追特性叠加"到"完整路径追踪"：早期RTX游戏在光栅化上叠加光追pass；Alan Wake 2和Cyberpunk Overdrive走向完整路径追踪——每像素发射光线追踪多次弹射，逼近离线渲染器物理正确性。</p>
-
-  <h3>划时代影视作品与虚拟制片</h3>
-  <table class="cmp">
-    <tr><th>作品</th><th>年份</th><th>意义</th></tr>
-    <tr><td>Toy Story</td><td>1995</td><td>首部全CG动画长片，Pixar RenderMan</td></tr>
-    <tr><td>Avatar</td><td>2009</td><td>虚拟制片里程碑，表演捕捉+实时虚拟预演</td></tr>
-    <tr><td>The Lion King (2019)</td><td>2019</td><td>全CG"真人电影"，Unity驱动虚拟摄影</td></tr>
-    <tr><td>The Mandalorian</td><td>2019</td><td>StageCraft+LED Volume，UE引擎实时背景，70%镜头摄影机内完成VFX</td></tr>
-  </table>
-  <p><strong>虚拟制片的革命</strong>：传统绿幕需后期合成，光照不匹配需返工。LED Volume用UE引擎实时渲染背景投射到环绕LED墙，摄影机直接拍摄——演员有真实环境沉浸感，光照物理正确，导演所见即所得。The Mandalorian证明游戏引擎实时渲染能力可驱动电影级制作，标志着<strong>实时渲染技术从游戏行业溢出到影视行业</strong>。</p>
-
-  <h2>第六阶段：神经渲染的黎明（2025– ）— 渲染范式的再定义</h2>
-  <p>此前三十年渲染技术演进的核心逻辑是<strong>手工编写着色器模拟光线物理</strong>。DLSS 5和神经着色器代表不同方向：<strong>用AI模型直接生成像素级真实的光照和材质</strong>。NVIDIA称其为"图形领域的GPT时刻"——手工渲染与生成式AI的融合，将在未来十年重新定义"实时渲染"的含义。</p>
-
-  <h2>时代总览：四条主线的同步跃迁</h2>
-  <table class="cmp">
-    <tr><th>时代</th><th>图形API</th><th>GPU硬件</th><th>引擎软件</th><th>划时代作品</th></tr>
-    <tr><td>固定功能 (1992–2000)</td><td>OpenGL/D3D/Glide</td><td>Voodoo→GeForce 256</td><td>id Tech, UE1</td><td>Quake, Unreal</td></tr>
-    <tr><td>可编程着色器 (2000–2006)</td><td>DX8/9/10</td><td>GeForce 3→8800(CUDA)</td><td>UE2/3, CryEngine1/2</td><td>Doom 3, HL2, Crysis</td></tr>
-    <tr><td>计算+延迟 (2007–2014)</td><td>DX11(Compute)</td><td>Fermi→Maxwell</td><td>UE3成熟, Frostbite</td><td>BF3, Witcher 3</td></tr>
-    <tr><td>现代低级API (2014–2018)</td><td>Mantle→DX12/Vulkan</td><td>Maxwell→Pascal</td><td>UE4, Unity5</td><td>SW Battlefront</td></tr>
-    <tr><td>光追+AI (2018–2025)</td><td>DXR, DX12U</td><td>Turing→Blackwell</td><td>UE5(Nanite/Lumen)</td><td>Cyberpunk, Alan Wake 2, 黑神话</td></tr>
-    <tr><td>神经渲染 (2025– )</td><td>神经渲染API</td><td>Blackwell(神经着色器)</td><td>UE5.6+</td><td>DLSS 5游戏</td></tr>
-  </table>
-
-  <h2>结语：驱动力的本质</h2>
-  <p>每一次范式转移都不是单点突破，而是四条主线同时跃迁：GPU硬件定义上限 → 图形API定义触达能力 → 引擎将创意工程化 → 划时代作品定义需求并倒逼下一轮进化。今天，神经渲染可能是自可编程着色器以来最深刻的范式转移——AI从辅助渲染走向直接生成渲染结果。</p>
 
   <div class="note" style="margin-top: 32px;">
-    <strong>本文与系列文档的关系</strong>：系列技术文档（00–10篇）聚焦自研Vulkan引擎架构设计与工程实现；本文从宏观产业演进角度梳理四条主线协同进化脉络，为技术选型提供历史纵深与趋势判断。
+    <strong>提示</strong>：本文档集为 Vulkan 自研引擎视角的技术沉淀。第 13 篇以 UE 5.8（2026-06 发布）为工业案例剖析 RDG/RHI，具体 API 以引擎源码为准。
   </div>
-
-  <div class="nav-footer" style="border-top: 2px solid var(--accent); padding-top: 24px;">
-    <p style="text-align:center; color: var(--sidebar-fg); font-size: 14px;">
-      — 实时渲染系统 · 系列文档完 —
-    </p>
-  </div>
-</div>
-
 </main>
 
 <script>
-// Sidebar active link tracking
-const sections = document.querySelectorAll('.section');
+const cards = document.querySelectorAll('.card');
 const navLinks = document.querySelectorAll('#sidebarNav a');
 
 function updateActiveLink() {
   let current = '';
-  sections.forEach(s => {
-    const top = s.getBoundingClientRect().top;
-    if (top < 200) current = s.id;
+  cards.forEach(c => {
+    const top = c.getBoundingClientRect().top;
+    if (top < 200) current = c.id;
   });
   navLinks.forEach(a => {
     a.classList.toggle('active', a.getAttribute('href') === '#' + current);
   });
 }
 
-// Progress bar
 function updateProgress() {
   const h = document.documentElement.scrollHeight - window.innerHeight;
   const p = window.scrollY / h;
   document.getElementById('progressBar').style.transform = `scaleX(${p})`;
 }
 
-// Scroll handler
 window.addEventListener('scroll', () => {
   updateActiveLink();
   updateProgress();
 }, {passive: true});
 
-// Close sidebar on mobile after clicking link
 navLinks.forEach(a => {
   a.addEventListener('click', () => {
     if (window.innerWidth <= 768) {
@@ -1508,7 +353,6 @@ navLinks.forEach(a => {
   });
 });
 
-// Initial
 updateActiveLink();
 updateProgress();
 </script>

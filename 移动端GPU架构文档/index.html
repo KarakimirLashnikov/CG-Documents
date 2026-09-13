@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>移动端 GPU 架构文档 — 导航</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-soft: #f7f8fa;
+    --bg-side: #fbfbfd;
+    --border: #e6e8eb;
+    --border-soft: #eef0f3;
+    --text: #1f2328;
+    --text-soft: #5a6470;
+    --text-mute: #8b949e;
+    --accent: #2f6feb;
+    --accent-soft: #eaf1fd;
+    --accent-2: #b7791f;
+    --accent-2-soft: #fdf6e3;
+    --danger: #c0392b;
+    --danger-soft: #fdeceb;
+    --ok: #1f7a4d;
+    --ok-soft: #e8f6ef;
+    --purple: #6b46c1;
+    --purple-soft: #f1ecfb;
+    --radius: 10px;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+            "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── 侧边栏 ───────────────────────────────────────────────── */
+  aside {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 290px;
+    background: var(--bg-side);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 26px 20px 40px;
+  }
+
+  aside .brand {
+    font-size: 15px;
+    font-weight: 650;
+    letter-spacing: .01em;
+    padding-bottom: 4px;
+  }
+
+  aside .brand-sub {
+    font-size: 12px;
+    color: var(--text-mute);
+    font-family: var(--mono);
+    margin-bottom: 22px;
+  }
+
+  .nav-group {
+    margin-bottom: 20px;
+  }
+
+  .nav-group-title {
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+    margin-bottom: 8px;
+    padding-left: 2px;
+  }
+
+  aside a {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    padding: 6px 9px;
+    margin-bottom: 1px;
+    border-radius: 6px;
+    color: var(--text-soft);
+    text-decoration: none;
+    font-size: 13.5px;
+    line-height: 1.45;
+    border-left: 2px solid transparent;
+    transition: background .12s, color .12s, border-color .12s;
+  }
+
+  aside a:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  aside a.active {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-left-color: var(--accent);
+    font-weight: 600;
+  }
+
+  aside a .num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-mute);
+    flex: 0 0 auto;
+    padding-top: 1px;
+  }
+
+  aside a.active .num { color: var(--accent); }
+
+  /* ── 主区 ─────────────────────────────────────────────────── */
+  main {
+    margin-left: 290px;
+    max-width: 1080px;
+    padding: 40px 48px 100px;
+  }
+
+  header.page-head {
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 34px;
+  }
+
+  header.page-head h1 {
+    margin: 0 0 8px;
+    font-size: 27px;
+    font-weight: 680;
+    letter-spacing: -.01em;
+  }
+
+  header.page-head p {
+    margin: 0;
+    color: var(--text-soft);
+    font-size: 14.5px;
+    max-width: 640px;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .pill {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+  }
+
+  /* ── 章节 ─────────────────────────────────────────────────── */
+  section.chapter {
+    margin-bottom: 44px;
+    scroll-margin-top: 24px;
+  }
+
+  .chapter-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .chapter-head h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 650;
+  }
+
+  .chapter-desc {
+    font-size: 13px;
+    color: var(--text-mute);
+    margin: 0 0 16px;
+  }
+
+  /* ── 卡片网格 ─────────────────────────────────────────────── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+  }
+
+  a.card {
+    display: block;
+    padding: 18px 20px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color .14s, box-shadow .14s, transform .14s;
+    scroll-margin-top: 24px;
+  }
+
+  a.card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 3px 14px rgba(47, 111, 235, .10);
+    transform: translateY(-1px);
+  }
+
+  a.card.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 9px;
+  }
+
+  .badge {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    padding: 2px 7px;
+    border-radius: 4px;
+    flex: 0 0 auto;
+  }
+
+  .badge-idx {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+  }
+
+  .badge-arch   { background: var(--accent-soft);  color: var(--accent); }
+  .badge-audit  { background: var(--danger-soft);  color: var(--danger); }
+  .badge-bin    { background: var(--accent-2-soft);color: var(--accent-2); }
+  .badge-gmem   { background: var(--purple-soft);  color: var(--purple); }
+  .badge-vk     { background: var(--ok-soft);      color: var(--ok); }
+  .badge-perf   { background: #eef6f9;             color: #1a6b8a; }
+
+  .card h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 620;
+    line-height: 1.4;
+  }
+
+  .card ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .card ul li {
+    position: relative;
+    padding-left: 14px;
+    font-size: 13px;
+    color: var(--text-soft);
+    line-height: 1.6;
+    margin-bottom: 3px;
+  }
+
+  .card ul li::before {
+    content: "";
+    position: absolute;
+    left: 3px;
+    top: 9px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+
+  .card ul li strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .card ul li.warn::before { background: var(--danger); }
+  .card ul li.good::before { background: var(--ok); }
+
+  /* ── 页脚 ─────────────────────────────────────────────────── */
+  footer {
+    margin-top: 60px;
+    padding-top: 22px;
+    border-top: 1px solid var(--border);
+    font-size: 12.5px;
+    color: var(--text-mute);
+    font-family: var(--mono);
+    line-height: 1.9;
+  }
+
+  footer .src { color: var(--text-soft); }
+
+  /* ── 响应式 ───────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    aside {
+      position: static;
+      width: auto;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      padding: 20px 20px 24px;
+    }
+    main { margin-left: 0; padding: 28px 20px 70px; }
+    header.page-head h1 { font-size: 22px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<aside>
+  <div class="brand">移动端 GPU 架构</div>
+  <div class="brand-sub">Mobile GPU Architecture</div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">基础</div>
+    <a href="#sec-00"><span class="num">00</span><span>总览与架构谱系</span></a>
+    <a href="#sec-01"><span class="num">01</span><span>资料准确性审查与勘误</span></a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">核心机制</div>
+    <a href="#sec-02"><span class="num">02</span><span>分箱 Binning 机制详解</span></a>
+    <a href="#sec-03"><span class="num">03</span><span>逐 Tile 流水线与 GMEM</span></a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">工程实践</div>
+    <a href="#sec-04"><span class="num">04</span><span>移动端延迟渲染与 Subpass</span></a>
+    <a href="#sec-05"><span class="num">05</span><span>性能诊断与优化清单</span></a>
+    <a href="#sec-06"><span class="num">06</span><span>RenderPass 弃用与动态渲染</span></a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">跨平台对照</div>
+    <a href="#sec-07"><span class="num">07</span><span>与主机端的优化差异</span></a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">速查</div>
+    <a href="#sec-cheat"><span class="num">▸</span><span>常见误区速查表</span></a>
+    <a href="#sec-src"><span class="num">▸</span><span>事实来源与可信度</span></a>
+  </div>
+</aside>
+
+<main>
+  <header class="page-head">
+    <h1>移动端 GPU 架构文档</h1>
+    <p>从 TBR / TBDR 的第一性原理出发，拆解分箱机制、片上内存与逐 Tile 流水线；对业内流传说法做逐条勘误；落到 Vulkan 实现路径与 Profiler 诊断。</p>
+    <div class="meta-row">
+      <span class="pill">8 篇</span>
+      <span class="pill">TBR / TBDR / FlexRender</span>
+      <span class="pill">Adreno · Mali · PowerVR</span>
+      <span class="pill">Vulkan 1.4</span>
+      <span class="pill">Snapdragon Profiler</span>
+    </div>
+  </header>
+
+  <!-- ══ 基础 ══ -->
+  <section class="chapter" id="sec-00">
+    <div class="chapter-head"><h2>基础</h2></div>
+    <p class="chapter-desc">先建立正确的心智模型，后面的每一条优化才有依据。</p>
+    <div class="grid">
+
+      <a class="card" href="00-总览与架构谱系.md">
+        <div class="card-top">
+          <span class="badge badge-idx">00</span>
+          <span class="badge badge-arch">OVERVIEW</span>
+        </div>
+        <h3>总览与架构谱系</h3>
+        <ul>
+          <li>第一性原理：<strong>带宽与功耗</strong>才是移动端的设计中心</li>
+          <li>四种模式谱系：IMR / TBR / TBDR / <strong>FlexRender</strong></li>
+          <li>三大厂商横向对比：bin 尺寸、片上内存、剔除机制、顶点模型</li>
+          <li>「deferred」一词的<strong>三重歧义</strong>辨析</li>
+          <li>移动端 vs 桌面端<strong>八个关键差异</strong></li>
+        </ul>
+      </a>
+
+      <a class="card" href="01-资料准确性审查与勘误.md">
+        <div class="card-top">
+          <span class="badge badge-idx">01</span>
+          <span class="badge badge-audit">AUDIT</span>
+        </div>
+        <h3>资料准确性审查与勘误</h3>
+        <ul>
+          <li>对一份流传资料<strong>逐条判定</strong>：✅ 🟡 🟠 ❌ ➕</li>
+          <li class="warn">❌ 「分箱是移动端必然步骤」——对 Adreno 不成立</li>
+          <li class="warn">❌ 「Adreno 的 bin 是 16×16 / 32×32」——实际可变</li>
+          <li class="warn">❌ 「分箱阶段零主存访问」——Visibility Stream 在主存</li>
+          <li class="warn">❌ 「分箱在完整顶点着色器之后」——实际夹在两段着色之间</li>
+          <li>修正后的<strong>完整因果链</strong>图示</li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ 核心机制 ══ -->
+  <section class="chapter" id="sec-02">
+    <div class="chapter-head"><h2>核心机制</h2></div>
+    <p class="chapter-desc">分箱到底分谁、在哪儿分；一个 Tile 从几何到像素的完整生命周期。</p>
+    <div class="grid">
+
+      <a class="card" href="02-分箱Binning机制详解.md">
+        <div class="card-top">
+          <span class="badge badge-idx">02</span>
+          <span class="badge badge-bin">BINNING</span>
+        </div>
+        <h3>分箱 Binning 机制详解</h3>
+        <ul>
+          <li>分类对象是<strong>图元</strong>——附反证推导</li>
+          <li class="good">但分箱必须跑 <strong>Position Shading</strong>，对全部顶点执行</li>
+          <li>Mali IDVS 官方流水线图：Position / Varying 两段着色</li>
+          <li>Visibility Stream ≈ <strong>1 bit / 图元</strong>的带宽账本</li>
+          <li class="warn">跨 Tile 三角形<strong>不裁剪</strong>，整片重复光栅化</li>
+          <li><strong>并发分箱</strong>与它的三条破坏条件</li>
+        </ul>
+      </a>
+
+      <a class="card" href="03-逐Tile流水线与GMEM.md">
+        <div class="card-top">
+          <span class="badge badge-idx">03</span>
+          <span class="badge badge-gmem">GMEM</span>
+        </div>
+        <h3>逐 Tile 流水线与 GMEM</h3>
+        <ul>
+          <li>一个 Tile 的<strong>八阶段生命周期</strong>完整时序</li>
+          <li>片上内存容量事实表：Adreno 1 MB vs Mali 16 KB</li>
+          <li>GMEM <strong>不是 cache</strong>——必须显式管理生命周期</li>
+          <li>溢出后驱动的<strong>三级妥协</strong>（缩 bin → spill → Direct）</li>
+          <li>Resolve 成本：后处理链如何把它从 <strong>1ms 推到 3ms+</strong></li>
+          <li>Load / Store Op 决策表 + Vulkan 代码骨架</li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ 工程实践 ══ -->
+  <section class="chapter" id="sec-04">
+    <div class="chapter-head"><h2>工程实践</h2></div>
+    <p class="chapter-desc">管线怎么选、代码怎么写、指标怎么读。</p>
+    <div class="grid">
+
+      <a class="card" href="04-移动端延迟渲染与Subpass实践.md">
+        <div class="card-top">
+          <span class="badge badge-idx">04</span>
+          <span class="badge badge-vk">VULKAN</span>
+        </div>
+        <h3>移动端延迟渲染与 Subpass 实践</h3>
+        <ul>
+          <li class="warn">审查命题：「延迟渲染是移动端天作之合」</li>
+          <li><strong>两个方向相反的官方立场</strong>：UE 推荐 vs Oculus 劝退</li>
+          <li>Forward / Forward+ / Deferred <strong>决策树</strong></li>
+          <li>G-Buffer 三档打包方案（12 / 20 / 28 字节每像素）</li>
+          <li class="good">Deferred 不可 MSAA 的本质是<strong>语义冲突</strong></li>
+          <li>路径 A：Subpass + Input Attachment 完整代码骨架</li>
+          <li>路径 B：Dynamic Rendering + Local Read（<strong>Vulkan 1.4</strong>）</li>
+        </ul>
+      </a>
+
+      <a class="card" href="05-性能诊断与优化清单.md">
+        <div class="card-top">
+          <span class="badge badge-idx">05</span>
+          <span class="badge badge-perf">PROFILING</span>
+        </div>
+        <h3>性能诊断与优化清单</h3>
+        <ul>
+          <li>Snapdragon Profiler 指标语义表</li>
+          <li><strong>诊断树</strong>：Excessive Binning Pass Time（9 条排查）</li>
+          <li><strong>诊断树</strong>：Large Surface Using Direct Render Mode</li>
+          <li class="warn">ALU 利用率低 + 停滞高 = <strong>带宽问题</strong>，不是算力问题</li>
+          <li>Surface 数量：<strong>被忽视的头号指标</strong></li>
+          <li>五组共 <strong>60+ 条</strong>可勾选优化项</li>
+          <li>可接进 CI 的<strong>确定性检查</strong>清单</li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ 工程实践（续）══ -->
+  <section class="chapter" id="sec-06">
+    <div class="chapter-head"><h2>API 演进</h2></div>
+    <p class="chapter-desc">弃用发生在哪个版本、替代了什么、没替代什么。</p>
+    <div class="grid">
+
+      <a class="card" href="06-VkRenderPass弃用与动态渲染迁移.md">
+        <div class="card-top">
+          <span class="badge badge-idx">06</span>
+          <span class="badge badge-vk">MIGRATION</span>
+        </div>
+        <h3>VkRenderPass 弃用与动态渲染迁移</h3>
+        <ul>
+          <li class="warn">纠正：弃用发生在 <strong>1.4 而非 1.3</strong></li>
+          <li>官方时间线：1.3 的核心化 dynamic rendering 缺 subpass 等价物</li>
+          <li>规范留了缺口：<strong>「大部分」而非「完整」</strong>替代</li>
+          <li class="warn"><code>VK_QCOM_render_pass_shader_resolve</code> <strong>无等价物</strong></li>
+          <li><code>deprecated</code> 的准确含义：不是失效，但有三个风险</li>
+          <li>三种片上读取的<strong>粒度对比</strong>（像素局部 vs tile 局部）</li>
+          <li class="warn">纠正：<code>tile_shading</code> <strong>不是</strong>「强制 TBDR 的开关」</li>
+          <li>迁移决策树 + 四阶段检查清单</li>
+          <li class="warn">迁移收益是<strong>可维护性</strong>，不是性能</li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ 跨平台对照 ══ -->
+  <section class="chapter" id="sec-07">
+    <div class="chapter-head"><h2>跨平台对照</h2></div>
+    <p class="chapter-desc">哪些约束两端共有，哪些是数量级差异导致的策略分野。</p>
+    <div class="grid">
+
+      <a class="card" href="07-与主机端的优化差异对照.md">
+        <div class="card-top">
+          <span class="badge badge-idx">07</span>
+          <span class="badge badge-bin">CROSS-PLATFORM</span>
+        </div>
+        <h3>与主机端的优化差异对照</h3>
+        <ul>
+          <li>先修正前提：「移动端 vs 主机端」不是二元的——<strong>掌机是中间态</strong></li>
+          <li>三堵墙 vs 三道闸：<strong>被迫削峰</strong> vs <strong>自己设定的包线</strong></li>
+          <li>能效拐点：陡区近似 <code>P ∝ f³</code> → 目标函数是<strong>能效比</strong></li>
+          <li class="warn">纠正「降频在 55℃ 触发」→ 多区域多级阈值</li>
+          <li><strong>相同点十条</strong>：分块光栅化、片上存储、固定功能压缩、早期 Z、时间超分、DRS、带宽瓶颈、GPU-driven、帧时间一致性、方法论</li>
+          <li class="warn">但分块边界不同：NVIDIA 自 Maxwell 起是 tile-based <strong>immediate</strong>，只在单个 draw call 内生效</li>
+          <li><strong>每像素可用带宽</strong>分析：手机 1080p 约为主机 4K 的 <strong>3/4</strong></li>
+          <li class="warn">纠正「UMA 是移动端特性」→ <strong>主机也是 UMA</strong></li>
+          <li class="warn">纠正「移动端无光追单元」→ 已有硬件 RTU，但<strong>不加速 BVH 遍历</strong></li>
+          <li>八个结构性差异：SKU/驱动成熟度、持续 vs 峰值、热预算漂移、CPU 异构、FP16、RT 层级、认证矩阵、目标函数</li>
+          <li>移动端独有的<strong>可编程热管理</strong>：Sustained Performance Mode、独占核心、ADPF、thermalState</li>
+          <li class="good">热管理状态机：降级快、升级慢、带滞回；先调分辨率（可被超分掩盖）</li>
+          <li>移植判据：这条优化省的是<strong>能效</strong>还是<strong>时间</strong></li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ 速查 ══ -->
+  <section class="chapter" id="sec-cheat">
+    <div class="chapter-head"><h2>速查</h2></div>
+    <p class="chapter-desc">动手前扫一眼，避免把桌面经验平移到移动端。</p>
+    <div class="grid">
+
+      <div class="card" style="cursor:default">
+        <div class="card-top"><span class="badge badge-audit">误区</span></div>
+        <h3>十四个必须纠正的说法</h3>
+        <ul>
+          <li class="warn">「移动端一定要分箱」→ Adreno 有 Direct Mode</li>
+          <li class="warn">「分箱只关心图元不含顶点」→ 必须跑 Position Shading</li>
+          <li class="warn">「分箱在完整 VS 之后」→ 夹在两段着色之间</li>
+          <li class="warn">「分箱零主存访问」→ Visibility Stream 在主存</li>
+          <li class="warn">「Tile 固定 16×16」→ Adreno 可变</li>
+          <li class="warn">「跨 Tile 三角形会被裁开」→ 不裁，整片重复光栅化</li>
+          <li class="warn">「Mali 只有 Early-Z」→ 官方有 HSR</li>
+          <li class="warn">「延迟渲染是天作之合」→ 有明确适用边界</li>
+          <li class="warn">「全屏 draw 破坏局部性」→ 采样方式才是关键</li>
+          <li class="warn">「GMEM 溢出导致 Direct Mode」→ 首要原因是 VS 纹理采样</li>
+          <li class="warn">「1.3 弃用了 VkRenderPass」→ 是 <strong>1.4</strong></li>
+          <li class="warn">「tile_shading 能强制 TBDR」→ 它是 per-tile 附件访问能力</li>
+          <li class="warn">「UMA 是移动端特性」→ <strong>主机也是 UMA</strong>，PC 独显才分离</li>
+          <li class="warn">「移动端没有光追单元」→ 已有硬件 RTU，但<strong>不加速 BVH</strong></li>
+        </ul>
+      </div>
+
+      <div class="card" style="cursor:default">
+        <div class="card-top"><span class="badge badge-perf">铁律</span></div>
+        <h3>三条铁律 + 诊断口诀</h3>
+        <ul>
+          <li><strong>铁律 ①</strong> 每个「渲染到贴图」都有 Resolve 成本</li>
+          <li><strong>铁律 ②</strong> 中间结果留在片上：BY_REGION + input attachment + DONT_CARE</li>
+          <li><strong>铁律 ③</strong> 清空/丢弃要显式声明，绝不依赖 LOAD 默认值</li>
+          <li class="good">ALU 低 + 停滞高 → 带宽问题</li>
+          <li class="good">ALU 高 + 停滞低 → 计算问题</li>
+          <li class="good">ALU 低 + 停滞低 → CPU-bound / 同步问题</li>
+          <li class="good">分箱高 + 其他正常 → 可能并发分箱生效，不必管</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ 来源 ══ -->
+  <section class="chapter" id="sec-src">
+    <div class="chapter-head"><h2>事实来源与可信度</h2></div>
+    <p class="chapter-desc">本系列所有判断均按以下优先级采信。</p>
+    <div class="grid">
+
+      <div class="card" style="cursor:default">
+        <div class="card-top"><span class="badge badge-vk">来源 A</span></div>
+        <h3>厂商官方文档</h3>
+        <ul>
+          <li>Qualcomm《Adreno GPU on Mobile: Best Practices》</li>
+          <li>Qualcomm《Snapdragon X Elite Architecture Deep Dive》（FlexRender / GMEM 3MB）</li>
+          <li>ARM《Mali Offline Compiler User Guide》（IDVS 流水线）</li>
+          <li>ARM《Mali-G31 Performance Counters Reference Guide》</li>
+          <li>Imagination《PowerVR Architecture Concepts》</li>
+          <li>Epic《Mobile Rendering and Shading Modes》</li>
+          <li>Meta/Oculus《PC Rendering Techniques to Avoid》</li>
+          <li>Android AOSP《性能管理》/ CDD 8.5 Consistent Performance（持续性能模式、独占核心）</li>
+          <li>Android《ADPF：动态性能框架》（热余量 / 性能提示 / 游戏模式）</li>
+          <li>Arm《Immortalis-G715 Developer Overview》（RTU 面积与收益）</li>
+          <li>NVIDIA《Switch 2 + DLSS》官方博客 / Sony PS5 与微软 Xbox 公开规格</li>
+          <li>Realworldtech《Tile-based Rasterization in Nvidia GPUs》（Maxwell 起的分块光栅化）</li>
+        </ul>
+      </div>
+
+      <div class="card" style="cursor:default">
+        <div class="card-top"><span class="badge badge-arch">来源 B</span></div>
+        <h3>Khronos 规范与扩展</h3>
+        <ul>
+          <li>Vulkan Specification（render pass / dynamic rendering）</li>
+          <li>Vulkan Specification 附录 <strong>Deprecation</strong>（1.3 / 1.4 版本事实）</li>
+          <li><code>VK_KHR_dynamic_rendering_local_read</code> 提案</li>
+          <li><code>VK_EXT_shader_tile_image</code> 提案</li>
+          <li><code>VK_QCOM_tile_properties</code> / <code>tile_shading</code></li>
+          <li><code>VK_QCOM_tile_memory_heap</code>（2025-03）</li>
+          <li><code>VK_EXT_subpass_merge_feedback</code></li>
+          <li><code>VK_QCOM_render_pass_store_ops</code> / <code>_shader_resolve</code></li>
+          <li>Vulkanised 2025/2026 官方技术更新幻灯片</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <div class="src">移动端 GPU 架构文档 · 8 篇 · 最后更新 2026-09-13</div>
+    <div>来源优先级：厂商官方文档 &gt; Khronos 规范 &gt; 厂商演讲 &gt; 独立硬件分析 &gt; 社区实测（标注为推测）</div>
+  </footer>
+</main>
+
+<script>
+(function () {
+  var links  = Array.prototype.slice.call(document.querySelectorAll('aside a[href^="#"]'));
+  var cards  = Array.prototype.slice.call(document.querySelectorAll('a.card'));
+  var targets = links.map(function (a) {
+    return document.querySelector(a.getAttribute('href'));
+  });
+
+  function onScroll() {
+    var y = window.scrollY + 140;
+    var active = -1;
+    for (var i = 0; i < targets.length; i++) {
+      if (targets[i] && targets[i].offsetTop <= y) active = i;
+    }
+    links.forEach(function (a, i) { a.classList.toggle('active', i === active); });
+    cards.forEach(function (c) { c.classList.remove('active'); });
+    if (active >= 0) {
+      var href = links[active].getAttribute('href');
+      cards.forEach(function (c) {
+        if (c.getAttribute('href') && href.indexOf('sec-') === 1) {
+          // 章节高亮：找到该章节内的卡片
+        }
+      });
+    }
+  }
+
+  // 卡片级高亮（用于直接锚点到卡片）
+  cards.forEach(function (c) {
+    c.addEventListener('click', function () {
+      cards.forEach(function (o) { o.classList.remove('active'); });
+      c.classList.add('active');
+    });
+  });
+
+  var ticking = false;
+  window.addEventListener('scroll', function () {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () { onScroll(); ticking = false; });
+  }, { passive: true });
+
+  onScroll();
+})();
+</script>
+
+</body>
+</html>

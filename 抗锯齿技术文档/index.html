@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>抗锯齿技术文档 — 导航</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-soft: #f7f8fa;
+    --bg-side: #fbfbfd;
+    --border: #e6e8eb;
+    --border-soft: #eef0f3;
+    --text: #1f2328;
+    --text-soft: #5a6470;
+    --text-mute: #8b949e;
+    --accent: #2f6feb;
+    --accent-soft: #eaf1fd;
+    --accent-2: #b7791f;
+    --accent-2-soft: #fdf6e3;
+    --danger: #c0392b;
+    --danger-soft: #fdeceb;
+    --ok: #1f7a4d;
+    --ok-soft: #e8f6ef;
+    --purple: #6b46c1;
+    --purple-soft: #f1ecfb;
+    --teal: #1a6b8a;
+    --teal-soft: #eef6f9;
+    --radius: 10px;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+            "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── 侧边栏 ───────────────────────────────────────────────── */
+  aside {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 290px;
+    background: var(--bg-side);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 26px 20px 40px;
+  }
+
+  aside .brand {
+    font-size: 15px;
+    font-weight: 650;
+    letter-spacing: .01em;
+    padding-bottom: 4px;
+  }
+
+  aside .brand-sub {
+    font-size: 12px;
+    color: var(--text-mute);
+    font-family: var(--mono);
+    margin-bottom: 22px;
+  }
+
+  .nav-group { margin-bottom: 20px; }
+
+  .nav-group-title {
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+    margin-bottom: 8px;
+    padding-left: 2px;
+  }
+
+  aside a {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    padding: 6px 9px;
+    margin-bottom: 1px;
+    border-radius: 6px;
+    color: var(--text-soft);
+    text-decoration: none;
+    font-size: 13.5px;
+    line-height: 1.45;
+    border-left: 2px solid transparent;
+    transition: background .12s, color .12s, border-color .12s;
+  }
+
+  aside a:hover { background: var(--accent-soft); color: var(--accent); }
+
+  aside a.active {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-left-color: var(--accent);
+    font-weight: 600;
+  }
+
+  aside a .num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-mute);
+    flex: 0 0 auto;
+    padding-top: 1px;
+  }
+
+  aside a.active .num { color: var(--accent); }
+
+  /* ── 主区 ─────────────────────────────────────────────────── */
+  main {
+    margin-left: 290px;
+    max-width: 1080px;
+    padding: 40px 48px 100px;
+  }
+
+  header.page-head {
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 34px;
+  }
+
+  header.page-head h1 {
+    margin: 0 0 8px;
+    font-size: 27px;
+    font-weight: 680;
+    letter-spacing: -.01em;
+  }
+
+  header.page-head p {
+    margin: 0;
+    color: var(--text-soft);
+    font-size: 14.5px;
+    max-width: 660px;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .pill {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+  }
+
+  /* ── 章节 ─────────────────────────────────────────────────── */
+  section.chapter { margin-bottom: 44px; scroll-margin-top: 24px; }
+
+  .chapter-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .chapter-head h2 { margin: 0; font-size: 17px; font-weight: 650; }
+
+  .chapter-desc {
+    font-size: 13px;
+    color: var(--text-mute);
+    margin: 0 0 16px;
+  }
+
+  /* ── 卡片网格 ─────────────────────────────────────────────── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+  }
+
+  a.card {
+    display: block;
+    padding: 18px 20px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color .14s, box-shadow .14s, transform .14s;
+  }
+
+  a.card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 3px 14px rgba(47, 111, 235, .10);
+    transform: translateY(-1px);
+  }
+
+  a.card.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 9px;
+  }
+
+  .badge {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    padding: 2px 7px;
+    border-radius: 4px;
+    flex: 0 0 auto;
+  }
+
+  .badge-idx  { background: var(--bg-soft);      border: 1px solid var(--border); color: var(--text-soft); }
+  .badge-over { background: var(--accent-soft);  color: var(--accent); }
+  .badge-geo  { background: var(--teal-soft);    color: var(--teal); }
+  .badge-tex  { background: var(--accent-2-soft);color: var(--accent-2); }
+  .badge-post { background: var(--purple-soft);  color: var(--purple); }
+  .badge-temp { background: var(--ok-soft);      color: var(--ok); }
+  .badge-ui   { background: #fdeef4;             color: #a8306b; }
+  .badge-mob  { background: var(--danger-soft);  color: var(--danger); }
+
+  .card h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 620;
+    line-height: 1.4;
+  }
+
+  .card ul { margin: 0; padding: 0; list-style: none; }
+
+  .card ul li {
+    position: relative;
+    padding-left: 14px;
+    font-size: 13px;
+    color: var(--text-soft);
+    line-height: 1.6;
+    margin-bottom: 3px;
+  }
+
+  .card ul li::before {
+    content: "";
+    position: absolute;
+    left: 3px;
+    top: 9px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+
+  .card ul li strong { color: var(--text); font-weight: 600; }
+
+  .card ul li.warn::before { background: var(--danger); }
+  .card ul li.good::before { background: var(--ok); }
+
+  .card code {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border-soft);
+    border-radius: 3px;
+    padding: 0 3px;
+  }
+
+  /* ── 页脚 ─────────────────────────────────────────────────── */
+  footer {
+    margin-top: 60px;
+    padding-top: 22px;
+    border-top: 1px solid var(--border);
+    font-size: 12.5px;
+    color: var(--text-mute);
+    font-family: var(--mono);
+    line-height: 1.9;
+  }
+
+  footer .src { color: var(--text-soft); }
+
+  /* ── 响应式 ───────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    aside {
+      position: static;
+      width: auto;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      padding: 20px 20px 24px;
+    }
+    main { margin-left: 0; padding: 28px 20px 70px; }
+    header.page-head h1 { font-size: 22px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<aside>
+  <div class="brand">抗锯齿技术</div>
+  <div class="brand-sub">Anti-Aliasing Taxonomy</div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">基础</div>
+    <a href="#sec-00"><span class="num">00</span><span>分类总览与信号原理</span></a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">采样侧</div>
+    <a href="#sec-01"><span class="num">01</span><span>几何边缘 AA 与覆盖率采样</span></a>
+    <a href="#sec-02"><span class="num">02</span><span>纹理与着色高频 AA</span></a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">重建侧</div>
+    <a href="#sec-03"><span class="num">03</span><span>图像空间后处理 AA</span></a>
+    <a href="#sec-04"><span class="num">04</span><span>时间 AA 与超分重建</span></a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">UI 与平台</div>
+    <a href="#sec-05"><span class="num">05</span><span>UI 与字体 AA</span></a>
+    <a href="#sec-06"><span class="num">06</span><span>移动端 AA 选型与实践</span></a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">速查</div>
+    <a href="#sec-cheat"><span class="num">▸</span><span>命名规范与误区速查</span></a>
+    <a href="#sec-src"><span class="num">▸</span><span>事实来源与可信度</span></a>
+  </div>
+</aside>
+
+<main>
+  <header class="page-head">
+    <h1>抗锯齿技术文档</h1>
+    <p>把「抗锯齿」这个伞形词拆开：按信号来源、处理阶段、采样机制、代价结构四维分类；讲清 MSAA / mipmap / TAA / SMAA / SDF / 超分分别解决什么、不解决什么，以及在移动端该选哪个。</p>
+    <div class="meta-row">
+      <span class="pill">7 篇</span>
+      <span class="pill">四问框架</span>
+      <span class="pill">MSAA · SSAA · FXAA · SMAA · TAA</span>
+      <span class="pill">DLSS 4 · FSR 4 · XeSS 2</span>
+      <span class="pill">Arm ASR · NSS</span>
+      <span class="pill">SDF / MSDF</span>
+    </div>
+  </header>
+
+  <!-- ══ 基础 ══ -->
+  <section class="chapter" id="sec-00">
+    <div class="chapter-head"><h2>基础</h2></div>
+    <p class="chapter-desc">先建立统一分类框架，后面每一篇才不会互相混淆。</p>
+    <div class="grid">
+
+      <a class="card" href="00-分类总览与信号原理.md">
+        <div class="card-top">
+          <span class="badge badge-idx">00</span>
+          <span class="badge badge-over">OVERVIEW</span>
+        </div>
+        <h3>分类总览与信号原理</h3>
+        <ul>
+          <li>第一性原理：<strong>采样与重建</strong>；奈奎斯特与混叠</li>
+          <li>空间混叠 vs <strong>时间混叠</strong>——同一件事的两个维度</li>
+          <li><strong>四问法</strong>：来源 / 阶段 / 机制 / 代价</li>
+          <li>完整分类总表：十余种技术各归其位</li>
+          <li>四条解决路径：提高采样率、预过滤、后处理重建、模型重建</li>
+          <li class="warn">八个最容易混淆的点逐条辨析</li>
+          <li>命名规范：以后不说「开抗锯齿」，说什么</li>
+          <li>术语表：含 <strong>Resolve / VRS</strong> 等易误用词</li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ 采样侧 ══ -->
+  <section class="chapter" id="sec-01">
+    <div class="chapter-head"><h2>采样侧</h2></div>
+    <p class="chapter-desc">在采样阶段干预：提高采样率，或在采样前把高频滤掉。</p>
+    <div class="grid">
+
+      <a class="card" href="01-几何边缘AA与覆盖率采样.md">
+        <div class="card-top">
+          <span class="badge badge-idx">01</span>
+          <span class="badge badge-geo">COVERAGE</span>
+        </div>
+        <h3>几何边缘 AA 与覆盖率采样</h3>
+        <ul>
+          <li><strong>MSAA 机制全景</strong>：覆盖率、样本、resolve</li>
+          <li class="warn">MSAA 的真实账本：存储 ×N、着色通常 ×1</li>
+          <li>CSAA / EQAA：覆盖率样本多、颜色样本少</li>
+          <li>SSAA 家族：<strong>唯一真正的全管线超采样</strong></li>
+          <li>Alpha-to-Coverage：质量上限 ≈ MSAA 采样级数</li>
+          <li>解析 AA：直接算覆盖面积（字体光栅化同源）</li>
+          <li>Vulkan 中 MSAA 的完整配置与 resolve 语义</li>
+          <li>选型与决策表</li>
+        </ul>
+      </a>
+
+      <a class="card" href="02-纹理与着色高频AA.md">
+        <div class="card-top">
+          <span class="badge badge-idx">02</span>
+          <span class="badge badge-tex">PRE-FILTER</span>
+        </div>
+        <h3>纹理与着色高频 AA</h3>
+        <ul>
+          <li>成因：为什么 MSAA 在这里<strong>完全失效</strong></li>
+          <li>Mipmap 是<strong>预过滤</strong>，不是「缩图」</li>
+          <li>各向异性过滤解决的是「足迹是椭圆」</li>
+          <li class="warn">法线贴图的 mipmap 反而会<strong>制造</strong>走样</li>
+          <li><strong>Toksvig</strong>（2004）→ LEAN / CLEAN / 方差映射</li>
+          <li>程序化 AA：<code>fwidth</code> + <code>smoothstep</code> 三坑</li>
+          <li>SDF / MSDF：一次烘焙、任意缩放</li>
+          <li>预积分 BRDF 与 IBL 属于同一思路</li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ 重建侧 ══ -->
+  <section class="chapter" id="sec-03">
+    <div class="chapter-head"><h2>重建侧</h2></div>
+    <p class="chapter-desc">在图像空间修补：从「找边缘糊一下」到「时间采样 + 神经网络重建」。</p>
+    <div class="grid">
+
+      <a class="card" href="03-图像空间后处理AA.md">
+        <div class="card-top">
+          <span class="badge badge-idx">03</span>
+          <span class="badge badge-post">POST-FX</span>
+        </div>
+        <h3>图像空间后处理 AA</h3>
+        <ul>
+          <li>定位：<strong>「修图」不是「采样」</strong>，四道硬边界</li>
+          <li>MLAA 原始思路：检测 → 分类 → 重矢量化 → 混合</li>
+          <li>AreaTex / SearchTex 是<strong>数学查找表</strong>，不是美术资源</li>
+          <li>FXAA 版本谱系与 <code>FXAA_QUALITY__PRESET</code> 的正确用法</li>
+          <li><strong>SMAA 三阶段</strong>：边缘检测 / 权重计算 / 邻域混合</li>
+          <li>SMAA 变体不是强弱版本（1x / S2x / 4x / T2x）</li>
+          <li class="warn">六个<strong>结构性缺陷</strong>，调参无法消除</li>
+          <li>pass 顺序三处必须对齐（HDR / HUD / 分辨率）</li>
+        </ul>
+      </a>
+
+      <a class="card" href="04-时间AA与超分重建.md">
+        <div class="card-top">
+          <span class="badge badge-idx">04</span>
+          <span class="badge badge-temp">TEMPORAL</span>
+        </div>
+        <h3>时间 AA 与超分重建</h3>
+        <ul>
+          <li>TAA 是<strong>时间采样</strong>，不是后处理滤波</li>
+          <li>全链路：抖动 → 重投影 → 校验 → 混合 → 锐化</li>
+          <li class="warn">忘记从 MV 减去 jitter → 画面缓慢「爬行」</li>
+          <li>鬼影抑制两条正解：<strong>Karis 2014</strong> 邻域截断 / <strong>Salvi 2016</strong> 方差截断</li>
+          <li>YCoCg 空间 + μ ± γσ + 按速度动态调 γ</li>
+          <li>九种伪影图鉴（含 UI 鬼影、去遮挡 fizzle）</li>
+          <li>2026 超分阵营：<strong>DLSS 4 / FSR 4 / XeSS 2 / TSR / STP</strong></li>
+          <li>移动端：<strong>Arm ASR / NSS</strong>、Snapdragon GSR、MetalFX</li>
+          <li class="warn">帧生成<strong>不降低延迟</strong>：延迟账本图解</li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ UI 与平台 ══ -->
+  <section class="chapter" id="sec-05">
+    <div class="chapter-head"><h2>UI 与平台</h2></div>
+    <p class="chapter-desc">另一条独立的技术线，以及移动端该怎么选。</p>
+    <div class="grid">
+
+      <a class="card" href="05-UI与字体AA.md">
+        <div class="card-top">
+          <span class="badge badge-idx">05</span>
+          <span class="badge badge-ui">UI / TEXT</span>
+        </div>
+        <h3>UI 与字体 AA</h3>
+        <ul>
+          <li class="warn">UI 边缘在 <strong>alpha 里，不在几何里</strong> → MSAA 无效</li>
+          <li>字体管线：轮廓 → hinting → <strong>覆盖率</strong> → 合成</li>
+          <li>灰度 AA vs LCD 子像素 AA（四条前提 + 三个伪影）</li>
+          <li>Hinting 与 AA 的张力：按字号分档</li>
+          <li class="warn">色彩空间决定字的<strong>胖瘦</strong>（线性 vs sRGB）</li>
+          <li>SDF / MSDF 的实用边界与 <code>pxRange</code></li>
+          <li>预乘 alpha / 图集 padding / 半像素偏移</li>
+          <li class="good">UI 必须在 <strong>AA 之后 + 上采样之后</strong>合成</li>
+          <li>各 AA 方案与 UI 的冲突表（含帧生成、VRS）</li>
+        </ul>
+      </a>
+
+      <a class="card" href="06-移动端AA选型与工程实践.md">
+        <div class="card-top">
+          <span class="badge badge-idx">06</span>
+          <span class="badge badge-mob">MOBILE</span>
+        </div>
+        <h3>移动端 AA 选型与工程实践</h3>
+        <ul>
+          <li class="good">反直觉 1：<strong>MSAA 在移动端反而划算</strong>（片上 resolve）</li>
+          <li class="warn">反直觉 2：TAA 贵在<strong>带宽</strong>（3~5 次全分辨率访问/帧）</li>
+          <li>15 种方案在移动端的代价对照表</li>
+          <li><strong>五级决策树</strong>：瓶颈 → MV → 上采样 → 渲染路径 → UI</li>
+          <li>UE5 <code>r.Mobile.AntiAliasing</code> 取值与 MSAA 的前向限制</li>
+          <li class="warn">纠正：二手文档对 <code>r.Mobile.AntiAliasing=1</code> 的<strong>矛盾说法</strong></li>
+          <li>Unity 6 STP 的两条硬限制</li>
+          <li>Vulkan 要点：<code>LAZILY_ALLOCATED</code> + load/store op + 片上 resolve</li>
+          <li>与《移动端 GPU 架构文档》的<strong>五处咬合结论</strong></li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ 速查 ══ -->
+  <section class="chapter" id="sec-cheat">
+    <div class="chapter-head"><h2>速查</h2></div>
+    <p class="chapter-desc">用词前扫一眼，避免把不同阶段的方案放在一起比较。</p>
+    <div class="grid">
+
+      <div class="card" style="cursor:default">
+        <div class="card-top"><span class="badge badge-post">命名</span></div>
+        <h3>以后这么说（不说「开抗锯齿」）</h3>
+        <ul>
+          <li><strong>几何边缘 AA</strong>：MSAA、CSAA/EQAA、解析 AA</li>
+          <li><strong>全管线超采样</strong>：SSAA</li>
+          <li><strong>图像空间后处理 AA</strong>：FXAA、SMAA、MLAA、CMAA</li>
+          <li><strong>时间 AA</strong>：TAA、TAAU</li>
+          <li><strong>时间重建 / 超分</strong>：DLSS 4、FSR 4、XeSS 2、TSR、STP、ASR</li>
+          <li><strong>纹理过滤</strong>：Mipmap、各向异性</li>
+          <li><strong>着色高频 AA</strong>：Toksvig、LEAN/CLEAN、方差映射</li>
+          <li><strong>UI / 字体 AA</strong>：灰度 AA、LCD 子像素、SDF/MSDF、预乘 alpha</li>
+          <li><strong>覆盖率 AA</strong>：Alpha-to-Coverage、解析覆盖</li>
+        </ul>
+      </div>
+
+      <div class="card" style="cursor:default">
+        <div class="card-top"><span class="badge badge-idx">误区</span></div>
+        <h3>十个必须纠正的说法</h3>
+        <ul>
+          <li class="warn">「MSAA 是几何抗锯齿的全部」→ 它只管<strong>覆盖率</strong></li>
+          <li class="warn">「MSAA 能解决纹理摩尔纹」→ 采样在像素中心只做一次</li>
+          <li class="warn">「开了 TAA 就不用 mipmap」→ 高频信息在采样时已丢失</li>
+          <li class="warn">「法线贴图做 mipmap 是标准做法」→ 反而制造高光走样</li>
+          <li class="warn">「FXAA 就是糊」→ 多数是 preset 用错</li>
+          <li class="warn">「TAA 是后处理 AA」→ 它改变采样位置，属<strong>时间采样</strong></li>
+          <li class="warn">「帧生成能提升手感」→ 显示帧率↑，<strong>延迟不变或更差</strong></li>
+          <li class="warn">「UI 也应该开 MSAA」→ UI 边缘在 alpha 里，MSAA 看不到</li>
+          <li class="warn">「UI 画在低分辨率层再放大」→ 字必糊，必须原生分辨率合成</li>
+          <li class="warn">「移动端 MSAA 一定贵」→ 片上 resolve，通常反而划算</li>
+        </ul>
+      </div>
+
+      <div class="card" style="cursor:default">
+        <div class="card-top"><span class="badge badge-temp">口诀</span></div>
+        <h3>看到「AA」先问四句</h3>
+        <ul>
+          <li><strong>Q1</strong> 它作用在<strong>哪个阶段</strong>？（采样 / 光栅 / 像素 / 后处理 / 时间 / 合成）</li>
+          <li><strong>Q2</strong> 它解决<strong>哪类信号</strong>？（几何 / 纹理 / 着色 / 时间 / 字体）</li>
+          <li><strong>Q3</strong> 它是否<strong>多样本</strong>？着色是否也 ×N？</li>
+          <li><strong>Q4</strong> 代价结构是什么？（存储 / 带宽 / ALU / 延迟 / 伪影）</li>
+          <li class="good">四问答完，方案自然归位，不会再把 MSAA 和 mipmap 放在一起比</li>
+        </ul>
+      </div>
+
+      <div class="card" style="cursor:default">
+        <div class="card-top"><span class="badge badge-geo">时间线</span></div>
+        <h3>关键节点</h3>
+        <ul>
+          <li><strong>2004</strong> Toksvig：把法线方差折进 roughness</li>
+          <li><strong>2007</strong> Valve：SDF 用于矢量纹理放大</li>
+          <li><strong>2009</strong> Intel MLAA（CPU）／ NVIDIA FXAA</li>
+          <li><strong>2011</strong> Jimenez：MLAA 移植 GPU</li>
+          <li><strong>2012</strong> SMAA（Eurographics）</li>
+          <li><strong>2014</strong> Karis：TAA 参考实现（UE4）</li>
+          <li><strong>2016</strong> Salvi：方差截断／Filmic SMAA</li>
+          <li><strong>2018+</strong> DLSS / FSR / XeSS 时代开始</li>
+          <li><strong>2024</strong> Arm ASR（MIT，基于 FSR 2）</li>
+          <li><strong>2025</strong> Arm NSS 公布（神经加速器，2026 年底硬件）</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ 来源 ══ -->
+  <section class="chapter" id="sec-src">
+    <div class="chapter-head"><h2>事实来源与可信度</h2></div>
+    <p class="chapter-desc">本系列所有判断均按以下优先级采信。</p>
+    <div class="grid">
+
+      <div class="card" style="cursor:default">
+        <div class="card-top"><span class="badge badge-over">来源 A</span></div>
+        <h3>原始论文（一手）</h3>
+        <ul>
+          <li>Karis 2014《High Quality Temporal Supersampling》（UE4 TAA）</li>
+          <li>Salvi 2016《An Excursion in Temporal Supersampling》（方差截断）</li>
+          <li>Jimenez 等 2012《SMAA: Enhanced Subpixel Morphological AA》</li>
+          <li>Jimenez 2016《Filmic SMAA》／Karis 关于 YCoCg 截断</li>
+          <li>Lottes《FXAA》白皮书</li>
+          <li>Green 2007《Improved Alpha-Tested Magnification...》（SDF）</li>
+          <li>Chlumsky《msdfgen》（MSDF 事实标准实现）</li>
+          <li>Toksvig 2004（法线方差）/ LEAN / CLEAN mapping</li>
+          <li>ReBLUR 2020（线性加权累积）</li>
+        </ul>
+      </div>
+
+      <div class="card" style="cursor:default">
+        <div class="card-top"><span class="badge badge-mob">来源 B</span></div>
+        <h3>厂商官方文档与工程指南</h3>
+        <ul>
+          <li>NVIDIA：DLSS 4 / 帧生成 / VRS 与 Adaptive Shading 最佳实践</li>
+          <li>AMD：FSR 4 / FSR 3.1 / Fluid Motion Frames</li>
+          <li>Intel：XeSS 2（XMX / DP4a / XeSS-FG / XeLL）、CMAA2</li>
+          <li>Arm：<strong>ASR</strong>（MIT，基于 FSR 2）、<strong>NSS</strong>（Vulkan ML 扩展）</li>
+          <li>Qualcomm：Snapdragon GSR、Adreno Neural Fusion</li>
+          <li>Apple：MetalFX</li>
+          <li>Epic：UE5 移动端抗锯齿设置、TSR</li>
+          <li>Unity：Unity 6 STP、URP Upscaling Filter</li>
+        </ul>
+      </div>
+
+      <div class="card" style="cursor:default">
+        <div class="card-top"><span class="badge badge-temp">来源 C</span></div>
+        <h3>规范与时效性标注</h3>
+        <ul>
+          <li>Vulkan Specification：MSAA / resolve / load-store op / VRS</li>
+          <li><code>VK_ARM_tensors</code> / <code>VK_ARM_data_graph</code>（Vulkan ML）</li>
+          <li class="warn">超分阵营的<strong>版本与硬件门槛</strong>变化快，文中已标注 2026-09 状态</li>
+          <li class="warn">引擎 cvar / 项目设置在<strong>不同小版本可能改名</strong>，以引擎源码为准</li>
+          <li class="warn">厂商公布的「帧率提升 X%」依赖测试条件，不等于项目收益</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <div class="src">抗锯齿技术文档 · 7 篇 · 最后更新 2026-09-13</div>
+    <div>来源优先级：原始论文 / 厂商官方文档 &gt; 规范与 API 文档 &gt; 厂商演讲 &gt; 工程博客实测 &gt; 社区资料（标注为参考）</div>
+  </footer>
+</main>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('aside a[href^="#"]'));
+  var cards = Array.prototype.slice.call(document.querySelectorAll('a.card'));
+  var targets = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+
+  function onScroll() {
+    var y = window.scrollY + 140;
+    var active = -1;
+    for (var i = 0; i < targets.length; i++) {
+      if (targets[i] && targets[i].offsetTop <= y) active = i;
+    }
+    links.forEach(function (a, i) { a.classList.toggle('active', i === active); });
+  }
+
+  cards.forEach(function (c) {
+    c.addEventListener('click', function () {
+      cards.forEach(function (o) { o.classList.remove('active'); });
+      c.classList.add('active');
+    });
+  });
+
+  var ticking = false;
+  window.addEventListener('scroll', function () {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () { onScroll(); ticking = false; });
+  }, { passive: true });
+
+  onScroll();
+})();
+</script>
+
+</body>
+</html>

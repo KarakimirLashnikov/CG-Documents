@@ -962,4 +962,8 @@ flowchart TD
 | 回读（低频） | `READBACK` | `HOST_VISIBLE \| HOST_COHERENT` | `GPU_TO_CPU` | 截图、查询结果 | 异步回读，延迟读取 |
 | 高频小量上传（可选） | `CUSTOM` | `DEVICE_LOCAL \| HOST_VISIBLE` | `CPU_TO_GPU`（特殊） | 高频常量缓冲 | 需要 BAR 支持 |
 
+---
+
+*上一篇：[11-实时渲染产业演进史](11-实时渲染产业演进史.md) | 下一篇：[13-UE5.8的RDG资源与RHI资源](13-UE5.8的RDG资源与RHI资源.md)*
+
 > **注意**：`DEVICE_LOCAL | HOST_VISIBLE` 组合需要 NVIDIA Resizable BAR 或 AMD Smart Access Memory 支持，才能让 CPU 直接写入设备本地内存，避免 Staging Buffer 中转。
