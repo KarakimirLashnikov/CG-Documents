@@ -349,6 +349,12 @@
   </div>
 
   <div class="nav-group">
+    <div class="nav-group-title">进阶专题</div>
+    <a href="#sec-08"><span class="num">08</span><span>前向渲染与多管线 DrawCall</span></a>
+    <a href="#sec-09"><span class="num">09</span><span>GPU Surface 概念解析</span></a>
+  </div>
+
+  <div class="nav-group">
     <div class="nav-group-title">速查</div>
     <a href="#sec-cheat"><span class="num">▸</span><span>常见误区速查表</span></a>
     <a href="#sec-src"><span class="num">▸</span><span>事实来源与可信度</span></a>
@@ -360,7 +366,7 @@
     <h1>移动端 GPU 架构文档</h1>
     <p>从 TBR / TBDR 的第一性原理出发，拆解分箱机制、片上内存与逐 Tile 流水线；对业内流传说法做逐条勘误；落到 Vulkan 实现路径与 Profiler 诊断。</p>
     <div class="meta-row">
-      <span class="pill">8 篇</span>
+      <span class="pill">10 篇</span>
       <span class="pill">TBR / TBDR / FlexRender</span>
       <span class="pill">Adreno · Mali · PowerVR</span>
       <span class="pill">Vulkan 1.4</span>
@@ -552,6 +558,65 @@
     </div>
   </section>
 
+  <!-- ══ 多管线实践 ══ -->
+  <section class="chapter" id="sec-08">
+    <div class="chapter-head"><h2>多管线实践</h2></div>
+    <p class="chapter-desc">同一个 RenderPass 里跑十几条管线时，前面的架构结论哪些还成立。</p>
+    <div class="grid">
+
+      <a class="card" href="08-前向渲染与多管线DrawCall.md">
+        <div class="card-top">
+          <span class="badge badge-idx">08</span>
+          <span class="badge badge-bin">FORWARD · MULTI-PIPELINE</span>
+        </div>
+        <h3>前向渲染与多管线 DrawCall</h3>
+        <ul>
+          <li>概念分<strong>三层</strong>：pass 级（架构）· 序列级（剔除）· per-draw 语义级</li>
+          <li class="warn">架构层<strong>完全不变</strong>：分箱整 pass 一次、GMEM 只看 bpp、tile 寿命 = pass instance</li>
+          <li class="warn">纠正「切管线会 flush tile」→ <strong>不会</strong>。真正破坏片上闭环的是 pass 边界 / pass 内 clear / feedback loop</li>
+          <li>四家剔除机制横评：Early-Z（强依赖顺序）· FPK · Fragment Prepass · LRZ · HSR</li>
+          <li><strong>硬件看语义位，不看管线句柄</strong>：深度方向 / 写 ZS / discard / 读回 / RT 掩码 / 混合 / 副作用</li>
+          <li class="warn">纠正「切管线导致 LRZ 失效」→ 失效的是<strong>深度比较方向改变</strong>，与切不切管线无关</li>
+          <li class="warn">Fragment Prepass 有<strong>断点</strong>：遇第一个不兼容 draw 即在该 tile 终止</li>
+          <li class="warn">多材质多写一个 RT → RT 掩码不覆盖 → 判定「透明」→ prepass 全废</li>
+          <li>Depth Prepass 三方口径<strong>互相矛盾</strong>：Arm 明确反对 / Apple 有条件允许 / Adreno 二手存疑</li>
+          <li>前向 vs 延迟：多管线是<strong>前向渲染的主战场</strong>，延迟把它挪到了光照 pass</li>
+          <li class="good">移动端默认值是<strong>合并 pass</strong>：每多一个 pass = 一次 resolve</li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ 概念辨析 ══ -->
+  <section class="chapter" id="sec-09">
+    <div class="chapter-head"><h2>概念辨析</h2></div>
+    <p class="chapter-desc">同一个术语在 API、驱动、Profiler 三层各指什么——先消歧，再谈优化。</p>
+    <div class="grid">
+
+      <a class="card" href="09-GPU-Surface概念解析.md">
+        <div class="card-top">
+          <span class="badge badge-idx">09</span>
+          <span class="badge badge-arch">CONCEPT</span>
+        </div>
+        <h3>GPU Surface 概念解析</h3>
+        <ul>
+          <li>「surface」<strong>三层含义</strong>消歧：通用渲染目标 · Vulkan <code>VkSurfaceKHR</code> · Adreno 驱动/Profiler 单位</li>
+          <li class="warn">纠正「<code>VkSurfaceKHR</code> = 驱动里的 surface」→ 完全不同层，仅通过 VSYNC 有二阶关联</li>
+          <li>Adreno 定义：一个 <strong>render pass 实例</strong>，驱动与 Profiler 的基本单位</li>
+          <li><strong>逐 surface</strong> 的四类决策：FlexRender 模式 · 并发分箱 · subpass 合并 · GMEM 妥协</li>
+          <li class="warn">subpass 合并仅在该 surface 处于 <strong>binning mode</strong> 时才生效</li>
+          <li>官方 Direct Mode 触发条件：VS 纹理采样 · 顶点/draw 数少 · tessellation/GS</li>
+          <li>Bin Minimization 四手段：降分辨率 · VRS · 减少 MSAA（<strong>MSAAx2 近乎免费</strong>）· 减少同时 RT 数</li>
+          <li>呈现模式实践：官方推荐 <code>FIFO + minImageCount=3</code></li>
+          <li>格式建议：颜色 <strong>R10G10B10A2</strong>；深度 <strong>D16 → D24_S8 → D32</strong></li>
+          <li class="good">观察手段：Profiler Rendering Stages 逐 surface 报告模式与合并情况</li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
   <!-- ══ 速查 ══ -->
   <section class="chapter" id="sec-cheat">
     <div class="chapter-head"><h2>速查</h2></div>
@@ -576,6 +641,8 @@
           <li class="warn">「tile_shading 能强制 TBDR」→ 它是 per-tile 附件访问能力</li>
           <li class="warn">「UMA 是移动端特性」→ <strong>主机也是 UMA</strong>，PC 独显才分离</li>
           <li class="warn">「移动端没有光追单元」→ 已有硬件 RTU，但<strong>不加速 BVH</strong></li>
+          <li class="warn">「RenderPass 内切管线会 flush tile」→ <strong>不会</strong>，tile 寿命 = pass instance</li>
+          <li class="warn">「移动端也该做 Depth Prepass」→ Arm 说<strong>见过的每个案例都是负优化</strong></li>
         </ul>
       </div>
 
@@ -641,7 +708,7 @@
   </section>
 
   <footer>
-    <div class="src">移动端 GPU 架构文档 · 8 篇 · 最后更新 2026-09-13</div>
+    <div class="src">移动端 GPU 架构文档 · 9 篇 · 最后更新 2026-09-13</div>
     <div>来源优先级：厂商官方文档 &gt; Khronos 规范 &gt; 厂商演讲 &gt; 独立硬件分析 &gt; 社区实测（标注为推测）</div>
   </footer>
 </main>

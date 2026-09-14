@@ -8,19 +8,19 @@
 
 本轮提供的资料在**方向判断**上是对的（动态渲染确实是现代方向、确实与 tile 架构有关），但在**版本事实**和**厂商扩展定位**上有硬伤。
 
-| # | 原文主张 | 判定 | 一句话修正 |
-|---|---------|------|-----------|
-| 1 | **「Vulkan 1.3 将 `VkRenderPass` 标记为不推荐」** | ❌ | 弃用发生在 **Vulkan 1.4**。1.3 只是把 `VK_KHR_dynamic_rendering` **提升为核心**，`VkRenderPass` 当时仍完全推荐 |
-| 2 | 「1.3 引入动态渲染 → 通过一系列扩展给出 subpass 的答案」 | ❌ | 时间线被压缩了。1.3 时代的 dynamic rendering **没有** input attachment / subpass 等价物；补上这块的是 **1.4** 的 `VK_KHR_dynamic_rendering_local_read` |
-| 3 | 「启用 `VK_QCOM_tile_shading` 会**禁用 FlexRender，强制 GPU 完全运行在 TBDR 模式**」 | ❌❌ | 完全编造。它提供的是「shader 以 **tile 为单位** 访问附件」的能力，**不是渲染模式开关**。官方反而要求「尽一切努力**劝阻**驱动在该 surface 上使用 Direct Mode」 |
-| 4 | 把 Adreno 称为 TBDR | ❌ | Adreno 是 FlexRender（IMR ⇄ TBR 动态切换），**不是 TBDR**。TBDR 是 Imagination 的术语（含 pixel-perfect HSR） |
-| 5 | `VK_EXT_shader_tile_image`「允许片段着色器读取其像素位置上的颜色、深度和模板值」 | ✅ | 描述准确。补充：它**只适用于 dynamic rendering**，定位是 OpenGL `GL_EXT_shader_framebuffer_fetch` 的 Vulkan 等价物（programmable blending） |
-| 6 | 「动态渲染核心思想是把渲染目标指定从**管线创建阶段**提前到命令录制阶段」 | 🟡 | 方向对但对象错。旧模型是在 **render pass instance 开始时**通过 `vkCmdBeginRenderPass` 绑定 framebuffer；新模型是在**录制期**用 `VkRenderingInfo` 直接携带附件信息。管线创建阶段仍然要声明附件格式（`VkPipelineRenderingCreateInfo`） |
-| 7 | 「1.0 的 `VkRenderPass` 初衷是让开发者**显式描述** Tile 局部性」 | 🟡 | 它提供的是让**驱动可推断** framebuffer-local 依赖的信息，不是让开发者直接描述 tile。开发者从未能描述 tile |
-| 8 | 「桌面 IMR 与移动 TBR 对渲染通道理解根本不同，Vulkan 要同时服务两者」 | 🟡 | 这是 API 复杂度的次要来源。Khronos 给出的主要理由是**「setup 极其繁琐」**本身 |
-| 9 | 「动态渲染更彻底地适配移动端，是减法式优化」 | ✅ | 结论正确。但有一个必须补上的限定：**local read 的片上闭环同样依赖 `VK_DEPENDENCY_BY_REGION_BIT`**，它不是自动的 |
-| 10 | 「动态渲染 + Local Read 完整保留了 Tile 架构支持」 | 🟠 | 「**大部分**」而非「完整」。官方明确保留了两处缺口：未复刻的 subpass 功能需要拆成多个 render pass instance；`VK_QCOM_render_pass_shader_resolve` **没有**等价物 |
-| 11 | 「你现在遇到的 Direct Mode 警告，说明正确配置这些渲染路径的重要性」 | 🟡 | 因果链太短。Direct Mode 的首要触发条件（官方口径）是 VS 中纹理采样、tessellation/GS，与渲染路径配置只有部分关系 |
+| #  | 原文主张                                                                                    | 判定 | 一句话修正                                                                                                                                                                                                                                            |
+| -- | ------------------------------------------------------------------------------------------- | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1  | **「Vulkan 1.3 将 `VkRenderPass` 标记为不推荐」**                                   | ❌   | 弃用发生在**Vulkan 1.4**。1.3 只是把 `VK_KHR_dynamic_rendering` **提升为核心**，`VkRenderPass` 当时仍完全推荐                                                                                                                         |
+| 2  | 「1.3 引入动态渲染 → 通过一系列扩展给出 subpass 的答案」                                   | ❌   | 时间线被压缩了。1.3 时代的 dynamic rendering**没有** input attachment / subpass 等价物；补上这块的是 **1.4** 的 `VK_KHR_dynamic_rendering_local_read`                                                                                   |
+| 3  | 「启用`VK_QCOM_tile_shading` 会**禁用 FlexRender，强制 GPU 完全运行在 TBDR 模式**」 | ❌❌ | 完全编造。它提供的是「shader 以**tile 为单位** 访问附件」的能力，**不是渲染模式开关**。官方反而要求「尽一切努力**劝阻**驱动在该 surface 上使用 Direct Mode」                                                                        |
+| 4  | 把 Adreno 称为 TBDR                                                                         | ❌   | Adreno 是 FlexRender（IMR ⇄ TBR 动态切换），**不是 TBDR**。TBDR 是 Imagination 的术语（含 pixel-perfect HSR）                                                                                                                                  |
+| 5  | `VK_EXT_shader_tile_image`「允许片段着色器读取其像素位置上的颜色、深度和模板值」          | ✅   | 描述准确。补充：它**只适用于 dynamic rendering**，定位是 OpenGL `GL_EXT_shader_framebuffer_fetch` 的 Vulkan 等价物（programmable blending）                                                                                                   |
+| 6  | 「动态渲染核心思想是把渲染目标指定从**管线创建阶段**提前到命令录制阶段」              | 🟡   | 方向对但对象错。旧模型是在**render pass instance 开始时**通过 `vkCmdBeginRenderPass` 绑定 framebuffer；新模型是在**录制期**用 `VkRenderingInfo` 直接携带附件信息。管线创建阶段仍然要声明附件格式（`VkPipelineRenderingCreateInfo`） |
+| 7  | 「1.0 的`VkRenderPass` 初衷是让开发者**显式描述** Tile 局部性」                     | 🟡   | 它提供的是让**驱动可推断** framebuffer-local 依赖的信息，不是让开发者直接描述 tile。开发者从未能描述 tile                                                                                                                                       |
+| 8  | 「桌面 IMR 与移动 TBR 对渲染通道理解根本不同，Vulkan 要同时服务两者」                       | 🟡   | 这是 API 复杂度的次要来源。Khronos 给出的主要理由是**「setup 极其繁琐」**本身                                                                                                                                                                         |
+| 9  | 「动态渲染更彻底地适配移动端，是减法式优化」                                                | ✅   | 结论正确。但有一个必须补上的限定：**local read 的片上闭环同样依赖 `VK_DEPENDENCY_BY_REGION_BIT`**，它不是自动的                                                                                                                               |
+| 10 | 「动态渲染 + Local Read 完整保留了 Tile 架构支持」                                          | 🟠   | 「**大部分**」而非「完整」。官方明确保留了两处缺口：未复刻的 subpass 功能需要拆成多个 render pass instance；`VK_QCOM_render_pass_shader_resolve` **没有**等价物                                                                         |
+| 11 | 「你现在遇到的 Direct Mode 警告，说明正确配置这些渲染路径的重要性」                         | 🟡   | 因果链太短。Direct Mode 的首要触发条件（官方口径）是 VS 中纹理采样、tessellation/GS，与渲染路径配置只有部分关系                                                                                                                                       |
 
 **一句话总结**：资料的**叙事方向对，时间线与扩展定位错**。特别是第 3 条，把 `VK_QCOM_tile_shading` 描述成一个「强制 TBDR 模式的开关」，这在官方文档里找不到任何依据，且与其真实用途相反。
 
@@ -151,13 +151,13 @@ Khronos 官方 deprecation 附录原文：
 
 ### 3.2 完整的弃用清单（渲染相关）
 
-| 被弃用项 | 弃用版本 | 替代物 | 备注 |
-|---------|---------|--------|------|
-| `vkCreateRenderPass` / `vkCmdBeginRenderPass` (1.0 版) | 1.2 | `vkCreateRenderPass2` / `vkCmdBeginRenderPass2` | 技术性替换，功能等价 |
-| **`VkRenderPass` / `VkFramebuffer` 对象** | **1.4** | **Dynamic Rendering** | 本次讨论的对象 |
-| `VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT` / `BOTTOM_OF_PIPE_BIT` | 1.4 | Sync2 的 `NONE` / `ALL_COMMANDS` | — |
-| `VkShaderModule` | `VK_KHR_maintenance5` | Shader Object 等 | — |
-| Monolithic `VkPipeline` | `VK_EXT_shader_object` | Shader Object | — |
+| 被弃用项                                                       | 弃用版本                 | 替代物                                              | 备注                 |
+| -------------------------------------------------------------- | ------------------------ | --------------------------------------------------- | -------------------- |
+| `vkCreateRenderPass` / `vkCmdBeginRenderPass` (1.0 版)     | 1.2                      | `vkCreateRenderPass2` / `vkCmdBeginRenderPass2` | 技术性替换，功能等价 |
+| **`VkRenderPass` / `VkFramebuffer` 对象**            | **1.4**            | **Dynamic Rendering**                         | 本次讨论的对象       |
+| `VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT` / `BOTTOM_OF_PIPE_BIT` | 1.4                      | Sync2 的`NONE` / `ALL_COMMANDS`                 | —                   |
+| `VkShaderModule`                                             | `VK_KHR_maintenance5`  | Shader Object 等                                    | —                   |
+| Monolithic`VkPipeline`                                       | `VK_EXT_shader_object` | Shader Object                                       | —                   |
 
 ### 3.3 一个常被忽略的例外
 
@@ -187,13 +187,13 @@ Khronos 官方 deprecation 附录原文：
 
 ### 4.1 Khronos 给出的理由
 
-| 理由 | 具体表现 |
-|------|---------|
-| **setup 极其繁琐** | Khronos 博客原话：「A big criticism with renderpasses was how involved esp. the setup is. Getting renderpasses and subpasses incl. dependencies correct can be tricky」 |
-| **难以融入动态变化的管线** | 「renderpasses are kinda hard to integrate into a dynamically changing setup, making them a **hard fit for complex Vulkan projects like game engines**」 |
-| **对象的僵化** | 附件格式、load/store op、依赖、view mask 任何一处变化都要重建整个 render pass 对象；而现代管线（尤其帧图系统）需要频繁调整 |
-| **组合爆炸** | 后处理链的每个环节配置不同 → render pass 对象数量指数增长 |
-| **两个对象耦合** | `VkRenderPass` 定义结构、`VkFramebuffer` 绑定具体 image view，二者必须一致，增减附件要同时改两处 |
+| 理由                             | 具体表现                                                                                                                                                                |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **setup 极其繁琐**         | Khronos 博客原话：「A big criticism with renderpasses was how involved esp. the setup is. Getting renderpasses and subpasses incl. dependencies correct can be tricky」 |
+| **难以融入动态变化的管线** | 「renderpasses are kinda hard to integrate into a dynamically changing setup, making them a**hard fit for complex Vulkan projects like game engines**」           |
+| **对象的僵化**             | 附件格式、load/store op、依赖、view mask 任何一处变化都要重建整个 render pass 对象；而现代管线（尤其帧图系统）需要频繁调整                                              |
+| **组合爆炸**               | 后处理链的每个环节配置不同 → render pass 对象数量指数增长                                                                                                              |
+| **两个对象耦合**           | `VkRenderPass` 定义结构、`VkFramebuffer` 绑定具体 image view，二者必须一致，增减附件要同时改两处                                                                    |
 
 ### 4.2 但它的设计初衷确实与移动端有关
 
@@ -213,22 +213,22 @@ Vulkan 规范的措辞：
 
 ### 5.1 能力矩阵
 
-| 能力 | Render Pass + Subpass | 1.3 Dynamic Rendering | 1.4 Dynamic Rendering + Local Read |
-|------|----------------------|----------------------|-----------------------------------|
-| 开始/结束渲染 | `vkCmdBeginRenderPass` / `EndRenderPass` | `vkCmdBeginRendering` / `EndRendering` | 同左 |
-| 附件指定方式 | `VkFramebuffer`（预创建对象） | `VkRenderingAttachmentInfo`（栈上） | 同左 |
-| Need `VkFramebuffer` object | ✅ 需要 | ❌ 不需要 | ❌ 不需要 |
-| Need `VkRenderPass` object | ✅ 需要 | ❌ 不需要 | ❌ 不需要 |
-| 管线声明附件格式 | 引用 `VkRenderPass` | `VkPipelineRenderingCreateInfo` | 同左 |
-| **Framebuffer-local 读（input attachment）** | ✅ | ❌ **无** | ✅ 有 |
-| 进阶 subpass 的 subpass 依赖 | ✅ | ❌ | ✅ 用 BY_REGION barrier 表达 |
-| 布局 | `SHADER_READ_ONLY_OPTIMAL` 等 | — | `VK_IMAGE_LAYOUT_RENDERING_LOCAL_READ_KHR` |
-| Shader 接口 | `subpassInput` / `subpassLoad` | — | **完全相同**（无需改 shader） |
-| 附件索引重映射 | subpass 边界天然切换 | — | `vkCmdSetRenderingInputAttachmentIndicesKHR` |
-| Color 附件定位重映射 | subpass 边界天然切换 | — | `vkCmdSetRenderingAttachmentLocationsKHR` |
-| depth/stencil/MSAA 的 local read | ✅ | ❌ | ⚠️ **可选特性** |
-| shader resolve（`VK_QCOM_render_pass_shader_resolve`） | ✅ | ❌ | ❌ **无等价物** |
-| 未复刻的 subpass 功能 | ✅ | ❌ | ⚠️ 需拆成多个 render pass instance |
+| 能力                                                     | Render Pass + Subpass                        | 1.3 Dynamic Rendering                      | 1.4 Dynamic Rendering + Local Read             |
+| -------------------------------------------------------- | -------------------------------------------- | ------------------------------------------ | ---------------------------------------------- |
+| 开始/结束渲染                                            | `vkCmdBeginRenderPass` / `EndRenderPass` | `vkCmdBeginRendering` / `EndRendering` | 同左                                           |
+| 附件指定方式                                             | `VkFramebuffer`（预创建对象）              | `VkRenderingAttachmentInfo`（栈上）      | 同左                                           |
+| Need`VkFramebuffer` object                             | ✅ 需要                                      | ❌ 不需要                                  | ❌ 不需要                                      |
+| Need`VkRenderPass` object                              | ✅ 需要                                      | ❌ 不需要                                  | ❌ 不需要                                      |
+| 管线声明附件格式                                         | 引用`VkRenderPass`                         | `VkPipelineRenderingCreateInfo`          | 同左                                           |
+| **Framebuffer-local 读（input attachment）**       | ✅                                           | ❌**无**                             | ✅ 有                                          |
+| 进阶 subpass 的 subpass 依赖                             | ✅                                           | ❌                                         | ✅ 用 BY_REGION barrier 表达                   |
+| 布局                                                     | `SHADER_READ_ONLY_OPTIMAL` 等              | —                                         | `VK_IMAGE_LAYOUT_RENDERING_LOCAL_READ_KHR`   |
+| Shader 接口                                              | `subpassInput` / `subpassLoad`           | —                                         | **完全相同**（无需改 shader）            |
+| 附件索引重映射                                           | subpass 边界天然切换                         | —                                         | `vkCmdSetRenderingInputAttachmentIndicesKHR` |
+| Color 附件定位重映射                                     | subpass 边界天然切换                         | —                                         | `vkCmdSetRenderingAttachmentLocationsKHR`    |
+| depth/stencil/MSAA 的 local read                         | ✅                                           | ❌                                         | ⚠️**可选特性**                         |
+| shader resolve（`VK_QCOM_render_pass_shader_resolve`） | ✅                                           | ❌                                         | ❌**无等价物**                           |
+| 未复刻的 subpass 功能                                    | ✅                                           | ❌                                         | ⚠️ 需拆成多个 render pass instance           |
 
 ⚠️ **注意「depth/stencil/MSAA 的 local read 是可选特性」**。Vulkanised 2025 官方幻灯片原文：
 
@@ -238,17 +238,17 @@ Vulkan 规范的措辞：
 
 ### 5.2 迁移的对象映射表
 
-| 旧概念 | 新对应 |
-|--------|-------|
-| `VkRenderPass` | 无（管线用 `VkPipelineRenderingCreateInfo` 声明格式） |
-| `VkFramebuffer` | 无（附件直接来自 `VkRenderingAttachmentInfo`） |
-| `VkRenderPassBeginInfo` | `VkRenderingInfo` |
-| `vkCmdBeginRenderPass` | `vkCmdBeginRendering` |
-| `vkCmdNextSubpass` | 带 `eByRegion` 的 `vkCmdPipelineBarrier2` |
-| `VkAttachmentReference`（input） | `VkRenderingInputAttachmentIndexInfoKHR` |
-| `VkSubpassDependency` | `VkDependencyInfo`（带 `eByRegion`） |
-| `VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL`（input 用） | `VK_IMAGE_LAYOUT_RENDERING_LOCAL_READ_KHR` |
-| `VkSubpassDescription` | 无（按 draw 顺序 + barrier 分隔） |
+| 旧概念                                                   | 新对应                                                 |
+| -------------------------------------------------------- | ------------------------------------------------------ |
+| `VkRenderPass`                                         | 无（管线用`VkPipelineRenderingCreateInfo` 声明格式） |
+| `VkFramebuffer`                                        | 无（附件直接来自`VkRenderingAttachmentInfo`）        |
+| `VkRenderPassBeginInfo`                                | `VkRenderingInfo`                                    |
+| `vkCmdBeginRenderPass`                                 | `vkCmdBeginRendering`                                |
+| `vkCmdNextSubpass`                                     | 带`eByRegion` 的 `vkCmdPipelineBarrier2`           |
+| `VkAttachmentReference`（input）                       | `VkRenderingInputAttachmentIndexInfoKHR`             |
+| `VkSubpassDependency`                                  | `VkDependencyInfo`（带 `eByRegion`）               |
+| `VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL`（input 用） | `VK_IMAGE_LAYOUT_RENDERING_LOCAL_READ_KHR`           |
+| `VkSubpassDescription`                                 | 无（按 draw 顺序 + barrier 分隔）                      |
 
 ---
 
@@ -284,16 +284,16 @@ Vulkan 规范的措辞：
 
 规范对 local read barrier 的限制（原文归纳）：
 
-| 约束 | 说明 |
-|------|------|
-| 必须带 `VK_DEPENDENCY_BY_REGION_BIT` | 否则不构成 framebuffer-local 依赖 |
-| stage 必须是 framebuffer-space | fragment shader、color attachment output、early/late fragment tests 等 |
-| **不能做 layout transition** | barrier 中的 `oldLayout` 与 `newLayout` 必须相同（都用 `RENDERING_LOCAL_READ`） |
-| **不能做 queue family transfer** | 不涉及 queue ownership 转移 |
-| 读取范围限于「前一个片元着色器写入的值」 | 「**Reading data outside of values written by a previous fragment shader is undefined behavior**」 |
-| storage resource 的语义按**片元位置**而非资源位置 | 规范举例：位置 (5,5) 的片元写了 storage image 的 (6,6) 和 (21,700)，则后续位置 (5,5) 的片元可以读这两处 |
-| 附件写 → 只能通过 input attachment 读 | 「Writes to attachments can only be made visible in this way via input attachments」 |
-| 不能用「A 类型写、B 类型读」 | 「there is still no way to write through one type of resource and then read through another in the same render pass instance」 |
+| 约束                                                    | 说明                                                                                                                           |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| 必须带`VK_DEPENDENCY_BY_REGION_BIT`                   | 否则不构成 framebuffer-local 依赖                                                                                              |
+| stage 必须是 framebuffer-space                          | fragment shader、color attachment output、early/late fragment tests 等                                                         |
+| **不能做 layout transition**                      | barrier 中的`oldLayout` 与 `newLayout` 必须相同（都用 `RENDERING_LOCAL_READ`）                                           |
+| **不能做 queue family transfer**                  | 不涉及 queue ownership 转移                                                                                                    |
+| 读取范围限于「前一个片元着色器写入的值」                | 「**Reading data outside of values written by a previous fragment shader is undefined behavior**」                       |
+| storage resource 的语义按**片元位置**而非资源位置 | 规范举例：位置 (5,5) 的片元写了 storage image 的 (6,6) 和 (21,700)，则后续位置 (5,5) 的片元可以读这两处                        |
+| 附件写 → 只能通过 input attachment 读                  | 「Writes to attachments can only be made visible in this way via input attachments」                                           |
+| 不能用「A 类型写、B 类型读」                            | 「there is still no way to write through one type of resource and then read through another in the same render pass instance」 |
 
 ### 6.3 代码骨架（含索引重映射）
 
@@ -452,11 +452,11 @@ void main() {
 
 ### 7.2 对移动端最有价值的三个实际改进
 
-| 改进 | 为什么移动端特别受益 |
-|------|-------------------|
-| **不再需要预创建对象** | 移动端内存紧张。一个后处理链可能有几十种附件组合 → 几十个 render pass 对象 + framebuffer 对象，每个都是有开销的驱动内部结构 |
-| **可以在 render pass instance 内自由插 barrier** | 移动端管线常需要在同一渲染过程中切换多套状态（例如先做不透明再做 alpha test），旧 subpass 模型要求预先精确规划子通道划分 |
-| **附件集合动态化** | 移动端机型差异大（有的支持 UBWC、有的 tile memory 更小），需要按设备能力切换附件配置。旧模型要为每种组合建一套 render pass |
+| 改进                                                   | 为什么移动端特别受益                                                                                                         |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| **不再需要预创建对象**                           | 移动端内存紧张。一个后处理链可能有几十种附件组合 → 几十个 render pass 对象 + framebuffer 对象，每个都是有开销的驱动内部结构 |
+| **可以在 render pass instance 内自由插 barrier** | 移动端管线常需要在同一渲染过程中切换多套状态（例如先做不透明再做 alpha test），旧 subpass 模型要求预先精确规划子通道划分     |
+| **附件集合动态化**                               | 移动端机型差异大（有的支持 UBWC、有的 tile memory 更小），需要按设备能力切换附件配置。旧模型要为每种组合建一套 render pass   |
 
 ---
 
@@ -501,13 +501,13 @@ void main() {
 
 ### 8.2 各扩展的准确定位
 
-| 扩展 | 准确定位（官方口径） | 常见误解 |
-|------|-------------------|---------|
-| `VK_KHR_dynamic_rendering_local_read` | 让 dynamic rendering 具备 subpass 的 pixel local read 能力，**替代 subpass 依赖**。Vulkan 1.4 核心 | 误以为它是「framebuffer fetch」的同义词 |
-| `VK_EXT_shader_tile_image` | **OpenGL `GL_EXT_shader_framebuffer_fetch` 的 Vulkan 等价物**。引入 "tile image" 概念，fragment shader 可读**当前 fragment 位置**的 color/depth/stencil。**只用于 dynamic rendering** | 误以为它能做 tile 级操作（实际读的仍是当前像素位置） |
-| `VK_QCOM_tile_shading` | 提供 **per-tile view** 的附件访问（`TileAttachmentQCOM` 存储类），fragment 与 compute 均可用。**其功能是 `VK_EXT_shader_tile_image` 的超集**（除 descriptor-less access 外） | ❌ **误以为它是「禁用 FlexRender / 强制 TBDR」的开关** |
-| `VK_QCOM_tile_memory_heap` | 允许把 image/buffer **显式分配**到 tile memory heap 并跨 pass 常驻 | 误以为可有可无——官方要求它与 tile_shading **配套使用** |
-| `VK_QCOM_render_pass_store_ops` | 提供 `VK_ATTACHMENT_STORE_OP_NONE_QCOM`（真正零写回语义） | 误以为等价于 `DONT_CARE`（后者仍允许实现写回） |
+| 扩展                                    | 准确定位（官方口径）                                                                                                                                                                                      | 常见误解                                                      |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| `VK_KHR_dynamic_rendering_local_read` | 让 dynamic rendering 具备 subpass 的 pixel local read 能力，**替代 subpass 依赖**。Vulkan 1.4 核心                                                                                                  | 误以为它是「framebuffer fetch」的同义词                       |
+| `VK_EXT_shader_tile_image`            | **OpenGL `GL_EXT_shader_framebuffer_fetch` 的 Vulkan 等价物**。引入 "tile image" 概念，fragment shader 可读**当前 fragment 位置**的 color/depth/stencil。**只用于 dynamic rendering** | 误以为它能做 tile 级操作（实际读的仍是当前像素位置）          |
+| `VK_QCOM_tile_shading`                | 提供**per-tile view** 的附件访问（`TileAttachmentQCOM` 存储类），fragment 与 compute 均可用。**其功能是 `VK_EXT_shader_tile_image` 的超集**（除 descriptor-less access 外）               | ❌**误以为它是「禁用 FlexRender / 强制 TBDR」的开关**   |
+| `VK_QCOM_tile_memory_heap`            | 允许把 image/buffer**显式分配**到 tile memory heap 并跨 pass 常驻                                                                                                                                   | 误以为可有可无——官方要求它与 tile_shading**配套使用** |
+| `VK_QCOM_render_pass_store_ops`       | 提供`VK_ATTACHMENT_STORE_OP_NONE_QCOM`（真正零写回语义）                                                                                                                                                | 误以为等价于`DONT_CARE`（后者仍允许实现写回）               |
 
 **关于 `VK_QCOM_tile_shading` 与 `VK_EXT_shader_tile_image` 的关系**，官方提案里有一条直接的问答：
 
@@ -515,15 +515,15 @@ void main() {
 
 ### 8.3 `VK_QCOM_tile_shading` 到底是什么（官方约束）
 
-| 维度 | 事实 |
-|------|------|
-| 提供的能力 | shader 以 **per-tile view** 访问 color / depth / input attachment |
-| 支持的 stage | **compute**（全部能力）+ **fragment**（需 `tileShadingFragmentStage` 特性） |
-| 读取方式 | sampled tile attachment（`OpImageFetch` / `OpImageSample*` 等）、storage tile attachment（`OpImageRead` / `OpImageWrite`）、input tile attachment（`OpImageRead`） |
-| ⚠️ 写入限制 | `OpImageWrite` **只允许在 compute stage**；fragment shader **不得**把 color attachment 当 storage image 做 load/store；compute 与 fragment 都**不得**向 depth/stencil、resolve、input attachment 写入 |
-| ⚠️ 越界 | 访问必须在 **tile 边界（+ apron）内**，越界是 **UB**。sampler 的 clamp/wrap 作用在 **VkImage 边缘而非 tile 边缘** → 需要 shader 自己 clamp |
-| ⚠️ descriptor 要求 | tile attachment 必须由与 `VkRenderingAttachmentInfo` / `VkFramebuffer` 中 `VkImageView` 等价的 descriptor 支撑（除 `aspectMask` 外） |
-| ⚠️ 配套要求 | 官方明确要求 **同时启用 `VK_QCOM_tile_memory_heap`**；「Using just `VK_QCOM_tile_shading` alone is **never recommended**, because then the driver tends to use far less GMEM than it otherwise could」 |
+| 维度                           | 事实                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 提供的能力                     | shader 以**per-tile view** 访问 color / depth / input attachment                                                                                                                                                                                                                                                                                                                                                 |
+| 支持的 stage                   | **compute**（全部能力）+ **fragment**（需 `tileShadingFragmentStage` 特性）                                                                                                                                                                                                                                                                                                                              |
+| 读取方式                       | sampled tile attachment（`OpImageFetch` / `OpImageSample*` 等）、storage tile attachment（`OpImageRead` / `OpImageWrite`）、input tile attachment（`OpImageRead`）                                                                                                                                                                                                                                           |
+| ⚠️ 写入限制                  | `OpImageWrite` **只允许在 compute stage**；fragment shader **不得**把 color attachment 当 storage image 做 load/store；compute 与 fragment 都**不得**向 depth/stencil、resolve、input attachment 写入                                                                                                                                                                                              |
+| ⚠️ 越界                      | 访问必须在**tile 边界（+ apron）内**，越界是 **UB**。sampler 的 clamp/wrap 作用在 **VkImage 边缘而非 tile 边缘** → 需要 shader 自己 clamp                                                                                                                                                                                                                                                           |
+| ⚠️ descriptor 要求           | tile attachment 必须由与`VkRenderingAttachmentInfo` / `VkFramebuffer` 中 `VkImageView` 等价的 descriptor 支撑（除 `aspectMask` 外）                                                                                                                                                                                                                                                                            |
+| ⚠️ 配套要求                  | 官方明确要求**同时启用 `VK_QCOM_tile_memory_heap`**；「Using just `VK_QCOM_tile_shading` alone is **never recommended**, because then the driver tends to use far less GMEM than it otherwise could」                                                                                                                                                                                                  |
 | ⚠️ 与 Direct Mode 的真实关系 | 官方原文：「In the unlikely event that you find the driver employing '**Direct**' Render Mode on a surface that uses a per-tile block, **performance on the per-tile block commands is likely very poor. Every effort should be made to discourage the driver from using 'Direct' Render Mode during per-tile blocks.**」→ **Direct Mode 是 per-tile 命令的敌人，而 tile_shading 不是阻止它的开关** |
 
 ### 8.4 关于「强制 TBDR 模式」的两重错误
@@ -616,14 +616,14 @@ void main() {
 
 ### 9.3 迁移的收益预期管理
 
-| 预期收益 | 是否成立 | 说明 |
-|---------|---------|------|
-| 代码更简洁、对象更少 | ✅ 成立 | 这是主要收益 |
-| 帧图系统集成更容易 | ✅ 成立 | 附件集合可动态变化 |
-| 内存占用下降 | ✅ 成立 | 少了几十到几百个 render pass / framebuffer 对象 |
-| **性能提升** | ⚠️ **不一定** | 片上行为不变（同样依赖 BY_REGION）。性能若有变化，通常来自对象管理开销或驱动的优化路径差异，而非渲染语义 |
-| **解决 Direct Mode 警告** | ❌ 不成立 | Direct Mode 是 surface 级驱动启发式，与 API 选择无关 |
-| **减少 Resolve 成本** | ❌ 不成立 | Resolve 由「渲染到贴图」这个动作决定，与 API 无关 |
+| 预期收益                        | 是否成立             | 说明                                                                                                     |
+| ------------------------------- | -------------------- | -------------------------------------------------------------------------------------------------------- |
+| 代码更简洁、对象更少            | ✅ 成立              | 这是主要收益                                                                                             |
+| 帧图系统集成更容易              | ✅ 成立              | 附件集合可动态变化                                                                                       |
+| 内存占用下降                    | ✅ 成立              | 少了几十到几百个 render pass / framebuffer 对象                                                          |
+| **性能提升**              | ⚠️**不一定** | 片上行为不变（同样依赖 BY_REGION）。性能若有变化，通常来自对象管理开销或驱动的优化路径差异，而非渲染语义 |
+| **解决 Direct Mode 警告** | ❌ 不成立            | Direct Mode 是 surface 级驱动启发式，与 API 选择无关                                                     |
+| **减少 Resolve 成本**     | ❌ 不成立            | Resolve 由「渲染到贴图」这个动作决定，与 API 无关                                                        |
 
 ⚠️ **这条很重要**：迁移到 dynamic rendering 的正当理由是**工程可维护性**，不是性能。如果你的 Direct Mode 警告没有解决，那是另一个问题（见第 5 篇的诊断树）。
 
@@ -631,36 +631,36 @@ void main() {
 
 ## 10. 勘误表
 
-| # | 原文表述 | 正确表述 |
-|---|---------|---------|
-| 1 | 「Vulkan 1.3 将 `VkRenderPass` 标记为不推荐使用」 | **Vulkan 1.4** 弃用。1.3 只是把 dynamic rendering 提升为核心 |
-| 2 | 「1.3 引入动态渲染，通过一系列扩展给出 subpass 的答案」 | 1.3 的 dynamic rendering **缺** subpass 等价物；1.4 才由 `VK_KHR_dynamic_rendering_local_read` 补上 |
-| 3 | 「动态渲染完美复现了 Subpass 的核心优势」 | 复现了**大部分**（most）。未复刻的部分需要拆成多个 render pass instance；`VK_QCOM_render_pass_shader_resolve` 无等价物 |
-| 4 | 「`VK_QCOM_tile_shading` 启用后会禁用 FlexRender，强制 GPU 完全运行在 TBDR 模式」 | 无任何官方依据，且与真实用途相反。它提供 per-tile 附件访问能力；官方要求「尽一切努力劝阻 Direct Mode」 |
-| 5 | （隐含）Adreno 是 TBDR | Adreno 是 **FlexRender**（三档动态切换），不是 TBDR。TBDR 是 Imagination 的术语 |
-| 6 | 「`VK_EXT_shader_tile_image` 为 Tile 内的精细控制提供了更底层的灵活性」 | 它的读粒度**仍是当前像素位置**，不是 tile 级。定位是 `GL_EXT_shader_framebuffer_fetch` 的 Vulkan 等价物 |
-| 7 | 「将渲染目标的指定从管线创建阶段提前到命令录制阶段」 | 从「render pass 对象（预先创建的独立对象）」转移到「`VkRenderingInfo`（命令录制期栈上结构）」。管线仍需通过 `VkPipelineRenderingCreateInfo` 声明格式 |
-| 8 | 「Vulkan 需要在同一套 API 下同时服务桌面与移动，导致设计僵化」 | 这是次要因素。Khronos 给出的主要理由是 **setup 繁琐、难以融入动态变化的管线、对引擎不友好** |
-| 9 | 「必须启用 local read 扩展，否则你将失去 Tile 架构带来的所有带宽优势」 | 「必须」应限定为**需要使用 input attachment 的场景**。纯 forward 管线单 pass 渲染到屏幕，动态渲染本身足够 |
-| 10 | 「Local Read 的读粒度是片上 Tile 内存」 | 读粒度是**当前像素位置**。tile 级读取需要 `VK_QCOM_tile_shading` 的 tile attachment |
-| 11 | 「你现在遇到的 Direct Mode 警告，说明正确配置这些渲染路径的重要性」 | Direct Mode 的**官方首要触发条件**是 VS 中纹理采样、tessellation/GS、顶点/draw 数少。渲染路径配置只是部分相关 |
+| #  | 原文表述                                                                            | 正确表述                                                                                                                                                 |
+| -- | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1  | 「Vulkan 1.3 将`VkRenderPass` 标记为不推荐使用」                                  | **Vulkan 1.4** 弃用。1.3 只是把 dynamic rendering 提升为核心                                                                                       |
+| 2  | 「1.3 引入动态渲染，通过一系列扩展给出 subpass 的答案」                             | 1.3 的 dynamic rendering**缺** subpass 等价物；1.4 才由 `VK_KHR_dynamic_rendering_local_read` 补上                                               |
+| 3  | 「动态渲染完美复现了 Subpass 的核心优势」                                           | 复现了**大部分**（most）。未复刻的部分需要拆成多个 render pass instance；`VK_QCOM_render_pass_shader_resolve` 无等价物                           |
+| 4  | 「`VK_QCOM_tile_shading` 启用后会禁用 FlexRender，强制 GPU 完全运行在 TBDR 模式」 | 无任何官方依据，且与真实用途相反。它提供 per-tile 附件访问能力；官方要求「尽一切努力劝阻 Direct Mode」                                                   |
+| 5  | （隐含）Adreno 是 TBDR                                                              | Adreno 是**FlexRender**（三档动态切换），不是 TBDR。TBDR 是 Imagination 的术语                                                                     |
+| 6  | 「`VK_EXT_shader_tile_image` 为 Tile 内的精细控制提供了更底层的灵活性」           | 它的读粒度**仍是当前像素位置**，不是 tile 级。定位是 `GL_EXT_shader_framebuffer_fetch` 的 Vulkan 等价物                                          |
+| 7  | 「将渲染目标的指定从管线创建阶段提前到命令录制阶段」                                | 从「render pass 对象（预先创建的独立对象）」转移到「`VkRenderingInfo`（命令录制期栈上结构）」。管线仍需通过 `VkPipelineRenderingCreateInfo` 声明格式 |
+| 8  | 「Vulkan 需要在同一套 API 下同时服务桌面与移动，导致设计僵化」                      | 这是次要因素。Khronos 给出的主要理由是**setup 繁琐、难以融入动态变化的管线、对引擎不友好**                                                         |
+| 9  | 「必须启用 local read 扩展，否则你将失去 Tile 架构带来的所有带宽优势」              | 「必须」应限定为**需要使用 input attachment 的场景**。纯 forward 管线单 pass 渲染到屏幕，动态渲染本身足够                                          |
+| 10 | 「Local Read 的读粒度是片上 Tile 内存」                                             | 读粒度是**当前像素位置**。tile 级读取需要 `VK_QCOM_tile_shading` 的 tile attachment                                                              |
+| 11 | 「你现在遇到的 Direct Mode 警告，说明正确配置这些渲染路径的重要性」                 | Direct Mode 的**官方首要触发条件**是 VS 中纹理采样、tessellation/GS、顶点/draw 数少。渲染路径配置只是部分相关                                      |
 
 ---
 
 ## 11. 小结
 
-| 要点 | 说明 |
-|------|------|
-| **弃用发生在 Vulkan 1.4，不是 1.3** | 1.3 只是把 `VK_KHR_dynamic_rendering` 提升为核心；`VkRenderPass` 当时仍完全推荐 |
-| **1.3 的 dynamic rendering 恰好缺了移动端最需要的东西** | Khronos 官方承认：「the original extension didn't address input attachments or subpasses — **Critical for performance on tile-based GPUs**」 |
-| **补上这块的是 1.4 的 `VK_KHR_dynamic_rendering_local_read`** | 它让 dynamic rendering 能表达**大部分** subpass 功能。着色器接口不变（仍是 `subpassLoad`） |
-| **「完整替代」不成立，规范里留了明确缺口** | 未复刻的功能需拆多个 render pass instance；`VK_QCOM_render_pass_shader_resolve` **没有**等价物，用它就仍需已弃用功能 |
-| **deprecated ≠ 失效** | 在下一个 major core 版本之前必须继续可用。风险在于「新功能可能不定义与已弃用功能的交互」 |
-| **`VK_QCOM_tile_shading` 不是渲染模式开关** | 它提供 per-tile 附件访问能力（fragment + compute）。官方要求它与 `VK_QCOM_tile_memory_heap` 配套，且要「劝阻 Direct Mode」而非「禁用 FlexRender」 |
-| **三种片上读取的粒度不同** | local read 与 shader_tile_image 都是**当前像素位置**；只有 `tile_shading` 是**整个 tile**。粒度差一个量级，用途完全不同 |
-| **迁移的正当理由是工程可维护性，不是性能** | 片上闭环仍完全依赖 `VK_DEPENDENCY_BY_REGION_BIT`，与 subpass 时代一致。它不解决 Direct Mode、不减少 Resolve |
-| **迁移前必须先查「无等价物」的依赖** | 尤其是 `VK_QCOM_render_pass_shader_resolve`。双路径并存常常是更实际的选择 |
-| **迁移成本主要在 CPU 侧代码，不在 Shader** | 这是这次 API 演进最友好的地方——移动端已调好的 shader 逻辑可以原样保留 |
+| 要点                                                                  | 说明                                                                                                                                               |
+| --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **弃用发生在 Vulkan 1.4，不是 1.3**                             | 1.3 只是把`VK_KHR_dynamic_rendering` 提升为核心；`VkRenderPass` 当时仍完全推荐                                                                 |
+| **1.3 的 dynamic rendering 恰好缺了移动端最需要的东西**         | Khronos 官方承认：「the original extension didn't address input attachments or subpasses —**Critical for performance on tile-based GPUs**」 |
+| **补上这块的是 1.4 的 `VK_KHR_dynamic_rendering_local_read`** | 它让 dynamic rendering 能表达**大部分** subpass 功能。着色器接口不变（仍是 `subpassLoad`）                                                 |
+| **「完整替代」不成立，规范里留了明确缺口**                      | 未复刻的功能需拆多个 render pass instance；`VK_QCOM_render_pass_shader_resolve` **没有**等价物，用它就仍需已弃用功能                       |
+| **deprecated ≠ 失效**                                          | 在下一个 major core 版本之前必须继续可用。风险在于「新功能可能不定义与已弃用功能的交互」                                                           |
+| **`VK_QCOM_tile_shading` 不是渲染模式开关**                   | 它提供 per-tile 附件访问能力（fragment + compute）。官方要求它与`VK_QCOM_tile_memory_heap` 配套，且要「劝阻 Direct Mode」而非「禁用 FlexRender」 |
+| **三种片上读取的粒度不同**                                      | local read 与 shader_tile_image 都是**当前像素位置**；只有 `tile_shading` 是**整个 tile**。粒度差一个量级，用途完全不同              |
+| **迁移的正当理由是工程可维护性，不是性能**                      | 片上闭环仍完全依赖`VK_DEPENDENCY_BY_REGION_BIT`，与 subpass 时代一致。它不解决 Direct Mode、不减少 Resolve                                       |
+| **迁移前必须先查「无等价物」的依赖**                            | 尤其是`VK_QCOM_render_pass_shader_resolve`。双路径并存常常是更实际的选择                                                                         |
+| **迁移成本主要在 CPU 侧代码，不在 Shader**                      | 这是这次 API 演进最友好的地方——移动端已调好的 shader 逻辑可以原样保留                                                                            |
 
 ---
 
