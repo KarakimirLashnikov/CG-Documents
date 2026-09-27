@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UE渲染源码导读 — 导航</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-soft: #f7f8fa;
+    --bg-side: #fbfbfd;
+    --border: #e6e8eb;
+    --border-soft: #eef0f3;
+    --text: #1f2328;
+    --text-soft: #5a6470;
+    --text-mute: #8b949e;
+    --accent: #2f6feb;
+    --accent-soft: #eaf1fd;
+    --accent-2: #b7791f;
+    --accent-2-soft: #fdf6e3;
+    --danger: #c0392b;
+    --danger-soft: #fdeceb;
+    --ok: #1f7a4d;
+    --ok-soft: #e8f6ef;
+    --purple: #6b46c1;
+    --purple-soft: #f1ecfb;
+    --teal: #0f766e;
+    --teal-soft: #e6f4f2;
+    --radius: 10px;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+            "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── 侧边栏 ── */
+  aside {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 290px;
+    background: var(--bg-side);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 26px 20px 40px;
+  }
+
+  aside .brand { font-size: 15px; font-weight: 650; letter-spacing: .01em; padding-bottom: 4px; }
+  aside .brand-sub { font-size: 12px; color: var(--text-mute); font-family: var(--mono); margin-bottom: 22px; }
+
+  .nav-group { margin-bottom: 20px; }
+  .nav-group-title {
+    font-size: 11px; font-weight: 650; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--text-mute);
+    margin-bottom: 8px; padding-left: 2px;
+  }
+
+  aside a {
+    display: flex; gap: 8px; align-items: baseline;
+    padding: 6px 9px; margin-bottom: 1px;
+    border-radius: 6px; color: var(--text-soft);
+    text-decoration: none; font-size: 13.5px; line-height: 1.45;
+    border-left: 2px solid transparent;
+    transition: background .12s, color .12s, border-color .12s;
+  }
+  aside a:hover { background: var(--accent-soft); color: var(--accent); }
+  aside a.active { background: var(--accent-soft); color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+  aside a .num { font-family: var(--mono); font-size: 11px; color: var(--text-mute); flex: 0 0 auto; padding-top: 1px; }
+
+  /* ── 主区 ── */
+  main { margin-left: 290px; padding: 44px 48px 80px; max-width: 1180px; }
+
+  header.page { margin-bottom: 34px; }
+  header.page h1 { font-size: 26px; font-weight: 700; margin: 0 0 8px; letter-spacing: .01em; }
+  header.page p.sub { color: var(--text-soft); margin: 0 0 16px; max-width: 760px; }
+
+  .pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill {
+    font-size: 12px; font-family: var(--mono);
+    padding: 3px 10px; border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-soft); color: var(--text-soft);
+  }
+  .pill.b-accent { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+  .pill.b-ok { background: var(--ok-soft); color: var(--ok); border-color: transparent; }
+  .pill.b-amber { background: var(--accent-2-soft); color: var(--accent-2); border-color: transparent; }
+
+  section.block { margin-bottom: 40px; }
+  section.block > h2 {
+    font-size: 17px; font-weight: 650; margin: 0 0 4px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  section.block > h2 .anchor-bar { width: 4px; height: 18px; border-radius: 2px; background: var(--accent); display: inline-block; }
+  section.block > p.desc { color: var(--text-soft); margin: 0 0 16px; font-size: 13.5px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 14px; }
+
+  .card {
+    display: block; text-decoration: none; color: inherit;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px 14px;
+    transition: box-shadow .15s, border-color .15s, transform .15s;
+  }
+  .card:hover { border-color: var(--accent); box-shadow: 0 4px 18px rgba(47,111,235,.10); transform: translateY(-1px); }
+  .card .head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .badge {
+    font-family: var(--mono); font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 6px; flex: 0 0 auto;
+  }
+  .badge.b-blue { background: var(--accent-soft); color: var(--accent); }
+  .badge.b-purple { background: var(--purple-soft); color: var(--purple); }
+  .badge.b-teal { background: var(--teal-soft); color: var(--teal); }
+  .badge.b-amber { background: var(--accent-2-soft); color: var(--accent-2); }
+  .badge.b-green { background: var(--ok-soft); color: var(--ok); }
+  .card h3 { font-size: 15px; font-weight: 650; margin: 0; }
+  .card ul { margin: 8px 0 0; padding-left: 18px; color: var(--text-soft); font-size: 13px; }
+  .card ul li { margin-bottom: 3px; }
+
+  .info-card {
+    background: var(--bg-soft); border: 1px solid var(--border-soft);
+    border-radius: var(--radius); padding: 16px 18px;
+  }
+  .info-card h3 { font-size: 14px; font-weight: 650; margin: 0 0 10px; }
+  .info-card table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .info-card th, .info-card td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border-soft); vertical-align: top; }
+  .info-card th { color: var(--text-soft); font-weight: 600; white-space: nowrap; }
+  .info-card tr:last-child th, .info-card tr:last-child td { border-bottom: none; }
+  .info-card code, .card code {
+    font-family: var(--mono); font-size: 12px;
+    background: var(--accent-soft); color: var(--accent);
+    padding: 1px 5px; border-radius: 4px;
+  }
+  .info-card ul { margin: 0; padding-left: 18px; color: var(--text-soft); font-size: 13px; }
+  .info-card ul li { margin-bottom: 5px; }
+
+  footer {
+    margin-top: 50px; padding-top: 18px;
+    border-top: 1px solid var(--border);
+    color: var(--text-mute); font-size: 12.5px;
+  }
+
+  @media (max-width: 900px) {
+    aside { position: static; width: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    main { margin-left: 0; padding: 28px 20px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<aside>
+  <div class="brand">UE渲染源码导读</div>
+  <div class="brand-sub">UE 5.8.2 · source-verified</div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">总览</div>
+    <a href="00-系列总览与渲染知识地图.md"><span class="num">00</span>系列总览与渲染知识地图</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">核心概念辨析</div>
+    <a href="01-核心概念Scene与View.md"><span class="num">01</span>Scene 与 View</a>
+    <a href="02-核心概念Primitive与MeshDrawCommand.md"><span class="num">02</span>Primitive 与 MeshDrawCommand</a>
+    <a href="03-核心概念Substrate与MegaLights.md"><span class="num">03</span>Substrate 与 MegaLights</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">数据与主线</div>
+    <a href="04-渲染数据的来源与组织.md"><span class="num">04</span>渲染数据的来源与组织</a>
+    <a href="05-延迟渲染路径主线.md"><span class="num">05</span>延迟渲染路径主线</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">阅读策略</div>
+    <a href="06-分支识别与深入评估.md"><span class="num">06</span>分支识别与深入评估</a>
+  </div>
+</aside>
+
+<main>
+  <header class="page">
+    <h1>UE 渲染源码导读</h1>
+    <p class="sub">面向 UE 5.8.2 渲染源码阅读的地图式导读：不逐行讲实现，而是建立可索引的认知框架——核心类型职责、数据来源与流转、延迟路径主干、分支跳过与子系统深入决策。全部结论来自本地源码树实测（路径 + 行号可下断点验证）。</p>
+    <div class="pills">
+      <span class="pill b-accent">7 篇</span>
+      <span class="pill">UE 5.8.2 源码实测</span>
+      <span class="pill">路径 + 行号</span>
+      <span class="pill b-ok">地图式阅读</span>
+      <span class="pill b-amber">含旧名勘误表</span>
+    </div>
+  </header>
+
+  <section class="block" id="overview">
+    <h2><span class="anchor-bar"></span>总览</h2>
+    <p class="desc">先读第 00 篇：全图、阅读纪律、主线速查与旧名勘误都在这一篇。</p>
+    <div class="grid">
+      <a class="card" href="00-系列总览与渲染知识地图.md">
+        <div class="head"><span class="badge b-blue">00</span><h3>系列总览与渲染知识地图</h3></div>
+        <ul>
+          <li>为什么需要「地图式」阅读：数据隐藏 / 入口分散 / 分支爆炸 / 版本漂移</li>
+          <li>三层时间尺度：跨帧持久 · 每帧临时 · Pass 内临时</li>
+          <li>统一导读卡格式：是什么 / 何时关注 / 依赖 / 数据来源 / 执行时机</li>
+          <li>旧名勘误表：InitViews、FMeshDrawCommandSharedState 等 8 处</li>
+        </ul>
+      </a>
+    </div>
+  </section>
+
+  <section class="block" id="concepts">
+    <h2><span class="anchor-bar"></span>核心概念辨析</h2>
+    <p class="desc">每个类型一张导读卡：职责、数据成员、所有权、在流程中的角色。</p>
+    <div class="grid">
+      <a class="card" href="01-核心概念Scene与View.md">
+        <div class="head"><span class="badge b-purple">01</span><h3>Scene 与 View</h3></div>
+        <ul>
+          <li>FScene = UWorld 的渲染线程镜像，跨帧持久的统一容器</li>
+          <li>View 三层：ViewFamily → FSceneView → FViewInfo</li>
+          <li>持久飞地 FSceneViewState；拧合者 FSceneRenderer</li>
+          <li>划分三问：换相机还要吗 / 下帧还要吗 / 游戏线程改吗</li>
+        </ul>
+      </a>
+      <a class="card" href="02-核心概念Primitive与MeshDrawCommand.md">
+        <div class="head"><span class="badge b-purple">02</span><h3>Primitive 与 MeshDrawCommand</h3></div>
+        <ul>
+          <li>数据链：Component → Proxy → SceneInfo → MeshBatch → MDC → Visible</li>
+          <li>静态缓存 vs 动态收集两条生成路径</li>
+          <li>EMeshPass 39 个：一套几何、多套命令</li>
+          <li>SortKey 排序语义：BasePass 材质聚类 / 半透明 back-to-front</li>
+        </ul>
+      </a>
+      <a class="card" href="03-核心概念Substrate与MegaLights.md">
+        <div class="head"><span class="badge b-purple">03</span><h3>Substrate 与 MegaLights</h3></div>
+        <ul>
+          <li>Substrate：BSDF Slab 材质重构，r.Substrate 默认 0</li>
+          <li>MegaLights：统一采样直接光照，默认关且 Experimental，不支持平行光</li>
+          <li>各自的主线分叉点与开关判定链</li>
+          <li>第一遍阅读：双双跳过，但要认得调用点</li>
+        </ul>
+      </a>
+    </div>
+  </section>
+
+  <section class="block" id="data-pipeline">
+    <h2><span class="anchor-bar"></span>数据与主线</h2>
+    <p class="desc">消除「数据来源隐秘」与「代码迷宫」两大困惑。</p>
+    <div class="grid">
+      <a class="card" href="04-渲染数据的来源与组织.md">
+        <div class="head"><span class="badge b-teal">04</span><h3>渲染数据的来源与组织</h3></div>
+        <ul>
+          <li>三个统一容器：FScene / FViewInfo / FRDGBuilder，没有第四个</li>
+          <li>三种数据时态：注册时缓存 / 每帧可见性任务 / Pass 内即时产出</li>
+          <li>延迟路径 13 个 Pass 的输入输出对照表</li>
+          <li>两个黑盒：GPUScene 桥、RDG 黑板</li>
+        </ul>
+      </a>
+      <a class="card" href="05-延迟渲染路径主线.md">
+        <div class="head"><span class="badge b-teal">05</span><h3>延迟渲染路径主线</h3></div>
+        <ul>
+          <li>唯一主干：FDeferredShadingSceneRenderer::Render（约 2600 行，线性五段）</li>
+          <li>20 个主线锚点行号表：断点逐行走一遍即建主干</li>
+          <li>旁路三暗门：SceneViewExtension / SceneExtension / MeshPassProcessor</li>
+          <li>反直觉时序：遮挡跨帧复用、阴影在 BasePass 后、动态收集异步</li>
+        </ul>
+      </a>
+    </div>
+  </section>
+
+  <section class="block" id="strategy">
+    <h2><span class="anchor-bar"></span>阅读策略</h2>
+    <p class="desc">分支跳过法与复杂子系统的深入决策。</p>
+    <div class="grid">
+      <a class="card" href="06-分支识别与深入评估.md">
+        <div class="head"><span class="badge b-amber">06</span><h3>分支识别与深入评估</h3></div>
+        <ul>
+          <li>分支四信号：cvar / ShowFlag / 空实例短路 / 平台特性检查</li>
+          <li>头发 Groom 分支完整识别实例（bookmark 机制）</li>
+          <li>7 个可跳过分流速查表（含跳过成本与损失评估）</li>
+          <li>Nanite 深入评估卡：自评表 + 五步深入路径</li>
+          <li>Lumen / VSM / Substrate / RDG 速评卡</li>
+        </ul>
+      </a>
+    </div>
+  </section>
+
+  <section class="block" id="cheatsheet">
+    <h2><span class="anchor-bar"></span>速查</h2>
+    <p class="desc">最常回查的两张表。</p>
+    <div class="grid">
+      <div class="info-card">
+        <h3>主线锚点（DeferredShadingRenderer.cpp）</h3>
+        <table>
+          <tr><th>:1822</th><td><code>Render()</code> 主干入口</td></tr>
+          <tr><th>:2123</th><td><code>BeginInitViews</code> 可见性任务</td></tr>
+          <tr><th>:2218</th><td><code>FinishGatherDynamicMeshElements</code> 汇合</td></tr>
+          <tr><th>:2464/:2485</th><td>PrePass / Nanite（深度）</td></tr>
+          <tr><th>:3059</th><td><code>RenderBasePass</code>（GBuffer）</td></tr>
+          <tr><th>:3467/:3471</th><td><code>RenderLights</code> / MegaLights</td></tr>
+          <tr><th>:4011</th><td><code>RenderTranslucency</code></td></tr>
+          <tr><th>:4311</th><td><code>AddPostProcessingPasses</code></td></tr>
+        </table>
+      </div>
+      <div class="info-card">
+        <h3>旧名勘误（5.8 已不存在）</h3>
+        <table>
+          <tr><th>InitViews</th><td>→ BeginInitViews/EndInitViews + FVisibilityTaskData</td></tr>
+          <tr><th>GatherDynamicMeshElements</th><td>→ FVisibilityTaskData::GatherDynamicMeshElements</td></tr>
+          <tr><th>GetSceneViewStateInterface()</th><td>→ FSceneView::State 成员</td></tr>
+          <tr><th>FMeshDrawCommandSharedState</th><td>→ 并入 FMeshDrawCommand 本体</td></tr>
+          <tr><th>CachePathPrimitives</th><td>→ StaticMeshes/StaticMeshRelevances/StaticMeshCommandInfos</td></tr>
+          <tr><th>StaticMeshBatchVisibility</th><td>→ FViewInfo::StaticMeshVisibilityMap</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="sources">
+    <h2><span class="anchor-bar"></span>事实来源</h2>
+    <div class="info-card">
+      <h3>核实方式</h3>
+      <ul>
+        <li>全部类定义、字段、行号、调用链来自本地 <strong>UE 5.8.2</strong> 源码树（Build.version: 5.8.2）实测，模块：<code>Runtime/Renderer</code>、<code>Runtime/Engine</code>、<code>Runtime/RenderCore</code>。</li>
+        <li>版本敏感结论（cvar 默认值、Experimental 状态、默认开关）均以源码中的 cvar 定义与注释为准；换版本时以引擎源码重新核对。</li>
+        <li>「旧名勘误」通过对全源码树检索确认旧符号零匹配得出。</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    UE渲染源码导读 · 共 7 篇 · 基于 UE 5.8.2 源码实测 · 配套系列：实时渲染系统 / UE5 Shader 系统 / 游戏性能分析
+  </footer>
+</main>
+
+<script>
+  // 滚动高亮侧边栏
+  const sections = [...document.querySelectorAll('section.block')];
+  const groups = [...document.querySelectorAll('.nav-group-title')];
+  window.addEventListener('scroll', () => {
+    let current = null;
+    for (const s of sections) {
+      if (s.getBoundingClientRect().top < 120) current = s.id;
+    }
+    groups.forEach(g => {
+      const active = current && g.textContent && mapSection(current) === g.textContent;
+      g.style.color = active ? 'var(--accent)' : '';
+    });
+  });
+  function mapSection(id) {
+    return { overview: '总览', concepts: '核心概念辨析', 'data-pipeline': '数据与主线', strategy: '阅读策略' }[id] || '';
+  }
+</script>
+
+</body>
+</html>

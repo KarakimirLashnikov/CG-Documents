@@ -138,6 +138,7 @@
     <a href="#s07"><span class="num">07</span> RDG与FrameGraph概念辨析</a>
     <a href="#s12"><span class="num">12</span> GPU资源术语分层解析</a>
     <a href="#s13"><span class="num">13</span> UE5.8的RDG资源与RHI资源</a>
+    <a href="#s15"><span class="num">15</span> UERDG屏障与同步机制源码解析</a>
 
     <div class="nav-group-title">前沿与产业</div>
     <a href="#s08"><span class="num">08</span> 进阶技术拓展</a>
@@ -154,9 +155,10 @@
   </div>
 
   <div class="note">
-    建议阅读顺序：<strong>00 → 01 → 02 → 03 → 04 → 05 → 06 → 07 → 12 → 13 → 14 → 08 → 09 → 10 → 11</strong>。
+    建议阅读顺序：<strong>00 → 01 → 02 → 03 → 04 → 05 → 06 → 07 → 12 → 13 → 14 → 15 → 08 → 09 → 10 → 11</strong>。
     其中 <strong>13（UE5.8 的 RDG 资源与 RHI 资源）</strong> 以工业引擎为案例印证 06/07 的通用 FrameGraph 抽象；
-    <strong>14（Pass 概念分层解析）</strong> 专门厘清"Pass 重载词"与 Pass/Pipeline/DrawCall/RenderPass 的正交关系，建议先读再回头看 06/07/13。
+    <strong>14（Pass 概念分层解析）</strong> 专门厘清"Pass 重载词"与 Pass/Pipeline/DrawCall/RenderPass 的正交关系，建议先读再回头看 06/07/13；
+    <strong>15（UE RDG 屏障与同步机制源码解析）</strong> 是 13 的源码级续篇，逐函数拆解 Pass 管线归属、资源状态机、分裂屏障与 AsyncCompute Fork/Join。
   </div>
 
   <div class="section-title">全部文档</div>
@@ -269,6 +271,16 @@
         <li>统一心智模型：Pass = 有界命名有序有 IO 的工作域</li>
         <li>Pass ≠ Pipeline / DrawCall / RenderPass / Stage 正交纠偏</li>
         <li>一帧端到端追踪 + 定位树 + RenderDoc 视角</li>
+      </ul>
+    </div>
+
+    <div class="card" id="s15">
+      <span class="badge">15</span>
+      <h3><a href="15-UERDG屏障与同步机制源码解析.md">UERDG屏障与同步机制源码解析</a></h3>
+      <ul>
+        <li>Pass 管线归属：仅由 AsyncCompute 标志决定</li>
+        <li>资源状态机：Access × 管线集合 × Flags 三元组、IsMergeAllowed / IsTransitionRequired</li>
+        <li>分裂屏障 Begin/End、RenderPass 合并重定向、AsyncCompute Fork/Join 真 fence</li>
       </ul>
     </div>
 
