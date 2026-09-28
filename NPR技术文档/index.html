@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NPR 技术文档 — 导航</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-soft: #f7f8fa;
+    --bg-side: #fbfbfd;
+    --border: #e6e8eb;
+    --border-soft: #eef0f3;
+    --text: #1f2328;
+    --text-soft: #5a6470;
+    --text-mute: #8b949e;
+    --accent: #d6336c;
+    --accent-soft: #fdf0f6;
+    --accent-2: #b7791f;
+    --accent-2-soft: #fdf6e3;
+    --danger: #c0392b;
+    --danger-soft: #fdeceb;
+    --ok: #1f7a4d;
+    --ok-soft: #e8f6ef;
+    --purple: #6b46c1;
+    --purple-soft: #f1ecfb;
+    --blue: #2f6feb;
+    --blue-soft: #eaf1fd;
+    --radius: 10px;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+            "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── 侧边栏 ───────────────────────────────────────────────── */
+  aside {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 290px;
+    background: var(--bg-side);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 26px 20px 40px;
+  }
+
+  aside .brand {
+    font-size: 15px;
+    font-weight: 650;
+    letter-spacing: .01em;
+    padding-bottom: 4px;
+  }
+
+  aside .brand-sub {
+    font-size: 12px;
+    color: var(--text-mute);
+    font-family: var(--mono);
+    margin-bottom: 22px;
+  }
+
+  .nav-group { margin-bottom: 20px; }
+
+  .nav-group-title {
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+    margin-bottom: 8px;
+    padding-left: 2px;
+  }
+
+  aside a {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    padding: 6px 9px;
+    margin-bottom: 1px;
+    border-radius: 6px;
+    color: var(--text-soft);
+    text-decoration: none;
+    font-size: 13.5px;
+    line-height: 1.45;
+    border-left: 2px solid transparent;
+    transition: background .12s, color .12s, border-color .12s;
+  }
+
+  aside a:hover { background: var(--accent-soft); color: var(--accent); }
+
+  aside a.active {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-left-color: var(--accent);
+    font-weight: 600;
+  }
+
+  aside a .num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-mute);
+    flex: 0 0 auto;
+    padding-top: 1px;
+  }
+
+  aside a.active .num { color: var(--accent); }
+
+  /* ── 主区 ─────────────────────────────────────────────────── */
+  main {
+    margin-left: 290px;
+    max-width: 1080px;
+    padding: 40px 48px 100px;
+  }
+
+  header.page-head {
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 34px;
+  }
+
+  header.page-head h1 {
+    margin: 0 0 8px;
+    font-size: 27px;
+    font-weight: 680;
+    letter-spacing: -.01em;
+  }
+
+  header.page-head p {
+    margin: 0;
+    color: var(--text-soft);
+    font-size: 14.5px;
+    max-width: 680px;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .pill {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+  }
+
+  /* ── 章节 ─────────────────────────────────────────────────── */
+  section.chapter {
+    margin-bottom: 44px;
+    scroll-margin-top: 24px;
+  }
+
+  .chapter-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .chapter-head h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 650;
+  }
+
+  .chapter-desc {
+    font-size: 13px;
+    color: var(--text-mute);
+    margin: 0 0 16px;
+  }
+
+  /* ── 卡片网格 ─────────────────────────────────────────────── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+  }
+
+  a.card {
+    display: block;
+    padding: 18px 20px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color .14s, box-shadow .14s, transform .14s;
+    scroll-margin-top: 24px;
+  }
+
+  a.card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 3px 14px rgba(214, 51, 108, .10);
+    transform: translateY(-1px);
+  }
+
+  a.card.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 9px;
+  }
+
+  .badge {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    padding: 2px 7px;
+    border-radius: 4px;
+    flex: 0 0 auto;
+  }
+
+  .badge-idx   { background: var(--bg-soft);      border: 1px solid var(--border); color: var(--text-soft); }
+  .badge-intro { background: var(--ok-soft);      color: var(--ok); }
+  .badge-adv   { background: var(--accent-soft);  color: var(--accent); }
+  .badge-pro   { background: var(--purple-soft);  color: var(--purple); }
+  .badge-ue    { background: var(--blue-soft);    color: var(--blue); }
+  .badge-case  { background: var(--accent-2-soft);color: var(--accent-2); }
+  .badge-audit { background: var(--danger-soft);  color: var(--danger); }
+
+  .card h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 620;
+    line-height: 1.4;
+  }
+
+  .card ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .card ul li {
+    position: relative;
+    padding-left: 14px;
+    font-size: 13px;
+    color: var(--text-soft);
+    line-height: 1.6;
+    margin-bottom: 3px;
+  }
+
+  .card ul li::before {
+    content: "";
+    position: absolute;
+    left: 3px;
+    top: 9px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+
+  .card ul li strong { color: var(--text); font-weight: 600; }
+  .card ul li.warn::before { background: var(--danger); }
+  .card ul li.good::before { background: var(--ok); }
+
+  /* ── 页脚 ─────────────────────────────────────────────────── */
+  footer {
+    margin-top: 60px;
+    padding-top: 22px;
+    border-top: 1px solid var(--border);
+    font-size: 12.5px;
+    color: var(--text-mute);
+    font-family: var(--mono);
+    line-height: 1.9;
+  }
+
+  footer .src { color: var(--text-soft); }
+
+  /* ── 响应式 ───────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    aside {
+      position: static;
+      width: auto;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      padding: 20px 20px 24px;
+    }
+    main { margin-left: 0; padding: 28px 20px 70px; }
+    header.page-head h1 { font-size: 22px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<aside>
+  <div class="brand">NPR 技术文档</div>
+  <div class="brand-sub">Non-Photorealistic Rendering</div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">总览</div>
+    <a href="#sec-00"><span class="num">00</span><span>NPR 技术总览</span></a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">入门</div>
+    <a href="#sec-01"><span class="num">01</span><span>卡通着色原理与实现</span></a>
+    <a href="#sec-02"><span class="num">02</span><span>描边技术全解</span></a>
+    <a href="#sec-03"><span class="num">03</span><span>渐变贴图与 Ramp 着色</span></a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">进阶</div>
+    <a href="#sec-04"><span class="num">04</span><span>边缘光与风格化高光</span></a>
+    <a href="#sec-05"><span class="num">05</span><span>UE 卡通渲染实战路径</span></a>
+    <a href="#sec-06"><span class="num">06</span><span>原神渲染方案深度剖析</span></a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">精通</div>
+    <a href="#sec-07"><span class="num">07</span><span>风格化进阶专题</span></a>
+    <a href="#sec-08"><span class="num">08</span><span>NPR 与 PBR 系统对比</span></a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">速查</div>
+    <a href="#sec-cheat"><span class="num">▸</span><span>常见误区速查表</span></a>
+    <a href="#sec-src"><span class="num">▸</span><span>事实来源与可信度</span></a>
+  </div>
+</aside>
+
+<main>
+  <header class="page-head">
+    <h1>非真实感渲染（NPR）技术文档</h1>
+    <p>按入门 → 进阶 → 精通三个层次递进：从卡通着色、描边、Ramp 的原理与 Shader 实现，到 UE 卡通渲染落地路径与《原神》方案深度剖析，再到素描/水彩/网点等风格化专题与 NPR / PBR 的系统选型。</p>
+    <div class="meta-row">
+      <span class="pill">9 篇</span>
+      <span class="pill">入门 3 · 进阶 3 · 精通 2</span>
+      <span class="pill">Cel Shading · Outline · Ramp · Rim</span>
+      <span class="pill">UE 5.x 案例</span>
+      <span class="pill">原神渲染方案</span>
+      <span class="pill">HLSL 代码骨架</span>
+    </div>
+  </header>
+
+  <!-- ══ 总览 ══ -->
+  <section class="chapter" id="sec-00">
+    <div class="chapter-head"><h2>总览</h2></div>
+    <p class="chapter-desc">先建立 NPR 的全景地图与正确认知，再进入分层学习。</p>
+    <div class="grid">
+
+      <a class="card" href="00-NPR技术总览.md">
+        <div class="card-top">
+          <span class="badge badge-idx">00</span>
+          <span class="badge badge-ue">OVERVIEW</span>
+        </div>
+        <h3>NPR 技术总览</h3>
+        <ul>
+          <li>NPR 是<strong>减法和控制</strong>，不是「简化版 PBR」</li>
+          <li>四类技术谱系：着色改造 / 轮廓线条 / 辅助光照 / 图像空间</li>
+          <li>入门 → 进阶 → 精通<strong>三层学习路线</strong>与自检标准</li>
+          <li>术语约定表：Ramp / Inverted Hull / SDF 面部阴影 / 风格化 PBR</li>
+          <li class="warn">六个常见误区预防针（描边≠边缘光、NPR≠省性能…）</li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ 入门 ══ -->
+  <section class="chapter" id="sec-01">
+    <div class="chapter-head"><h2>入门</h2></div>
+    <p class="chapter-desc">卡通渲染三大件：着色、描边、Ramp。能独立手写一套最小可用卡渲 Shader。</p>
+    <div class="grid">
+
+      <a class="card" href="01-卡通着色原理与实现.md">
+        <div class="card-top">
+          <span class="badge badge-idx">01</span>
+          <span class="badge badge-intro">入门 · SHADING</span>
+        </div>
+        <h3>卡通着色原理与实现</h3>
+        <ul>
+          <li>核心：<strong>N·L 的量化函数 Q</strong>——数学一行，艺术一套</li>
+          <li>技术史：Decaudin 1996 / Gooch 1998 / Lake 2000 / X-Toon 2006</li>
+          <li>三种量化：硬阈值 / 多阶阶梯 / smoothstep 可调交界</li>
+          <li class="good"><strong>半兰伯特</strong>是卡渲暗部分层的隐形地基</li>
+          <li>阴影染色：暗部是<strong>另一个色相</strong>，不是亮度衰减</li>
+          <li class="warn">坑：裸 step 锯齿（fwidth 自适应软化）、多光源勿对总光量化</li>
+          <li>最小可用三阶卡通光照完整 HLSL</li>
+        </ul>
+      </a>
+
+      <a class="card" href="02-描边技术全解.md">
+        <div class="card-top">
+          <span class="badge badge-idx">02</span>
+          <span class="badge badge-intro">入门 · OUTLINE</span>
+        </div>
+        <h3>描边技术全解</h3>
+        <ul>
+          <li>先分两类边：<strong>外轮廓（视角相关）vs 折痕（几何固有）</strong></li>
+          <li>四大路线横评：Inverted Hull / 屏幕空间检测 / 几何边 / 贴图画线</li>
+          <li class="good">Inverted Hull 是角色描边<strong>事实标准</strong></li>
+          <li>五个工程细节：硬边断裂、屏幕等宽、FOV 补偿、描边颜色、蒙皮同步</li>
+          <li class="warn">法线外扩 ≠ 等宽：锐角处变粗与补偿的 clamp</li>
+          <li>商业项目常见<strong>分层描边组合</strong>（角色 Hull + 贴图内线）</li>
+        </ul>
+      </a>
+
+      <a class="card" href="03-渐变贴图与Ramp着色.md">
+        <div class="card-top">
+          <span class="badge badge-idx">03</span>
+          <span class="badge badge-intro">入门 · RAMP</span>
+        </div>
+        <h3>渐变贴图与 Ramp 着色</h3>
+        <ul>
+          <li>本质：把光照响应曲线烘焙成<strong>纹理 LUT</strong>，控制权移交美术</li>
+          <li>三种形态：一维 / 二维（V=AO·软硬·材质·昼夜）/ 多行分区</li>
+          <li class="good">原神式多行 Ramp：<strong>材质分区 × 昼夜</strong>两行体系</li>
+          <li class="warn">资产纪律：关 sRGB、禁 mip、行采样 clamp 到行中心</li>
+          <li>职责划分：阈值管交界<strong>形状</strong>，Ramp 管色阶<strong>颜色</strong></li>
+          <li>认知校准：Ramp 与 PBR 的 BRDF LUT <strong>技术同源</strong></li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ 进阶 ══ -->
+  <section class="chapter" id="sec-04">
+    <div class="chapter-head"><h2>进阶</h2></div>
+    <p class="chapter-desc">补齐工业级细节层，落地真实引擎，拆解商业案例。</p>
+    <div class="grid">
+
+      <a class="card" href="04-边缘光与风格化高光.md">
+        <div class="card-top">
+          <span class="badge badge-idx">04</span>
+          <span class="badge badge-adv">进阶 · RIM &amp; SPEC</span>
+        </div>
+        <h3>边缘光与风格化高光</h3>
+        <ul>
+          <li class="warn">描边 ≠ 边缘光：一个画线一个补光，分属不同 pass</li>
+          <li>Rim 两流派：视角 Fresnel 式 vs <strong>深度差分式（原神）</strong></li>
+          <li>深度 rim 完整 HLSL：8 方向圆环采样 + 仅叠加受光面</li>
+          <li>三类风格化高光：离散 Blob / <strong>Kajiya-Kay 发丝双环</strong> / Matcap</li>
+          <li>卡渲高光哲学：位置形状是<strong>美术参数</strong>，不受物理约束</li>
+          <li class="warn">Matcap 视角绑定 → 只用于小件，忌大面积主材质</li>
+        </ul>
+      </a>
+
+      <a class="card" href="05-UE卡通渲染实战路径.md">
+        <div class="card-top">
+          <span class="badge badge-idx">05</span>
+          <span class="badge badge-ue">进阶 · UE5</span>
+        </div>
+        <h3>UE 卡通渲染实战路径</h3>
+        <ul>
+          <li>出发点：UE <strong>无内置 Toon Shading Model</strong></li>
+          <li>三路径横评：后处理量化 / Unlit 手动光照 / 源码 Custom Shading Model</li>
+          <li>后处理：SceneColor ÷ BaseColor 反解光照，Before Tonemapping</li>
+          <li class="warn">后处理坑清单：0/0 除法、间接光被阶梯化、per-材质失控</li>
+          <li>改源码真实成本：GBuffer 通道、版本 rebase、Lumen 兼容</li>
+          <li class="good">UE5.1+ 描边首选 <strong>Translucent Overlay Materials</strong></li>
+          <li>按团队规模的<strong>决策表</strong>（原型 / 二游 / 中大型 / 移动端）</li>
+        </ul>
+      </a>
+
+      <a class="card" href="06-原神渲染方案深度剖析.md">
+        <div class="card-top">
+          <span class="badge badge-idx">06</span>
+          <span class="badge badge-case">进阶 · 案例</span>
+        </div>
+        <h3>原神渲染方案深度剖析</h3>
+        <ul>
+          <li>角色四模块：Toon+Ramp / <strong>SDF 面部阴影</strong> / LightMap 分区 / 描边+rim</li>
+          <li>SDF 原理：8 角度手绘阴影图合成 FaceLightMap，<code>-0.5F·L+0.5</code> 判定</li>
+          <li>LightMap 四通道语义（R 金属 / G AO / B 高光形状 / A 材质 ID）<strong>社区共识</strong></li>
+          <li>LightMap 范式：贴图通道查表<strong>替代 Shader 分支</strong></li>
+          <li>场景侧（GDC 2021 官方）：树球形法线 / 草 VAT / 岩三层笔触 / 云渐变图</li>
+          <li class="good">方法论：<strong>物理计算保下限、手绘预设保上限</strong></li>
+          <li class="warn">资料基调：角色侧=社区逆向共识，场景侧=官方演讲</li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ 精通 ══ -->
+  <section class="chapter" id="sec-07">
+    <div class="chapter-head"><h2>精通</h2></div>
+    <p class="chapter-desc">超越赛璐璐的风格化武器库，以及渲染方案选型的系统判断力。</p>
+    <div class="grid">
+
+      <a class="card" href="07-风格化进阶专题.md">
+        <div class="card-top">
+          <span class="badge badge-idx">07</span>
+          <span class="badge badge-pro">精通 · STYLES</span>
+        </div>
+        <h3>风格化进阶专题</h3>
+        <ul>
+          <li>铅笔素描 <strong>TAM</strong>（Praun 2001）：明度纹理塔 + 线条超集关系</li>
+          <li>半调网点：明度→面积覆盖率；屏幕空间 vs 物体空间之争</li>
+          <li class="good"><strong>ArcSys 手绘流</strong>（GGXrd GDC 2015）：逐顶点手工法线 + UV 控线 + 限帧</li>
+          <li>水彩/油画：Kuwahara 保边平滑家族；<strong>时间稳定性</strong>是最大坑</li>
+          <li>Matcap 作为全局风格工具：《Gris》式插画项目</li>
+          <li>从参考图到技术栈的<strong>五问选型法</strong></li>
+        </ul>
+      </a>
+
+      <a class="card" href="08-NPR与PBR系统对比.md">
+        <div class="card-top">
+          <span class="badge badge-idx">08</span>
+          <span class="badge badge-pro">精通 · NPR vs PBR</span>
+        </div>
+        <h3>NPR 与 PBR 系统对比</h3>
+        <ul>
+          <li>根本差异：<strong>目标函数不同</strong>（逼近物理 vs 逼近风格参考）</li>
+          <li>五维对比：光照模型 / 材质表达 / 渲染管线 / 性能开销 / 适用场景</li>
+          <li class="warn">「NPR 更省性能」终审：GPU 省、几何翻倍、<strong>人力高一个量级</strong></li>
+          <li>混合三层级：参数层 / 响应层 / <strong>分区层（原神范式）</strong></li>
+          <li>前向 + MSAA 友好 → NPR 是移动端/VR 的天然盟友</li>
+          <li class="good">五问决策框架：真实？媒介？特写？光照动态？引擎能力？</li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ 速查 ══ -->
+  <section class="chapter" id="sec-cheat">
+    <div class="chapter-head"><h2>速查</h2></div>
+    <p class="chapter-desc">动手前扫一眼，避开流传最广的 NPR 误读。</p>
+    <div class="grid">
+
+      <div class="card" style="cursor:default">
+        <div class="card-top"><span class="badge badge-audit">误区</span></div>
+        <h3>十二个必须纠正的说法</h3>
+        <ul>
+          <li class="warn">「卡通渲染 = 后处理加滤镜」→ 后处理是最弱路径，per-材质失控</li>
+          <li class="warn">「描边就是 Sobel 边缘检测」→ 工业主流是 Inverted Hull</li>
+          <li class="warn">「描边和边缘光是一回事」→ 一个画线一个补光，不同 pass</li>
+          <li class="warn">「NPR 不需要法线贴图」→ 用不用是风格决策，非技术限制</li>
+          <li class="warn">「原神是 2D 贴图画出来的」→ 完整 3D 实时光照系统</li>
+          <li class="warn">「SDF 面部阴影是原神独有」→ 已是二游通用技术</li>
+          <li class="warn">「UE 有内置卡通材质」→ 无内置 Toon Shading Model</li>
+          <li class="warn">「改源码加 Shading Model 就完事」→ GBuffer/升级/Lumen 才是成本</li>
+          <li class="warn">「NPR 一定比 PBR 省性能」→ 着色省、几何翻倍、人力更贵</li>
+          <li class="warn">「卡通渲染阴影就是压暗」→ 暗部是另一个色相（RGB Tint）</li>
+          <li class="warn">「Ramp 和阈值公式二选一」→ 工业方案两者叠用，职责分离</li>
+          <li class="warn">「NPR 和 PBR 必须二选一」→ 商业主流是分区混合管线</li>
+        </ul>
+      </div>
+
+      <div class="card" style="cursor:default">
+        <div class="card-top"><span class="badge badge-adv">铁律</span></div>
+        <h3>六条设计铁律</h3>
+        <ul>
+          <li><strong>①</strong> 先分边类型（外轮廓/折痕）再选描边技术</li>
+          <li><strong>②</strong> 明暗交界位置归公式管，色阶颜色归 Ramp 管</li>
+          <li><strong>③</strong> 半兰伯特保暗部信息，是分层的前提</li>
+          <li><strong>④</strong> 物理计算保下限，手绘预设保上限</li>
+          <li><strong>⑤</strong> 贴图通道查表替代 Shader 分支（LightMap 范式）</li>
+          <li><strong>⑥</strong> 越靠近手绘感，成本越从 GPU 转移到美术管线</li>
+          <li class="good">性能总账 = GPU 成本 + 几何翻倍 + 全屏 pass + 人力</li>
+          <li class="good">商业答案 = 角色 NPR + 场景风格化 PBR 的分区管线</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ 来源 ══ -->
+  <section class="chapter" id="sec-src">
+    <div class="chapter-head"><h2>事实来源与可信度</h2></div>
+    <p class="chapter-desc">本系列所有判断均按以下优先级采信；社区逆向内容均在正文中显式标注。</p>
+    <div class="grid">
+
+      <div class="card" style="cursor:default">
+        <div class="card-top"><span class="badge badge-ue">来源 A</span></div>
+        <h3>论文与官方资料</h3>
+        <ul>
+          <li>Decaudin 1996《Cartoon-Looking Rendering of 3D-Scenes》</li>
+          <li>Gooch et al. 1998 (SIGGRAPH) 技术插画光照模型</li>
+          <li>Lake et al. 2000 (NPAR) 实时风格化流程</li>
+          <li>Praun et al. 2001 (SIGGRAPH) Tonal Art Maps</li>
+          <li>Barla et al. 2006 X-Toon / Anjyo 2014 Blendfield</li>
+          <li>Arc System Works, GDC 2015《GuiltyGearXrd's Art Style》</li>
+          <li>米哈游, GDC 2021《Genshin Impact: Crafting an Anime Style Open World》</li>
+          <li>Epic 官方文档：Post Process Materials / Overlay Materials（UE 5.1+）</li>
+        </ul>
+      </div>
+
+      <div class="card" style="cursor:default">
+        <div class="card-top"><span class="badge badge-case">来源 B</span></div>
+        <h3>社区资料（正文已标注「共识」）</h3>
+        <ul>
+          <li>原神角色渲染逆向/复现：LightMap 通道语义、Ramp 昼夜双区、SDF 面部阴影实现骨架</li>
+          <li>UE 社区 Custom Shading Model fork（4.20~5.x 各分支）</li>
+          <li>UE 官方论坛卡渲实践帖（后处理除法方案、Offset 逐像素驱动明暗交界）</li>
+          <li class="warn">使用规则：凡社区资料与官方冲突，以官方为准；通道语义等以抓帧验证为准</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <div class="src">NPR 技术文档 · 9 篇 · 最后更新 2026-09-28</div>
+    <div>来源优先级：原始论文 &gt; 厂商官方文档/演讲 &gt; 引擎文档 &gt; 社区逆向（显式标注）</div>
+  </footer>
+</main>
+
+<script>
+(function () {
+  var links  = Array.prototype.slice.call(document.querySelectorAll('aside a[href^="#"]'));
+  var cards  = Array.prototype.slice.call(document.querySelectorAll('a.card'));
+  var targets = links.map(function (a) {
+    return document.querySelector(a.getAttribute('href'));
+  });
+
+  function onScroll() {
+    var y = window.scrollY + 140;
+    var active = -1;
+    for (var i = 0; i < targets.length; i++) {
+      if (targets[i] && targets[i].offsetTop <= y) active = i;
+    }
+    links.forEach(function (a, i) { a.classList.toggle('active', i === active); });
+  }
+
+  cards.forEach(function (c) {
+    c.addEventListener('click', function () {
+      cards.forEach(function (o) { o.classList.remove('active'); });
+      c.classList.add('active');
+    });
+  });
+
+  var ticking = false;
+  window.addEventListener('scroll', function () {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () { onScroll(); ticking = false; });
+  }, { passive: true });
+
+  onScroll();
+})();
+</script>
+
+</body>
+</html>
