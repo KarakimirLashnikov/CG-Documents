@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>资深引擎开发成长路线 — 导航</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-soft: #f7f8fa;
+    --bg-side: #fbfbfd;
+    --border: #e6e8eb;
+    --border-soft: #eef0f3;
+    --text: #1f2328;
+    --text-soft: #5a6470;
+    --text-mute: #8b949e;
+    --accent: #2f6feb;
+    --accent-soft: #eaf1fd;
+    --accent-2: #b7791f;
+    --accent-2-soft: #fdf6e3;
+    --danger: #c0392b;
+    --danger-soft: #fdeceb;
+    --ok: #1f7a4d;
+    --ok-soft: #e8f6ef;
+    --purple: #6b46c1;
+    --purple-soft: #f1ecfb;
+    --radius: 10px;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+            "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── 侧边栏 ───────────────────────────────────────────────── */
+  aside {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 290px;
+    background: var(--bg-side);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 26px 20px 40px;
+  }
+
+  aside .brand {
+    font-size: 15px;
+    font-weight: 650;
+    letter-spacing: .01em;
+    padding-bottom: 4px;
+  }
+
+  aside .brand-sub {
+    font-size: 12px;
+    color: var(--text-mute);
+    font-family: var(--mono);
+    margin-bottom: 22px;
+  }
+
+  .nav-group {
+    margin-bottom: 20px;
+  }
+
+  .nav-group-title {
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+    margin-bottom: 8px;
+    padding-left: 2px;
+  }
+
+  aside a {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    padding: 6px 9px;
+    margin-bottom: 1px;
+    border-radius: 6px;
+    color: var(--text-soft);
+    text-decoration: none;
+    font-size: 13.5px;
+    line-height: 1.45;
+    border-left: 2px solid transparent;
+    transition: background .12s, color .12s, border-color .12s;
+  }
+
+  aside a:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  aside a.active {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-left-color: var(--accent);
+    font-weight: 600;
+  }
+
+  aside a .num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-mute);
+    flex: 0 0 auto;
+    padding-top: 1px;
+  }
+
+  aside a.active .num { color: var(--accent); }
+
+  /* ── 主区 ─────────────────────────────────────────────────── */
+  main {
+    margin-left: 290px;
+    max-width: 1080px;
+    padding: 40px 48px 100px;
+  }
+
+  header.page-head {
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 34px;
+  }
+
+  header.page-head h1 {
+    margin: 0 0 8px;
+    font-size: 27px;
+    font-weight: 680;
+    letter-spacing: -.01em;
+  }
+
+  header.page-head p {
+    margin: 0;
+    color: var(--text-soft);
+    font-size: 14.5px;
+    max-width: 640px;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .pill {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+  }
+
+  /* ── 章节 ─────────────────────────────────────────────────── */
+  section.chapter {
+    margin-bottom: 44px;
+    scroll-margin-top: 24px;
+  }
+
+  .chapter-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .chapter-head h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 650;
+  }
+
+  .chapter-desc {
+    font-size: 13px;
+    color: var(--text-mute);
+    margin: 0 0 16px;
+  }
+
+  /* ── 卡片网格 ─────────────────────────────────────────────── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+  }
+
+  a.card {
+    display: block;
+    padding: 18px 20px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color .14s, box-shadow .14s, transform .14s;
+    scroll-margin-top: 24px;
+  }
+
+  a.card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 3px 14px rgba(47, 111, 235, .10);
+    transform: translateY(-1px);
+  }
+
+  a.card.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 9px;
+  }
+
+  .badge {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    padding: 2px 7px;
+    border-radius: 4px;
+    flex: 0 0 auto;
+  }
+
+  .badge-idx {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+  }
+
+  .badge-overview { background: var(--accent-soft);  color: var(--accent); }
+  .badge-pipeline { background: var(--accent-2-soft);color: var(--accent-2); }
+  .badge-shader   { background: var(--purple-soft);  color: var(--purple); }
+  .badge-perf     { background: #eef6f9;             color: #1a6b8a; }
+  .badge-frontier { background: var(--ok-soft);      color: var(--ok); }
+  .badge-system   { background: var(--danger-soft);  color: var(--danger); }
+
+  .card h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 620;
+    line-height: 1.4;
+  }
+
+  .card ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .card ul li {
+    position: relative;
+    padding-left: 14px;
+    font-size: 13px;
+    color: var(--text-soft);
+    line-height: 1.6;
+    margin-bottom: 3px;
+  }
+
+  .card ul li::before {
+    content: "";
+    position: absolute;
+    left: 3px;
+    top: 9px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+
+  .card ul li strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .card ul li.warn::before { background: var(--danger); }
+  .card ul li.good::before { background: var(--ok); }
+
+  /* ── 页脚 ─────────────────────────────────────────────────── */
+  footer {
+    margin-top: 60px;
+    padding-top: 22px;
+    border-top: 1px solid var(--border);
+    font-size: 12.5px;
+    color: var(--text-mute);
+    font-family: var(--mono);
+    line-height: 1.9;
+  }
+
+  footer .src { color: var(--text-soft); }
+
+  /* ── 响应式 ───────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    aside {
+      position: static;
+      width: auto;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      padding: 20px 20px 24px;
+    }
+    main { margin-left: 0; padding: 28px 20px 70px; }
+    header.page-head h1 { font-size: 22px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<aside>
+  <div class="brand">资深引擎开发成长路线</div>
+  <div class="brand-sub">Senior Engine Dev Roadmap · 12 Months</div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">总览</div>
+    <a href="#sec-00"><span class="num">00</span><span>总览与能力模型</span></a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">四阶段</div>
+    <a href="#sec-01"><span class="num">01</span><span>阶段一 · UE渲染管线与RHI定制</span></a>
+    <a href="#sec-02"><span class="num">02</span><span>阶段二 · Shader体系与光照材质</span></a>
+    <a href="#sec-03"><span class="num">03</span><span>阶段三 · 性能分析与优化方法论</span></a>
+    <a href="#sec-04"><span class="num">04</span><span>阶段四 · 前沿渲染技术专题</span></a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">执行体系</div>
+    <a href="#sec-05"><span class="num">05</span><span>实践项目与产出验收体系</span></a>
+    <a href="#sec-06"><span class="num">06</span><span>进度看板（巡检维护）</span></a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">速查</div>
+    <a href="#sec-cheat"><span class="num">▸</span><span>铁律与反模式速查</span></a>
+    <a href="#sec-src"><span class="num">▸</span><span>配套资料与来源</span></a>
+  </div>
+</aside>
+
+<main>
+  <header class="page-head">
+    <h1>资深引擎开发成长路线</h1>
+    <p>一份可执行的 12 个月学习-实践-产出计划，目标岗位为资深引擎/渲染开发程序员。四阶段推进：管线与 RHI → Shader 与光照材质 → 性能优化方法论 → 前沿技术专题，以 UE Vulkan RHI 新特性落地收尾。</p>
+    <div class="meta-row">
+      <span class="pill">6 篇</span>
+      <span class="pill">UE 5.8.2</span>
+      <span class="pill">RDG · RHI · Vulkan</span>
+      <span class="pill">Shader 变体治理</span>
+      <span class="pill">Unreal Insights · Nsight</span>
+      <span class="pill">Nanite · Lumen · VSM · VT</span>
+    </div>
+  </header>
+
+  <!-- ══ 总览 ══ -->
+  <section class="chapter" id="sec-00">
+    <div class="chapter-head"><h2>总览</h2></div>
+    <p class="chapter-desc">先定义「资深」长什么样，再排全年节奏。</p>
+    <div class="grid">
+
+      <a class="card" href="00-总览与能力模型.md">
+        <div class="card-top">
+          <span class="badge badge-idx">00</span>
+          <span class="badge badge-overview">OVERVIEW</span>
+        </div>
+        <h3>总览与能力模型</h3>
+        <ul>
+          <li>五大能力域：管线 / Shader / RHI / 性能 / 前沿判断</li>
+          <li>中级 vs 资深的<strong>判别线</strong>逐域对照</li>
+          <li>四阶段十二个月总路线 + 排序逻辑</li>
+          <li>与已有 8 个文档系列的<strong>教材复用关系</strong></li>
+          <li>每周 10~14h 节奏模板 + 三条铁律</li>
+          <li>12 个月度里程碑总表 + 风险对策</li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ 阶段一 ══ -->
+  <section class="chapter" id="sec-01">
+    <div class="chapter-head"><h2>阶段一（M1–M3）</h2></div>
+    <p class="chapter-desc">先建地图再下钻：主线 → RDG 实操 → Vulkan RHI 链路。</p>
+    <div class="grid">
+
+      <a class="card" href="01-阶段一-UE渲染管线与RHI定制.md">
+        <div class="card-top">
+          <span class="badge badge-idx">01</span>
+          <span class="badge badge-pipeline">PIPELINE · RHI</span>
+        </div>
+        <h3>UE渲染管线与RHI定制</h3>
+        <ul>
+          <li>M1：三时间尺度 + Pass 序列 + 三线程模型，自绘主线全图</li>
+          <li>M2：<strong>自定义 RDG Pass 插件</strong>（ISceneViewExtension，零引擎侵入）</li>
+          <li>M3：一次 Draw 从 RDG 到 <code>vkCmdDraw*</code> 的<strong>默写级链路</strong></li>
+          <li>VulkanRHI 微定制三选一：时间戳注入 / 扩展接入 / PSO 统计</li>
+          <li class="warn">坑：资源依赖漏声明 → 偶发花屏；改 RHI 必须标 CUSTOM</li>
+          <li>每个概念与 RenderToy FrameGraph <strong>双线对照</strong></li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ 阶段二 ══ -->
+  <section class="chapter" id="sec-02">
+    <div class="chapter-head"><h2>阶段二（M4–M6）</h2></div>
+    <p class="chapter-desc">从会写 Shader 到能治理数千个变体，再到光照方案选型。</p>
+    <div class="grid">
+
+      <a class="card" href="02-阶段二-Shader体系与光照材质.md">
+        <div class="card-top">
+          <span class="badge badge-idx">02</span>
+          <span class="badge badge-shader">SHADER · LIGHTING</span>
+        </div>
+        <h3>Shader体系与光照材质</h3>
+        <ul>
+          <li>M4：材质 → HLSL → ShaderMap → PSO 全链路 + 自定义 Shader 类型</li>
+          <li>M5：变体治理三段式——<strong>统计基线 → 裁剪 → PSO 预热</strong></li>
+          <li>M5：参数三级绑定机制 × SPIRV-Reflect <strong>双向核对工具</strong></li>
+          <li>M6：Lumen / GPU Lightmass / MegaLights 同场景对比 + 选型决策树</li>
+          <li class="warn">坑：公共 ush 改动触发全量重编；裁剪条件引用运行时状态 → PSO miss</li>
+          <li>Substrate 分层材质 + 材质性能审计清单</li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ 阶段三 ══ -->
+  <section class="chapter" id="sec-03">
+    <div class="chapter-head"><h2>阶段三（M7–M9）</h2></div>
+    <p class="chapter-desc">从会用工具到有方法论闭环：预算分解 → 假设 → 验证 → 固化。</p>
+    <div class="grid">
+
+      <a class="card" href="03-阶段三-性能分析与优化方法论.md">
+        <div class="card-top">
+          <span class="badge badge-idx">03</span>
+          <span class="badge badge-perf">PROFILING</span>
+        </div>
+        <h3>性能分析与优化方法论</h3>
+        <ul>
+          <li>优化闭环五步：预算分解 → 假设 → 最小验证 → 修复回归 → 防回退</li>
+          <li>M7：<strong>Unreal Insights</strong> 全工作流 + 三线程时序读图</li>
+          <li>M8：真实场景优化闭环，报告含<strong>失败假设</strong></li>
+          <li>M9：Nsight 指标反推法 ≥2 案例 + 移动端差异清单</li>
+          <li class="warn">反模式：编辑器测性能 / 用 % 汇报 / 只看均值 / 一次大改</li>
+          <li>性能预算表 + 每周自动回归 + PR 数字门禁</li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ 阶段四 ══ -->
+  <section class="chapter" id="sec-04">
+    <div class="chapter-head"><h2>阶段四（M10–M12）</h2></div>
+    <p class="chapter-desc">前沿专题按统一模板精读，以 Capstone 综合收束全年。</p>
+    <div class="grid">
+
+      <a class="card" href="04-阶段四-前沿渲染技术专题研读.md">
+        <div class="card-top">
+          <span class="badge badge-idx">04</span>
+          <span class="badge badge-frontier">FRONTIER · CAPSTONE</span>
+        </div>
+        <h3>前沿渲染技术专题研读与Capstone</h3>
+        <ul>
+          <li>六段式专题模板：问题 → 思想 → 细节 → UE 落地 → 量化 → 评估</li>
+          <li>M10：<strong>Nanite</strong>（cluster / 软件光栅 / VisBuffer / 流送）+ <strong>VSM</strong></li>
+          <li>M11：<strong>Lumen</strong> 数据流 + <strong>虚拟纹理</strong>反馈回路 + 纹理映射三选三</li>
+          <li>GDC/SIGGRAPH 精读清单（FrameGraph / Nanite / ReSTIR / MegaLights）</li>
+          <li>M12：<strong>Capstone</strong>：UE Vulkan RHI 新特性，四候选题 + 报告骨架</li>
+          <li class="good">验收：能就任一专题做 30 分钟分享并答出「代价是什么」</li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ 执行体系 ══ -->
+  <section class="chapter" id="sec-05">
+    <div class="chapter-head"><h2>执行体系（贯穿全年）</h2></div>
+    <p class="chapter-desc">计划不失败靠系统不靠意志力：项目载体、验收标准、复盘机制。</p>
+    <div class="grid">
+
+      <a class="card" href="05-实践项目与产出验收体系.md">
+        <div class="card-top">
+          <span class="badge badge-idx">05</span>
+          <span class="badge badge-system">SYSTEM</span>
+        </div>
+        <h3>实践项目与产出验收体系</h3>
+        <ul>
+          <li>三轨载体：UE 插件主战 / RenderToy 对照 / 工具链放大</li>
+          <li>产出总账：文档 ≥12 · 代码 ≥8 · 量化报告 ≥6 · 精读 ≥15</li>
+          <li>验收四级：<strong>L3 = 可运行代码 + 量化数据 + 文档三齐全</strong></li>
+          <li>月度复盘清单 + 欠账触发 <strong>48h 最小实验冲刺</strong></li>
+          <li>简历化表达模板：动作 + 技术栈 + 量化结果（数字占位后回填）</li>
+          <li>W0 环境准备清单：全绿后正式启动</li>
+        </ul>
+      </a>
+
+      <a class="card" id="sec-06" href="06-进度看板.md">
+        <div class="card-top">
+          <span class="badge badge-idx">06</span>
+          <span class="badge badge-system">BOARD</span>
+        </div>
+        <h3>进度看板（自动化巡检维护）</h3>
+        <ul>
+          <li>计划启动日 2026-10-07（W0）｜最近巡检 <strong>2026-10-10</strong></li>
+          <li>当前状态：W0 环境准备中，无滞后、无欠账</li>
+          <li>12 个里程碑状态总表 + 产出对账（全年累计）</li>
+          <li>本周行动项：<strong>W0 六项环境清单，全绿后阶段一启动</strong></li>
+          <li>巡检规则：只更新状态不重建计划；连续 2 周无产出触发 ⚠️</li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ 速查 ══ -->
+  <section class="chapter" id="sec-cheat">
+    <div class="chapter-head"><h2>速查</h2></div>
+    <p class="chapter-desc">执行中随时回来对照的两张卡。</p>
+    <div class="grid">
+
+      <div class="card" style="cursor:default">
+        <div class="card-top"><span class="badge badge-system">铁律</span></div>
+        <h3>全年三条铁律</h3>
+        <ul>
+          <li><strong>输入必产出</strong>：超 30 分钟的阅读必须留笔记，否则视为没读</li>
+          <li><strong>实验必量化</strong>：「感觉变快」必须配 RenderDoc/Insights 数字</li>
+          <li><strong>代码必可跑</strong>：每个成果可编译运行 + 附复现步骤</li>
+          <li class="good">汇报用 ms 不用 %；看 P95 不看均值</li>
+          <li class="good">先 bound 分类再选工具；一次只改一个变量</li>
+        </ul>
+      </div>
+
+      <div class="card" style="cursor:default">
+        <div class="card-top"><span class="badge badge-pipeline">反模式</span></div>
+        <h3>六个高频翻车点</h3>
+        <ul>
+          <li class="warn">源码阅读陷入细节黑洞 → 退回地图式阅读纪律</li>
+          <li class="warn">RenderToy 沉迷开新功能 → 只做对照性小实验</li>
+          <li class="warn">RDG 资源依赖漏声明 → 偶发花屏，极难排查</li>
+          <li class="warn">改公共 ush → 全量重编数千 Shader</li>
+          <li class="warn">编辑器里测性能 → 数据被编辑器开销淹没</li>
+          <li class="warn">改引擎源码不标 CUSTOM → 版本升级合并灾难</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ 来源 ══ -->
+  <section class="chapter" id="sec-src">
+    <div class="chapter-head"><h2>配套资料与来源</h2></div>
+    <p class="chapter-desc">本计划不重复造轮子，主教材复用工作区已有系列。</p>
+    <div class="grid">
+
+      <div class="card" style="cursor:default">
+        <div class="card-top"><span class="badge badge-overview">内部教材</span></div>
+        <h3>工作区已有文档系列</h3>
+        <ul>
+          <li><code>UE渲染源码导读文档/</code> → 阶段一主教材</li>
+          <li><code>UE5Shader系统文档/</code> → 阶段二主教材</li>
+          <li><code>实时渲染系统文档/</code> → 阶段一 Vulkan/RDG 对照</li>
+          <li><code>游戏性能分析文档/</code> → 阶段三方法论教材</li>
+          <li><code>Shader工具链文档/</code> → 阶段二反射深度补充</li>
+          <li><code>移动端GPU架构文档/</code> · <code>抗锯齿技术文档/</code> · <code>NPR技术文档/</code> → 阶段四选读</li>
+        </ul>
+      </div>
+
+      <div class="card" style="cursor:default">
+        <div class="card-top"><span class="badge badge-frontier">外部来源</span></div>
+        <h3>论文 · 演讲 · 官方文档</h3>
+        <ul>
+          <li>SIGGRAPH 2021《A Deep Dive into Nanite Virtualized Geometry》</li>
+          <li>GDC 2017 Frostbite FrameGraph（O'Donnell，本工作区有 PDF）</li>
+          <li>Epic 官方文档：RDG / SceneViewExtension / PSO Caching / Substrate</li>
+          <li>State of Unreal 2026 + UE 5.8 Release Notes（MegaLights / Lumen Lite）</li>
+          <li>版本事实：UE 5.8.2 为当前生产版（2026-08）；UE6 EA 预计 2027 年底</li>
+          <li class="warn">时效声明：cvar/源码路径以本地 UE 5.8.2 源码树为准</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <div class="src">资深引擎开发成长路线文档 · 6 篇 · 最后更新 2026-10-07</div>
+    <div>来源优先级：原始论文 / 厂商官方文档 &gt; 规范与 API 文档 &gt; 厂商演讲 &gt; 工程博客 &gt; 社区资料</div>
+  </footer>
+</main>
+
+<script>
+(function () {
+  var links  = Array.prototype.slice.call(document.querySelectorAll('aside a[href^="#"]'));
+  var cards  = Array.prototype.slice.call(document.querySelectorAll('a.card'));
+  var targets = links.map(function (a) {
+    return document.querySelector(a.getAttribute('href'));
+  });
+
+  function onScroll() {
+    var y = window.scrollY + 140;
+    var active = -1;
+    for (var i = 0; i < targets.length; i++) {
+      if (targets[i] && targets[i].offsetTop <= y) active = i;
+    }
+    links.forEach(function (a, i) { a.classList.toggle('active', i === active); });
+    cards.forEach(function (c) { c.classList.remove('active'); });
+  }
+
+  cards.forEach(function (c) {
+    c.addEventListener('click', function () {
+      cards.forEach(function (o) { o.classList.remove('active'); });
+      c.classList.add('active');
+    });
+  });
+
+  var ticking = false;
+  window.addEventListener('scroll', function () {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () { onScroll(); ticking = false; });
+  }, { passive: true });
+
+  onScroll();
+})();
+</script>
+
+</body>
+</html>
