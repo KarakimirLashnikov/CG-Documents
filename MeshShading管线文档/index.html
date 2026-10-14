@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mesh Shading 管线文档 — 导航</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-soft: #f7f8fa;
+    --bg-side: #fbfbfd;
+    --border: #e6e8eb;
+    --border-soft: #eef0f3;
+    --text: #1f2328;
+    --text-soft: #5a6470;
+    --text-mute: #8b949e;
+    --accent: #2f6feb;
+    --accent-soft: #eaf1fd;
+    --accent-2: #b7791f;
+    --accent-2-soft: #fdf6e3;
+    --danger: #c0392b;
+    --danger-soft: #fdeceb;
+    --ok: #1f7a4d;
+    --ok-soft: #e8f6ef;
+    --purple: #6b46c1;
+    --purple-soft: #f1ecfb;
+    --teal: #0f766e;
+    --teal-soft: #e6f4f2;
+    --radius: 10px;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+            "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── 侧边栏 ───────────────────────────────────────────────── */
+  aside {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 290px;
+    background: var(--bg-side);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 26px 20px 40px;
+  }
+
+  aside .brand {
+    font-size: 15px;
+    font-weight: 650;
+    letter-spacing: .01em;
+    padding-bottom: 4px;
+  }
+
+  aside .brand-sub {
+    font-size: 12px;
+    color: var(--text-mute);
+    font-family: var(--mono);
+    margin-bottom: 22px;
+  }
+
+  .nav-group {
+    margin-bottom: 20px;
+  }
+
+  .nav-group-title {
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+    margin-bottom: 8px;
+    padding-left: 2px;
+  }
+
+  aside a {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    padding: 6px 9px;
+    margin-bottom: 1px;
+    border-radius: 6px;
+    color: var(--text-soft);
+    text-decoration: none;
+    font-size: 13.5px;
+    line-height: 1.45;
+    border-left: 2px solid transparent;
+    transition: background .12s, color .12s, border-color .12s;
+  }
+
+  aside a:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+
+  aside a.active {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-left-color: var(--accent);
+    font-weight: 600;
+  }
+
+  aside a .num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-mute);
+    flex: 0 0 auto;
+    padding-top: 1px;
+  }
+
+  aside a.active .num { color: var(--accent); }
+
+  /* ── 主区 ─────────────────────────────────────────────────── */
+  main {
+    margin-left: 290px;
+    max-width: 1080px;
+    padding: 40px 48px 100px;
+  }
+
+  header.page-head {
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 34px;
+  }
+
+  header.page-head h1 {
+    margin: 0 0 8px;
+    font-size: 27px;
+    font-weight: 680;
+    letter-spacing: -.01em;
+  }
+
+  header.page-head p {
+    margin: 0;
+    color: var(--text-soft);
+    font-size: 14.5px;
+    max-width: 640px;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .pill {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+  }
+
+  /* ── 章节 ─────────────────────────────────────────────────── */
+  section.chapter {
+    margin-bottom: 44px;
+    scroll-margin-top: 24px;
+  }
+
+  .chapter-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .chapter-head h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 650;
+  }
+
+  .chapter-desc {
+    font-size: 13px;
+    color: var(--text-mute);
+    margin: 0 0 16px;
+  }
+
+  /* ── 卡片网格 ─────────────────────────────────────────────── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 14px;
+  }
+
+  a.card {
+    display: block;
+    padding: 18px 20px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color .14s, box-shadow .14s, transform .14s;
+    scroll-margin-top: 24px;
+  }
+
+  a.card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 3px 14px rgba(47, 111, 235, .10);
+    transform: translateY(-1px);
+  }
+
+  a.card.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 9px;
+  }
+
+  .badge {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    padding: 2px 7px;
+    border-radius: 4px;
+    flex: 0 0 auto;
+  }
+
+  .badge-idx {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+  }
+
+  .badge-origin  { background: var(--accent-soft);  color: var(--accent); }
+  .badge-flow    { background: var(--ok-soft);      color: var(--ok); }
+  .badge-design  { background: var(--accent-2-soft);color: var(--accent-2); }
+  .badge-tool    { background: var(--purple-soft);  color: var(--purple); }
+  .badge-bind    { background: var(--teal-soft);    color: var(--teal); }
+  .badge-perf    { background: var(--danger-soft);  color: var(--danger); }
+  .badge-cheat   { background: var(--teal-soft);    color: var(--teal); }
+
+  .card h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 620;
+    line-height: 1.4;
+  }
+
+  .card ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .card ul li {
+    position: relative;
+    padding-left: 14px;
+    font-size: 13px;
+    color: var(--text-soft);
+    line-height: 1.6;
+    margin-bottom: 3px;
+  }
+
+  .card ul li::before {
+    content: "";
+    position: absolute;
+    left: 3px;
+    top: 9px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+
+  .card ul li strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .card ul li.warn::before { background: var(--danger); }
+  .card ul li.good::before { background: var(--ok); }
+
+  /* ── 页脚 ─────────────────────────────────────────────────── */
+  footer {
+    margin-top: 60px;
+    padding-top: 22px;
+    border-top: 1px solid var(--border);
+    font-size: 12.5px;
+    color: var(--text-mute);
+    font-family: var(--mono);
+    line-height: 1.9;
+  }
+
+  footer .src { color: var(--text-soft); }
+
+  /* ── 响应式 ───────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    aside {
+      position: static;
+      width: auto;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      padding: 20px 20px 24px;
+    }
+    main { margin-left: 0; padding: 28px 20px 70px; }
+    header.page-head h1 { font-size: 22px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<aside>
+  <div class="brand">Mesh Shading 管线</div>
+  <div class="brand-sub">VK_EXT_mesh_shader · Meshlet · Bindless</div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">总览</div>
+    <a href="#sec-00"><span class="num">00</span><span>总览与地图</span></a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">原理</div>
+    <a href="#sec-01"><span class="num">01</span><span>Mesh 管线的起源与设计目标</span></a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">工程</div>
+    <a href="#sec-02"><span class="num">02</span><span>使用流程与传统管线迁移</span></a>
+    <a href="#sec-03"><span class="num">03</span><span>Meshlet 结构设计与权衡</span></a>
+    <a href="#sec-04"><span class="num">04</span><span>meshoptimizer 理念与模块</span></a>
+    <a href="#sec-05"><span class="num">05</span><span>描述符与 Bindless 统一 DrawCall</span></a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">调优</div>
+    <a href="#sec-06"><span class="num">06</span><span>性能优化与常见隐患</span></a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-title">速查</div>
+    <a href="#sec-cheat"><span class="num">▸</span><span>速查卡与误区</span></a>
+    <a href="#sec-src"><span class="num">▸</span><span>事实来源与时效</span></a>
+  </div>
+</aside>
+
+<main>
+  <header class="page-head">
+    <h1>Mesh Shading 管线文档</h1>
+    <p>以 Vulkan <code>VK_EXT_mesh_shader</code> 为核心：从"为什么要换掉 IA/VS"讲起，落到 meshlet 数据、meshoptimizer 离线流水线、Bindless 统一 DrawCall，最后给出性能隐患的识别与对策。</p>
+    <div class="meta-row">
+      <span class="pill">7 篇</span>
+      <span class="pill">VK_EXT_mesh_shader（rev1 / 2022-03）</span>
+      <span class="pill">NGG · Task/Mesh · Meshlet</span>
+      <span class="pill">meshoptimizer · Bindless · GPU-Driven</span>
+      <span class="pill">2026-10 状态</span>
+    </div>
+  </header>
+
+  <!-- ══ 总览 ══ -->
+  <section class="chapter" id="sec-00">
+    <div class="chapter-head"><h2>总览</h2></div>
+    <p class="chapter-desc">先拿到地图：三条主线、术语口径、版本时效。</p>
+    <div class="grid">
+
+      <a class="card" href="00-总览.md">
+        <div class="card-top">
+          <span class="badge badge-idx">00</span>
+          <span class="badge badge-origin">OVERVIEW</span>
+        </div>
+        <h3>总览：Mesh Shading 管线（Vulkan 视角）</h3>
+        <ul>
+          <li>换了它之后，<strong>六件事同时改变</strong>（复用/装配/剔除/LOD/输入/draw）</li>
+          <li>三条主线：几何变计算、meshlet 是数据契约、CPU 开销要常量化</li>
+          <li>版本时效：<strong>VK_EXT_mesh_shader 至今仍非 Vulkan 核心</strong>（1.4.341 refpage）</li>
+          <li>术语统一：meshlet / cluster / payload / shader export / ACMR</li>
+          <li class="warn">八个必须先纠正的说法</li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ 原理 ══ -->
+  <section class="chapter" id="sec-01">
+    <div class="chapter-head"><h2>原理</h2></div>
+    <p class="chapter-desc">它取代了什么，硬件为什么欢迎它。</p>
+    <div class="grid">
+
+      <a class="card" href="01-Mesh管线的起源与设计目标.md">
+        <div class="card-top">
+          <span class="badge badge-idx">01</span>
+          <span class="badge badge-origin">ORIGIN · NGG</span>
+        </div>
+        <h3>Mesh 管线的起源与设计目标</h3>
+        <ul>
+          <li>硬件内部早已在做：<strong>AMD NGG primitive subgroup ≈ meshlet</strong></li>
+          <li>顶点复用实测：bunny duplication <strong>4.13 → 1.40 → 1.24</strong></li>
+          <li>Khronos 为什么否掉"给 VS 加分组"与"用 GS 顶替"两个方案</li>
+          <li>输出区<strong>启动前预留</strong>：声明上限直接决定占用率</li>
+          <li>RDNA2 隐藏线程 vs RDNA3 <code>exp</code> wave 级偏移（N=128）</li>
+          <li class="good">Vulkan API 事实清单：features / properties / 三维派发 / 两个 query</li>
+          <li class="warn">反模式：用 Mesh Shader 重造固定功能管线</li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ 工程 ══ -->
+  <section class="chapter" id="sec-02">
+    <div class="chapter-head"><h2>工程</h2></div>
+    <p class="chapter-desc">端到端流程、数据怎么切、命令怎么发。</p>
+    <div class="grid">
+
+      <a class="card" href="02-使用流程与传统管线迁移.md">
+        <div class="card-top">
+          <span class="badge badge-idx">02</span>
+          <span class="badge badge-flow">PIPELINE</span>
+        </div>
+        <h3>使用流程与传统管线迁移</h3>
+        <ul>
+          <li>离线 → 运行时的<strong>完整流程图</strong>与顺序纪律</li>
+          <li>Vulkan + GLSL 骨架：<code>pVertexInputState = NULL</code>、三维派发</li>
+          <li>VB/IB 三种组织：间接索引 / 迷你 VB / 压缩 GTS</li>
+          <li>微索引 8-bit 与<strong>4 字节对齐</strong>打包</li>
+          <li>剔除迁移：物体 → 簇（Task）→ 图元（Mesh），三类簇剔除对照</li>
+          <li>LOD 迁移：per-object → per-cluster，<code>lod_error</code> + 屏幕空间误差</li>
+          <li class="warn">回退陷阱：微索引是簇内局部的，不能直接 <code>DrawIndexed</code></li>
+        </ul>
+      </a>
+
+      <a class="card" href="03-Meshlet结构设计与权衡.md">
+        <div class="card-top">
+          <span class="badge badge-idx">03</span>
+          <span class="badge badge-design">MESHLET</span>
+        </div>
+        <h3>Meshlet 结构设计与权衡</h3>
+        <ul>
+          <li>三条硬约束 → 顶点冗余的来源（周长/面积）</li>
+          <li>三角关系：簇变大 = 冗余↓ / 剔除精度↓ / export 占用↑</li>
+          <li><code>cone_weight</code>：0（不用锥剔除）· 0.25（默认）· →1（剔除优先）</li>
+          <li>规律 <strong>V &lt; T &lt; 2V</strong>；AMD 128/256+128 线程 vs NVIDIA 64/126</li>
+          <li>126 的由来：<code>3×126+4 = 382 ≤ 384</code>（128B 粒度）</li>
+          <li>分配粒度（常 32）→ V/T 取其整数倍</li>
+          <li class="good">必做后处理：裁剪超额数组 + <code>optimizeMeshlet</code></li>
+        </ul>
+      </a>
+
+      <a class="card" href="04-meshoptimizer设计理念与模块.md">
+        <div class="card-top">
+          <span class="badge badge-idx">04</span>
+          <span class="badge badge-tool">MESHOPTIMIZER</span>
+        </div>
+        <h3>meshoptimizer 设计理念与关键模块</h3>
+        <ul>
+          <li>五条理念：离线一次、近似可测、顺序敏感、零依赖、有损显式化</li>
+          <li>流水线顺序图 + <strong>三条顺序红线</strong></li>
+          <li>三个指标：ACMR / overfetch / overdraw（最优值与分析器）</li>
+          <li>简化取舍：保拓扑 vs <code>Sloppy</code>（快 5–6×）；选项位掩码</li>
+          <li>压缩：2–4×（顶点）/ 5–6×（索引），codec 无损、量化才有损</li>
+          <li>四个 meshlet builder：默认 / Scan / Flex / Spatial(SAH)</li>
+          <li class="warn">工程纪律：padding 清零、stride 4 的倍数、pin 编码版本</li>
+        </ul>
+      </a>
+
+      <a class="card" href="05-描述符与Bindless统一DrawCall.md">
+        <div class="card-top">
+          <span class="badge badge-idx">05</span>
+          <span class="badge badge-bind">BINDLESS</span>
+        </div>
+        <h3>描述符与 Bindless 统一 DrawCall</h3>
+        <ul>
+          <li>载体选择矩阵：SSBO / UBO / BDA / push constant / IUB</li>
+          <li>Bindless 三件套：descriptor indexing flags + <code>nonuniformEXT</code> + 大 pool</li>
+          <li>set 划分：set0 每帧 ×3、set1 几何、set2 材质（整帧<strong>只绑一次</strong>）</li>
+          <li>统一 DrawCall 四层：direct → multi-draw → 全场一次 → DGC</li>
+          <li class="good">stride &gt; 12 可在 indirect 记录间穿插每 draw 数据</li>
+          <li>PSO 影响：<strong>不再需要顶点输入布局</strong>，变体数反而下降</li>
+          <li class="warn">四个高危点：更新时序、空槽、缺 nonuniform、对齐</li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ 调优 ══ -->
+  <section class="chapter" id="sec-06">
+    <div class="chapter-head"><h2>调优</h2></div>
+    <p class="chapter-desc">现象 → 成因 → 识别 → 对策。</p>
+    <div class="grid">
+
+      <a class="card" href="06-性能优化与常见隐患.md">
+        <div class="card-top">
+          <span class="badge badge-idx">06</span>
+          <span class="badge badge-perf">PERF · PITFALLS</span>
+        </div>
+        <h3>性能优化与常见隐患</h3>
+        <ul>
+          <li>五类隐患：发散 / 访存 / 占有率 / 寄存器 / SMEM</li>
+          <li class="warn">wave64 → wave32 切换会让占用率<strong>假性升高</strong></li>
+          <li>AMD 关键结论：简单 MS <strong>~25% 占用即可打满光栅器</strong></li>
+          <li>寄存器：压低 <code>max_vertices/primitives</code> 声明最有效</li>
+          <li>SMEM 与 <strong>payload 共享预算</strong>；Bank 冲突的 padding / swizzle</li>
+          <li>度量：两个 statistic 位 + <code>MESH_PRIMITIVES_GENERATED</code> + RGP/NSight</li>
+          <li class="good">五步排查顺序 + 15 条优化清单（标了优先级）</li>
+        </ul>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- ══ 速查 ══ -->
+  <section class="chapter" id="sec-cheat">
+    <div class="chapter-head"><h2>速查</h2></div>
+    <p class="chapter-desc">贴在工位上的两张卡。</p>
+    <div class="grid">
+
+      <div class="card" style="cursor:default">
+        <div class="card-top"><span class="badge badge-cheat">参数</span></div>
+        <h3>先按这套默认值起手</h3>
+        <ul>
+          <li>线程组 = <code>V̂</code>；i 号线程写 i 号元素，超出用<strong>步长</strong></li>
+          <li>NVIDIA：<code>V=64, T=126</code>；AMD：<code>V=128, T=256</code> + 128 线程</li>
+          <li><code>max_vertices/max_primitives</code> = 实际 meshlet 上限，<strong>不留余量</strong></li>
+          <li>微索引：<code>uint8</code>，每个三角形打包成 <strong>4 字节</strong></li>
+          <li><code>cone_weight</code>：不用锥剔除 = 0，否则 0.25</li>
+          <li>Task payload：<strong>&lt; 108 B</strong>（退而求其次 &lt; 236 B）</li>
+          <li>图元剔除优先 <code>CullPrimitiveEXT</code>，不是紧凑化</li>
+          <li class="good">所有设备相关数值一律<strong>运行时查询</strong>，禁止硬编码</li>
+        </ul>
+      </div>
+
+      <div class="card" style="cursor:default">
+        <div class="card-top"><span class="badge badge-perf">误区</span></div>
+        <h3>八个必须纠正的说法</h3>
+        <ul>
+          <li class="warn">「Mesh Shader 一定更快」→ 小场景/简单几何可能更慢</li>
+          <li class="warn">「Vulkan 的 draw 是 1D 的」→ EXT 是<strong>三维</strong>，1D 是 NV 形态</li>
+          <li class="warn">「剔了图元就省了空间」→ 输出区按声明上限预留</li>
+          <li class="warn">「占用率越高越好」→ 简单 MS 约 25% 就够</li>
+          <li class="warn">「占有率高 = 优化有效」→ 可能是 wave32 的假象</li>
+          <li class="warn">「SMEM 用得越多越快」→ 它与 payload 共享预算，直接压占用率</li>
+          <li class="warn">「Mesh 自动减少 draw call」→ 靠的是 Bindless + indirect</li>
+          <li class="warn">「meshlet 数据能直接当 IB 画」→ 是簇内局部索引，必须线性化</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ 来源 ══ -->
+  <section class="chapter" id="sec-src">
+    <div class="chapter-head"><h2>事实来源与时效</h2></div>
+    <p class="chapter-desc">版本敏感内容一律以官方为准，文中已标注时效。</p>
+    <div class="grid">
+
+      <div class="card" style="cursor:default">
+        <div class="card-top"><span class="badge badge-origin">来源 A</span></div>
+        <h3>官方规范与厂商文档</h3>
+        <ul>
+          <li>Khronos refpage：<code>VK_EXT_mesh_shader</code>（rev1, 2022-03-08；1.4.341 仍为扩展）</li>
+          <li>Khronos proposal 文档：problem statement / solution space / properties</li>
+          <li>AMD GPUOpen《Mesh shaders on AMD RDNA™ graphics cards》五篇（2023-12 起）</li>
+          <li>AMD《Mesh Shaders in AMD RDNA 3 Architecture》(GDC 2024)</li>
+          <li>NVIDIA《Introduction to Turing Mesh Shaders》/《Advanced API Performance: Mesh Shaders》</li>
+          <li>meshoptimizer（zeux/meshoptimizer）README 与头文件</li>
+          <li>Khronos Vulkan Webinar《How to use VK_EXT_mesh_shader》(2022-10)</li>
+        </ul>
+      </div>
+
+      <div class="card" style="cursor:default">
+        <div class="card-top"><span class="badge badge-design">时效标注</span></div>
+        <h3>2026-10 核实状态</h3>
+        <ul>
+          <li>Vulkan 1.4（2024-12）提升了 push descriptor 等一批扩展，<strong>未包含 mesh shader</strong></li>
+          <li>设备能力示例值（256/256、granularity 32、preferred 32 等）来自公开设备属性转储，<strong>仅作示例</strong></li>
+          <li>Nanite 的 GTS 解压"只在流式加载后做一次"为 2021 年公开口径，以 Epic 官方最新资料为准</li>
+          <li>meshoptimizer API 名称与选项随版本演进（v0.23+ 才有 vertex codec v1），以所用版本头文件为准</li>
+          <li>厂商推荐尺寸（64/126 vs 128/256）是<strong>建议值</strong>，最终以实测为准</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <div class="src">Mesh Shading 管线文档 · 7 篇 · 最后更新 2026-10-14</div>
+    <div>来源优先级：Khronos 规范/refpage &gt; 厂商官方文档与演讲 &gt; 库 README/头文件 &gt; 工程博客 &gt; 社区资料（均标注时效）</div>
+  </footer>
+</main>
+
+<script>
+(function () {
+  var links  = Array.prototype.slice.call(document.querySelectorAll('aside a[href^="#"]'));
+  var cards  = Array.prototype.slice.call(document.querySelectorAll('a.card'));
+  var targets = links.map(function (a) {
+    return document.querySelector(a.getAttribute('href'));
+  });
+
+  function onScroll() {
+    var y = window.scrollY + 140;
+    var active = -1;
+    for (var i = 0; i < targets.length; i++) {
+      if (targets[i] && targets[i].offsetTop <= y) active = i;
+    }
+    links.forEach(function (a, i) { a.classList.toggle('active', i === active); });
+    cards.forEach(function (c) { c.classList.remove('active'); });
+  }
+
+  cards.forEach(function (c) {
+    c.addEventListener('click', function () {
+      cards.forEach(function (o) { o.classList.remove('active'); });
+      c.classList.add('active');
+    });
+  });
+
+  var ticking = false;
+  window.addEventListener('scroll', function () {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () { onScroll(); ticking = false; });
+  }, { passive: true });
+
+  onScroll();
+})();
+</script>
+
+</body>
+</html>
